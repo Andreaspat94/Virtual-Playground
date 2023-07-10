@@ -5,7 +5,7 @@
 Shader "Custom/Outline" {
 	Properties{
 		_MainTex("MainTex", 2D) = "white" {}
-	_Outline("_Outline", Range(0,0.1)) = 0
+		_Outline("_Outline", Range(0,0.1)) = 0
 		_OutlineColor("Color", Color) = (1, 1, 1, 1)
 	}
 		SubShader{

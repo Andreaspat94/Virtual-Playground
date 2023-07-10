@@ -24,7 +24,7 @@ public class OnInteraction : MonoBehaviour
     public void Disable()
     {
         isActive = false;
-
+        
         if (FocusLostEvent != null)
         {
             FocusLostEvent.Invoke();
