@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using Oculus.Interaction;
+using OculusSampleFramework;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +23,12 @@ public class StartupTutorial : MonoBehaviour
         public string instructionText = null;
     }
 
+    private GameObject player;
+    private GameObject leftRay;
+    private GameObject rightRay;
+    private String pathToLeftRay = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/HandRayInteractorLeft";
+    private String pathToRightRay = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/HandRayInteractorRight";
+    private Outline outlineScript;
     public List<Wavs> wayPointList = new List<Wavs>();
 
     [Header ("Things to Hide at startup")]
@@ -29,7 +38,6 @@ public class StartupTutorial : MonoBehaviour
     public GameObject[] badPlayground;
 
     public bool isActive = true;
-    bool doRayCast    = false;
     bool isSayingInfo = false;
     public Text instructionTextUI    = null;
     public ModelSwitcher owlAnimator = null;
@@ -43,12 +51,12 @@ public class StartupTutorial : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
          if (other.tag == "Player")
-            doRayCast = true;
+            SwitchRayInteractors();
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Player")
-            doRayCast = false;
+            SwitchRayInteractors();
     }
 
     void Awake()
@@ -63,6 +71,8 @@ public class StartupTutorial : MonoBehaviour
             foreach (GameObject gs in badPlayground)
                 gs.SetActive(true);
         }
+        // track ray interactors and switch them off
+        TrackRayInteractors();
     }
 
     // Use this for initialization
@@ -104,43 +114,44 @@ public class StartupTutorial : MonoBehaviour
         gr.alpha = 1;
     }
 
+    void TrackRayInteractors()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            leftRay = player.transform.Find(pathToLeftRay).gameObject;
+            rightRay = player.transform.Find(pathToRightRay).gameObject;
+
+            leftRay.SetActive(false);
+            rightRay.SetActive(false);
+        }
+    }
+
+    void SwitchRayInteractors()
+    {
+        leftRay.SetActive(!leftRay.activeSelf);
+        rightRay.SetActive(!rightRay.activeSelf);
+    }
+
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
     {
-        doRayCast = false;
         isSayingInfo = true;
         GetComponent<Collider>().enabled = false;
         owlAnimator.GetComponent<Collider>().enabled = false;
+
+        //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
+        GameObject.Find("OwlOutline").SetActive(false);        
+    
+        SwitchRayInteractors();
         CheckerManager.Instance.IssueInterationEvents(null);
         StartCoroutine(PlaySounds());
+        
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if (doRayCast)
-        {
-            //Ray to middle of screen
-            Vector3 middleScreen = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
-            Ray middleRay = Camera.main.ScreenPointToRay(middleScreen);
-            RaycastHit hit;
-
-            if (Physics.Raycast(middleRay, out hit, 1, interactionObjectsMask, QueryTriggerInteraction.Ignore))
-            {
-                if (hit.transform.tag == "InteractionGeneralObject")
-                {
-                    //if we got a hit and its an interaction cube
-                    OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
-                    CheckerManager.Instance.IssueInterationEvents(interactionObj);
-                }
-            }
-            else
-            {
-                //Issue a EventLost event on current Interaction Object
-                CheckerManager.Instance.IssueInterationEvents(null);
-            }
-        }
-
         //ON Q skip intro
         if (Input.GetKeyDown(KeyCode.Escape))
         {

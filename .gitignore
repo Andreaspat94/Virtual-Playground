@@ -3,9 +3,12 @@
 # Unity generated #
 # =============== #
 [Tt]emp/
-#[Oo]bj/
+[Oo]bj/
 [Bb]uild
+/[Bb]uilds/
 [Ll]ibrary/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
 sysinfo.txt
 *.stackdump
  
@@ -14,6 +17,7 @@ sysinfo.txt
 # ============================================= #
 [Ee]xported[Oo]bj/
 .vs/
+/.consulo/
 /*.userprefs
 /*.csproj
 /*.pidb
@@ -23,6 +27,12 @@ sysinfo.txt
 /*.unityproj
 /*.booproj
 /.idea*/
+/*.tmp
+/*.svd
+/*.pdb
+/*.mdb
+/*.opendb
+/*.VC.db
  
 # ============ #
 # OS generated #
@@ -37,3 +47,15 @@ ehthumbs.db
 
 App/
 App2/
+
+# Unity3D generated meta files
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Builds
+*.apk
+*.unitypackage
+
+# Crashlytics generated file
+crashlytics-build.properties
