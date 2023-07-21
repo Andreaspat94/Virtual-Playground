@@ -1,4 +1,4 @@
-﻿using Oculus.Interaction;
+﻿ using Oculus.Interaction;
 using OculusSampleFramework;
 using System;
 using System.Collections;
@@ -15,9 +15,9 @@ public class StartupTutorial : MonoBehaviour
         public string audioname;
         public float duration = 0;
         public float pause = 0;
-        public KeyCode keyToProceed = KeyCode.None;
+        public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
-        public KeyCode secondkeyToProceed = KeyCode.None;
+        public OVRInput.Button secondkeyToProceed = OVRInput.Button.None;
         public UnityEvent OnSecondKeyEvent;
         public string keyInstructionText = null;
         public string instructionText = null;
@@ -152,8 +152,8 @@ public class StartupTutorial : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        //ON Q skip intro
-        if (Input.GetKeyDown(KeyCode.Escape))
+        //Press 'Y' to skip intro
+        if (OVRInput.GetDown(OVRInput.Button.Four))
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
@@ -214,7 +214,7 @@ public class StartupTutorial : MonoBehaviour
                 owlAnimator.PauseAnimation();
 
             //Wait until key is pressed
-            if (wa.keyToProceed != KeyCode.None)
+            if (wa.keyToProceed != OVRInput.Button.None)
             {
                 //Display text to inform about key press
                 if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionTextUI)
@@ -224,7 +224,7 @@ public class StartupTutorial : MonoBehaviour
                 }
 
                 //wait unti key pressed
-                while (!Input.GetKeyDown(wa.keyToProceed))
+                while (!OVRInput.GetDown(wa.keyToProceed))
                     yield return null;
 
                 //Issue event that key was pressed
@@ -233,10 +233,10 @@ public class StartupTutorial : MonoBehaviour
             }
 
             //Wait for econd keypress
-            if (wa.secondkeyToProceed != KeyCode.None)
+            if (wa.secondkeyToProceed != OVRInput.Button.None)
             {
                 yield return new WaitForSeconds(2);
-                while (!Input.GetKeyDown(wa.secondkeyToProceed))
+                while (!OVRInput.GetDown(wa.secondkeyToProceed))
                     yield return null;
 
                 //Issue the event for second key event

@@ -7,7 +7,10 @@ using UnityEngine.Events;
 public class CheckerManager : Singleton<CheckerManager>
 {
     [Header("Info needed to switch into cube interaction mode")]
-    public UnityStandardAssets.Characters.FirstPerson.FirstPersonController fps_controller;
+    // public UnityStandardAssets.Characters.FirstPerson.FirstPersonController fps_controller;
+    public GameObject fps_controller;
+    private SimpleCapsuleWithStickMovement movementScript;
+    private Rigidbody rb;
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
     ViewModes previousViewMode;
@@ -164,6 +167,9 @@ public class CheckerManager : Singleton<CheckerManager>
     void Start()
     {
         activeCubeIndex = -1;
+        fps_controller = GameObject.FindGameObjectWithTag("Player");
+        movementScript = fps_controller.GetComponent<SimpleCapsuleWithStickMovement>();
+        rb = fps_controller.GetComponent<Rigidbody>();
 
         //CreateStatic cubes from initial Chekker array
         for (int x = 0; x < YDim; x++)
@@ -563,23 +569,28 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ZoomIn()
     {
         fps_controller.transform.position = previousFPSPos;
-        fps_controller.enabled = true; //fps_controller.RestoreGroundForce();
+        movementScript.enabled = true; //fps_controller.RestoreGroundForce();
+        rb.useGravity = true;
         isZoomOutViewMode = false;
         if (staticObjects) staticObjects.SetActive(true);
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
         AudioManager.Instance.playSound("goGround");
-        //fps_controller.transform.rotation = Quaternion.identity;
-        //Camera.main.transform.localRotation = Quaternion.identity;
+        fps_controller.transform.rotation = Quaternion.identity;
+        Camera.main.transform.localRotation = Quaternion.identity;
     }
 
     public void ZoomOut()
     {
-        fps_controller.enabled = false; //fps_controller.ZeroGroundForce();
+        //disable player movement
+        movementScript.enabled = false; 
+        rb.useGravity = false;
         isZoomOutViewMode = true;
         if (staticObjects) staticObjects.SetActive(false);
         if (talkingBirds) talkingBirds.SetActive(false);
         if (owlBird) owlBird.SetActive(false);
+
+        
         previousFPSPos = fps_controller.transform.position;
         fps_controller.transform.position = vantagePoint.position;
         fps_controller.transform.rotation = Quaternion.Euler(90, 0, 0);
@@ -611,7 +622,7 @@ public class CheckerManager : Singleton<CheckerManager>
             if (ui_escape)
             {
                 ui_escape.SetActive(true);
-                ShowCursor(true);
+                // ShowCursor(true);
             }
         }
 
@@ -622,7 +633,7 @@ public class CheckerManager : Singleton<CheckerManager>
         countCoveredBlocksUI();
         
         //Switch to and from zoom mode
-        if (Input.GetKeyDown(KeyCode.V))
+        if (OVRInput.GetDown(OVRInput.Button.One))
         {
             if (isZoomOutViewMode)
             {
@@ -635,7 +646,7 @@ public class CheckerManager : Singleton<CheckerManager>
         }
 
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
-        if (Input.GetKeyDown(KeyCode.Space) && 
+        if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 )
         {
@@ -873,25 +884,25 @@ public class CheckerManager : Singleton<CheckerManager>
         UnityEngine.SceneManagement.SceneManager.LoadScene(name);
     }
 
-    public void ShowCursor(bool val)
-    {
-        //if zoomed out do nothing
-        if (isZoomOutViewMode)
-            return;
+    // public void ShowCursor(bool val)
+    // {
+    //     //if zoomed out do nothing
+    //     if (isZoomOutViewMode)
+    //         return;
 
-        if (val)
-        {
-            fps_controller.enabled = false;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;
-        }
-        else
-        {
-            fps_controller.enabled = true;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-    }
+    //     if (val)
+    //     {
+    //         fps_controller.enabled = false;
+    //         Cursor.lockState = CursorLockMode.None;
+    //         Cursor.lockState = CursorLockMode.Confined;
+    //         Cursor.visible = true;
+    //     }
+    //     else
+    //     {
+    //         fps_controller.enabled = true;
+    //         Cursor.lockState = CursorLockMode.None;
+    //         Cursor.lockState = CursorLockMode.Locked;
+    //         Cursor.visible = false;
+    //     }
+    // }
 }
