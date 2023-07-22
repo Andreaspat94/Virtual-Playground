@@ -7,10 +7,6 @@ using UnityEngine.Events;
 public class CheckerManager : Singleton<CheckerManager>
 {
     [Header("Info needed to switch into cube interaction mode")]
-    // public UnityStandardAssets.Characters.FirstPerson.FirstPersonController fps_controller;
-    public GameObject fps_controller;
-    private SimpleCapsuleWithStickMovement movementScript;
-    private Rigidbody rb;
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
     ViewModes previousViewMode;
@@ -76,6 +72,11 @@ public class CheckerManager : Singleton<CheckerManager>
 
     [Header("Is Manager Active")]
     public bool isActive = false;
+
+    private GameObject fps_controller;
+    private SimpleCapsuleWithStickMovement movementScript;
+    private Rigidbody rb;
+    private bool isExitViewModeOn;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -615,14 +616,21 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         if (!isActive)
             return;
-
+        
         //ON esc show ui to select to go to menu
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (OVRInput.GetDown(OVRInput.Button.Start))
         {
-            if (ui_escape)
+            if (ui_escape && !isExitViewModeOn)
             {
                 ui_escape.SetActive(true);
-                // ShowCursor(true);
+                isExitViewModeOn = true;
+                movementScript.enabled = false;
+            }
+            else
+            {
+                ui_escape.SetActive(false);
+                isExitViewModeOn = false;
+                movementScript.enabled = true;
             }
         }
 
@@ -633,7 +641,7 @@ public class CheckerManager : Singleton<CheckerManager>
         countCoveredBlocksUI();
         
         //Switch to and from zoom mode
-        if (OVRInput.GetDown(OVRInput.Button.One))
+        if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn)
         {
             if (isZoomOutViewMode)
             {
@@ -648,7 +656,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 )
+            activeCubeIndex == -1 && !isExitViewModeOn)
         {
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)

@@ -1,4 +1,4 @@
-﻿ using Oculus.Interaction;
+﻿using Oculus.Interaction;
 using OculusSampleFramework;
 using System;
 using System.Collections;

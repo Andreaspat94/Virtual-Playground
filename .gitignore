@@ -5,10 +5,10 @@
 [Tt]emp/
 [Oo]bj/
 [Bb]uild
-/[Bb]uilds/
+[Bb]uilds/
 [Ll]ibrary/
-/[Ll]ogs/
-/[Mm]emoryCaptures/
+[Ll]ogs/
+[Mm]emoryCaptures/
 sysinfo.txt
 *.stackdump
  
