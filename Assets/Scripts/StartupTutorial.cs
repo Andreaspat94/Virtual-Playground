@@ -1,6 +1,4 @@
-﻿using Oculus.Interaction;
-using OculusSampleFramework;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -112,6 +110,8 @@ public class StartupTutorial : MonoBehaviour
         instructionTextUI.gameObject.SetActive(false);
         CanvasGroup gr = instructionTextUI.GetComponent<CanvasGroup>();
         gr.alpha = 1;
+        // the owl model switcher was turned off when tutorial ends for some reason. This line of code solves this issue.
+        owlAnimator.gameObject.SetActive(true);
     }
 
     void TrackRayInteractors()
@@ -157,7 +157,7 @@ public class StartupTutorial : MonoBehaviour
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
-            StartGame();
+            StartGame();            
         }
     }
 

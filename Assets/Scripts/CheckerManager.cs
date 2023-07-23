@@ -891,26 +891,4 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(name);
     }
-
-    // public void ShowCursor(bool val)
-    // {
-    //     //if zoomed out do nothing
-    //     if (isZoomOutViewMode)
-    //         return;
-
-    //     if (val)
-    //     {
-    //         fps_controller.enabled = false;
-    //         Cursor.lockState = CursorLockMode.None;
-    //         Cursor.lockState = CursorLockMode.Confined;
-    //         Cursor.visible = true;
-    //     }
-    //     else
-    //     {
-    //         fps_controller.enabled = true;
-    //         Cursor.lockState = CursorLockMode.None;
-    //         Cursor.lockState = CursorLockMode.Locked;
-    //         Cursor.visible = false;
-    //     }
-    // }
 }
