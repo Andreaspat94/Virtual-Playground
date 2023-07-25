@@ -26,7 +26,6 @@ public class StartupTutorial : MonoBehaviour
     private GameObject rightRay;
     private String pathToLeftRay = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/HandRayInteractorLeft";
     private String pathToRightRay = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/HandRayInteractorRight";
-    private Outline outlineScript;
     public List<Wavs> wayPointList = new List<Wavs>();
 
     [Header ("Things to Hide at startup")]
@@ -37,7 +36,7 @@ public class StartupTutorial : MonoBehaviour
 
     public bool isActive = true;
     bool isSayingInfo = false;
-    public Text instructionTextUI    = null;
+    public Text instructionTextUI = null;
     public ModelSwitcher owlAnimator = null;
 
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
@@ -49,12 +48,12 @@ public class StartupTutorial : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
          if (other.tag == "Player")
-            SwitchRayInteractors();
+            SwitchOnOffRayInteractors();
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Player")
-            SwitchRayInteractors();
+            SwitchOnOffRayInteractors();
     }
 
     void Awake()
@@ -89,6 +88,7 @@ public class StartupTutorial : MonoBehaviour
 
     void StartGame()
     {
+        SwitchOnOffRayInteractors();
         isActive = false;
         CheckerManager.Instance.isActive = true;
         owlAnimator.GetComponent<Collider>().enabled = false;
@@ -127,7 +127,7 @@ public class StartupTutorial : MonoBehaviour
         }
     }
 
-    void SwitchRayInteractors()
+    void SwitchOnOffRayInteractors()
     {
         leftRay.SetActive(!leftRay.activeSelf);
         rightRay.SetActive(!rightRay.activeSelf);
@@ -143,8 +143,8 @@ public class StartupTutorial : MonoBehaviour
         //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
         GameObject.Find("OwlOutline").SetActive(false);        
     
-        SwitchRayInteractors();
-        CheckerManager.Instance.IssueInterationEvents(null);
+        SwitchOnOffRayInteractors();
+        // CheckerManager.Instance.IssueInterationEvents(null);
         StartCoroutine(PlaySounds());
         
     }

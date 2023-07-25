@@ -59,9 +59,9 @@ public class CheckerManager : Singleton<CheckerManager>
     //Positioned on update whena cube is pointed at. And hidden again when not.
     //There are two kinds of highlights because the cude have different sizes 
     //The pool cubes as the carry cubes are half size
-    [Header("Objects to show for cube highlight")]
-    public GameObject poolCubeHighlight        = null;
-    public GameObject interactionCubeHighlight = null;
+    // [Header("Objects to show for cube highlight")]
+    // public GameObject poolCubeHighlight        = null;
+    // public GameObject interactionCubeHighlight = null;
     OnInteraction currentInteractionObject = null;
 
     //this is set by the EnterPoolNotifier attached to cube_pool_fountain
@@ -86,7 +86,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         public string name; //nameID of cube
         public Dropper dropCube; //Represenation that is used when droping a cube has physics
-        public GameObject caryCube; //Represenation that is used when carying a cube, is under the camera
+        // public GameObject caryCube; //Represenation that is used when carying a cube, is under the camera
         public GameObject prefabStaticCube; //Instance created when drop cube has hit the checkerboard
     }
 
@@ -190,30 +190,30 @@ public class CheckerManager : Singleton<CheckerManager>
 
 
     //Swtich off wireframe cubes that highlight which cube can be selected
-    void DisableHighlightOfCubes()
-    {
-        if (interactionCubeHighlight != null)
-            interactionCubeHighlight.SetActive(false);
-        if (poolCubeHighlight != null)
-            poolCubeHighlight.SetActive(false);
-    }
+    // void DisableHighlightOfCubes()
+    // {
+    //     if (interactionCubeHighlight != null)
+    //         interactionCubeHighlight.SetActive(false);
+    //     if (poolCubeHighlight != null)
+    //         poolCubeHighlight.SetActive(false);
+    // }
 
     //Activate highlight on that cube depending on what cube it is.
-    void CubeHighlight(Transform parent)
-    {
-        if (parent.tag == "InteractionCube" && interactionCubeHighlight != null)
-        {
-            interactionCubeHighlight.transform.position = parent.position;
-            interactionCubeHighlight.transform.rotation = parent.rotation;
-            interactionCubeHighlight.SetActive(true);
-        }
-        else if (parent.tag == "PoolCube" && poolCubeHighlight != null)
-        {
-            poolCubeHighlight.transform.position = parent.position;
-            poolCubeHighlight.transform.rotation = parent.rotation;
-            poolCubeHighlight.SetActive(true);
-        }
-    }
+    // void CubeHighlight(Transform parent)
+    // {
+    //     if (parent.tag == "InteractionCube" && interactionCubeHighlight != null)
+    //     {
+    //         interactionCubeHighlight.transform.position = parent.position;
+    //         interactionCubeHighlight.transform.rotation = parent.rotation;
+    //         interactionCubeHighlight.SetActive(true);
+    //     }
+    //     else if (parent.tag == "PoolCube" && poolCubeHighlight != null)
+    //     {
+    //         poolCubeHighlight.transform.position = parent.position;
+    //         poolCubeHighlight.transform.rotation = parent.rotation;
+    //         poolCubeHighlight.SetActive(true);
+    //     }
+    // }
 
     /// <summary> 
     /// Call this to enable a carrying cube and set the activeCubeIndex
@@ -230,10 +230,10 @@ public class CheckerManager : Singleton<CheckerManager>
                 
                 //Set active index and enable cube gameobject under the Controller hierarchy
                 activeCubeIndex = i;
-                cubesArray[i].caryCube.SetActive(true);
+                // cubesArray[i].caryCube.SetActive(true);
 
                 //Show model of hands carying the cubes on the FPS controller
-                HandSwitcher.Instance.ShowHands();
+                // HandSwitcher.Instance.ShowHands();
             }
         }
     }
@@ -682,7 +682,7 @@ public class CheckerManager : Singleton<CheckerManager>
         }
 
         //Hide cube highlights 
-        DisableHighlightOfCubes();
+        // DisableHighlightOfCubes();
 
         //Hide Red Tile
         if (redTile != null)
@@ -701,59 +701,50 @@ public class CheckerManager : Singleton<CheckerManager>
             Vector3 middleScreen = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
             Ray middleRay = Camera.main.ScreenPointToRay(middleScreen);
             RaycastHit hit;
-
+            
             if (Physics.Raycast(middleRay, out hit, 1, cubeInteractionMask|cubePoolMask|interactionObjectsMask, QueryTriggerInteraction.Ignore))
             {
                 //if we got a hit and its a interaction cube or pool cube
-                CubeNameID idOfCube = hit.collider.GetComponent<CubeNameID>();
+            CubeNameID idOfCube = hit.collider.GetComponent<CubeNameID>();
 
-                //GREY CUBES ARE NON SELECTABEL FOR NOW
-                if (idOfCube != null && idOfCube.cubeID != "GreyCube")
-                {
-                    //Issue a EventLost event on current Interaction Object
-                    IssueInterationEvents(null);
-
-                    //Highlight the pointat cube
-                    //Because cubes have hierarchy, highlight from parent coords
-                    CubeHighlight(idOfCube.transform.parent);
-
-                    //If mouse press grab cube and enable carry cube, destroy interactible cube, set matrix to 0
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        DisableHighlightOfCubes();
-
-                        //Show carry cube of same name, and set the active cube index
-                        EnableCube(idOfCube.cubeID);
-
-                        //If the cube is an interaction cube destroy and set chekker array to 0
-                        //else its a pool cube in which case the enable above is enough
-                        if (idOfCube.tag == "InteractionCube")
-                        {
-                            //Set matrix entry to 0
-                            checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
-
-                            //Because static interaction cubes have hierarchy, delete from parent
-                            Destroy(idOfCube.transform.parent.gameObject);
-                        }
-                    }
-                }
-                else if (hit.transform.tag == "InteractionGeneralObject")
-                {
-                    //if we got a hit and its an interaction cube
-                    OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
-                    IssueInterationEvents(interactionObj);
-                }
-            }
-            else
+            //GREY CUBES ARE NON SELECTABLE FOR NOW
+            if (idOfCube != null && idOfCube.cubeID != "GreyCube")
             {
                 //Issue a EventLost event on current Interaction Object
-                IssueInterationEvents(null);
+                // IssueInterationEvents(null);
+
+                //Highlight the pointat cube
+                //Because cubes have hierarchy, highlight from parent coords
+                // CubeHighlight(idOfCube.transform.parent);
+
+                //If mouse press grab cube and enable carry cube, destroy interactible cube, set matrix to 0
+                
+                // if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch) >= 0.5
+                //     || OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) >= 0.5)
+                // {
+                    Debug.Log("--> SKANDALI PRESSED");
+                    // DisableHighlightOfCubes();
+
+                    //Show carry cube of same name, and set the active cube index
+                    EnableCube(idOfCube.cubeID);
+
+                    //If the cube is an interaction cube destroy and set chekker array to 0
+                    //else its a pool cube in which case the enable above is enough
+                    if (idOfCube.tag == "InteractionCube")
+                    {
+                        //Set matrix entry to 0
+                        checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
+
+                        //Because static interaction cubes have hierarchy, delete from parent
+                        Destroy(idOfCube.transform.parent.gameObject);
+                    }
+                // }
             }
         } 
         else if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
             //Sanity check of references
-            if (redTile != null && cornerCheckerboard != null && cameraHookForCube != null)
+            if (redTile != null && cornerCheckerboard != null)
             {
                 /****** compute the x,y coords of the player (cameraHook) inside the checker *****/
                 Vector3 offset;
@@ -848,7 +839,7 @@ public class CheckerManager : Singleton<CheckerManager>
                             }
 
                             //Hide Carry cube
-                            cubesArray[activeCubeIndex].caryCube.SetActive(false);
+                            // cubesArray[activeCubeIndex].caryCube.SetActive(false);
 
                             //Inidicate that we dont carry anything anymore and hide redTile
                             activeCubeIndex = -1;
@@ -862,31 +853,31 @@ public class CheckerManager : Singleton<CheckerManager>
 	}//Update
 
     //Issue events on Interaction Objects
-    public void IssueInterationEvents(OnInteraction interactionObj)
-    {
-        //If interaction object changed issue events 
-        if (currentInteractionObject != interactionObj)
-        {
-            if (currentInteractionObject != null)
-                currentInteractionObject.OnFocusExit();
+    // public void IssueInterationEvents(OnInteraction interactionObj)
+    // {
+    //     //If interaction object changed issue events 
+    //     if (currentInteractionObject != interactionObj)
+    //     {
+    //         if (currentInteractionObject != null)
+    //             currentInteractionObject.OnFocusExit();
 
-            if (interactionObj != null)
-                interactionObj.OnFocusEnter();
+    //         if (interactionObj != null)
+    //             interactionObj.OnFocusEnter();
 
-            //store current object or null if none
-            currentInteractionObject = interactionObj;
-        }
+    //         //store current object or null if none
+    //         currentInteractionObject = interactionObj;
+    //     }
 
-        //Get click info
-        if (interactionObj != null)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                interactionObj.OnClicked();
-            }
-        }
+    //     //Get click info
+    //     if (interactionObj != null)
+    //     {
+    //         if (Input.GetMouseButtonDown(0))
+    //         {
+    //             interactionObj.OnClicked();
+    //         }
+    //     }
+    // }
     }
-
     public void LoadScene(string name)
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(name);
