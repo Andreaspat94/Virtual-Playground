@@ -56,12 +56,6 @@ public class CheckerManager : Singleton<CheckerManager>
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
 
-    //Positioned on update whena cube is pointed at. And hidden again when not.
-    //There are two kinds of highlights because the cude have different sizes 
-    //The pool cubes as the carry cubes are half size
-    // [Header("Objects to show for cube highlight")]
-    // public GameObject poolCubeHighlight        = null;
-    // public GameObject interactionCubeHighlight = null;
     OnInteraction currentInteractionObject = null;
 
     //this is set by the EnterPoolNotifier attached to cube_pool_fountain
@@ -187,33 +181,6 @@ public class CheckerManager : Singleton<CheckerManager>
 
         ResetToCubeRepresentation();
     }
-
-
-    //Swtich off wireframe cubes that highlight which cube can be selected
-    // void DisableHighlightOfCubes()
-    // {
-    //     if (interactionCubeHighlight != null)
-    //         interactionCubeHighlight.SetActive(false);
-    //     if (poolCubeHighlight != null)
-    //         poolCubeHighlight.SetActive(false);
-    // }
-
-    //Activate highlight on that cube depending on what cube it is.
-    // void CubeHighlight(Transform parent)
-    // {
-    //     if (parent.tag == "InteractionCube" && interactionCubeHighlight != null)
-    //     {
-    //         interactionCubeHighlight.transform.position = parent.position;
-    //         interactionCubeHighlight.transform.rotation = parent.rotation;
-    //         interactionCubeHighlight.SetActive(true);
-    //     }
-    //     else if (parent.tag == "PoolCube" && poolCubeHighlight != null)
-    //     {
-    //         poolCubeHighlight.transform.position = parent.position;
-    //         poolCubeHighlight.transform.rotation = parent.rotation;
-    //         poolCubeHighlight.SetActive(true);
-    //     }
-    // }
 
     /// <summary> 
     /// Call this to enable a carrying cube and set the activeCubeIndex
@@ -822,7 +789,7 @@ public class CheckerManager : Singleton<CheckerManager>
                             cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y);
 
                             //Hide model of hands carying the cubes on the FPS controller
-                            HandSwitcher.Instance.HideHands();
+                            // HandSwitcher.Instance.HideHands();
 
                             //Disable switch to presentation mode until drop sequence finishes
                             canChangeViewMode = false;
