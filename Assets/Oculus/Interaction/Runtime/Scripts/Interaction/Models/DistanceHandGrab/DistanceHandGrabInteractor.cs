@@ -58,6 +58,15 @@ namespace Oculus.Interaction.HandGrab
 
         [SerializeField, Interface(typeof(IVelocityCalculator)), Optional]
         private UnityEngine.Object _velocityCalculator;
+
+        private string leftInteractor = "DistanceHandGrabInteractorLeft (Oculus.Interaction.Input.HandRef)";
+        private string rightInteractor = "DistanceHandGrabInteractorRight (Oculus.Interaction.Input.HandRef)";
+        private GameObject player;
+        private GameObject leftGrabInteractor;
+        private GameObject rightGrabInteractor;
+        private string pathToLeftDistanceGrabInteractor = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorLeft";
+        private string pathToRightDistanceGrabInteractor = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorRight";
+        
         public IVelocityCalculator VelocityCalculator { get; set; }
 
         [SerializeField]
@@ -114,6 +123,7 @@ namespace Oculus.Interaction.HandGrab
             base.Awake();
             Hand = _hand as IHand;
             VelocityCalculator = _velocityCalculator as IVelocityCalculator;
+            TrackDistanceGrabInteractors();
         }
 
         protected override void Start()
@@ -164,6 +174,16 @@ namespace Oculus.Interaction.HandGrab
 
         protected override void DoSelectUpdate()
         {
+            
+            if (Hand.ToString().Equals(leftInteractor))
+            {
+                rightGrabInteractor.SetActive(false);
+            }
+            else
+            {
+                leftGrabInteractor.SetActive(false);
+            }
+        
             _handGrabShouldUnselect = false;
             if (SelectedInteractable == null)
             {
@@ -178,6 +198,9 @@ namespace Oculus.Interaction.HandGrab
             if (this.ComputeShouldUnselect(SelectedInteractable))
             {
                 _handGrabShouldUnselect = true;
+
+                leftGrabInteractor.SetActive(true);
+                rightGrabInteractor.SetActive(true);
             }
         }
 
@@ -277,6 +300,16 @@ namespace Oculus.Interaction.HandGrab
             }
 
             return null;
+        }
+
+        private void TrackDistanceGrabInteractors()
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                leftGrabInteractor = player.transform.Find(pathToLeftDistanceGrabInteractor).gameObject;
+                rightGrabInteractor = player.transform.Find(pathToRightDistanceGrabInteractor).gameObject;
+            }
         }
 
         private GrabTypeFlags SelectingGrabTypes(IHandGrabInteractable interactable)
