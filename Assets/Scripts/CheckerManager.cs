@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using HoloToolkit.Unity;
 using UnityEngine.Events;
+using Oculus.Interaction;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -80,7 +79,6 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         public string name; //nameID of cube
         public Dropper dropCube; //Represenation that is used when droping a cube has physics
-        // public GameObject caryCube; //Represenation that is used when carying a cube, is under the camera
         public GameObject prefabStaticCube; //Instance created when drop cube has hit the checkerboard
     }
 
@@ -109,6 +107,13 @@ public class CheckerManager : Singleton<CheckerManager>
     [Header("Events executed when playground is ready")]
     //Is called when Playground is fixed
     public UnityEvent GameWonEvent;
+
+    private CubeNameID idOfCube;
+    private GameObject cubePickedUp;
+    private int adjacencyError = -1;
+    
+    private Vector3 offset;
+    private int x, y;
 
     //Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6, Pavement:7, Bench:8, Fence:9, 10:is cube pool
     //array x is Z (unity), array y is X Unity
@@ -197,10 +202,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 
                 //Set active index and enable cube gameobject under the Controller hierarchy
                 activeCubeIndex = i;
-                // cubesArray[i].caryCube.SetActive(true);
-
-                //Show model of hands carying the cubes on the FPS controller
-                // HandSwitcher.Instance.ShowHands();
+                Debug.Log("ENABLE CUBE : activeCubeIndex--> " + activeCubeIndex);
             }
         }
     }
@@ -578,6 +580,74 @@ public class CheckerManager : Singleton<CheckerManager>
         }
     }
     
+    public void CubeGrabbed()
+    {
+        cubePickedUp = Grabbable.cubeGrabbed;
+        idOfCube = cubePickedUp.GetComponentInChildren<CubeNameID>();
+        if (idOfCube != null && idOfCube.cubeID != "GreyCube")
+        {
+           //Issue a EventLost event on current Interaction Object
+           IssueInterationEvents(null); 
+
+           //Show carry cube of same name, and set the active cube index
+           EnableCube(idOfCube.cubeID);
+            
+            if (idOfCube.tag == "InteractionCube")
+            {
+                //Set matrix entry to 0
+                checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
+            }
+        }
+    }
+    public void CubeReleased()
+    {
+        //Test for errors and play sounds
+        if (adjacencyError > 0 && adjacencyError <= 6)
+        {
+            AudioManager.Instance.playSound("forbiddenAdjacentBlock");
+        } 
+        else if (adjacencyError == 9)
+        {
+            AudioManager.Instance.playSound("forbiddenNext2Fence");
+        }
+        else if (adjacencyError == 8)
+        {
+            AudioManager.Instance.playSound("forbiddenOnBench");
+        }
+        else if (adjacencyError == 7)
+        {
+            AudioManager.Instance.playSound("forbiddenOnPath");
+        }
+        
+        //Place new cube only of matrix is empty and player not in pool
+        if (adjacencyError == 0 && checkkerArray[x, y] == 0)
+        {
+            //Issue a start physics command with the cubeID name and its computed coord array positions
+            //Also enables the dropCube and positions it correctly to where the hook is now
+            //This will trigger a sequence of a physics dropCube falling and then
+            //a static interaction cube will appear Instatiated (CreateStaticCube()).
+            // cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y);
+
+            //Disable switch to presentation mode until drop sequence finishes
+            canChangeViewMode = false;
+
+            AudioManager.Instance.playSound("dropBlock");
+
+        }
+        else
+        {
+            //Destroy cube that is placed wrong
+            // Debug.Log("DESTROY --> " + cubePickedUp.transform.parent.gameObject);
+            Destroy(cubePickedUp);
+        }
+
+        cubePickedUp = null;
+        idOfCube = null;
+
+        //Inidicate that we dont carry anything anymore and hide redTile
+        activeCubeIndex = -1;
+        redTile.gameObject.SetActive(false);
+    }
     // Update is called once per frame
     void Update ()
     {
@@ -608,7 +678,7 @@ public class CheckerManager : Singleton<CheckerManager>
         countCoveredBlocksUI();
         
         //Switch to and from zoom mode
-        if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn)
+        if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn && activeCubeIndex == -1)
         {
             if (isZoomOutViewMode)
             {
@@ -636,21 +706,6 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         } 
 
-        //Show hide reticle depending on state
-        if (activeCubeIndex == -1 && view_mode_ == ViewModes.CUBE_INTERACTION && !isZoomOutViewMode)
-        {
-            if (ui_reticle)
-                ui_reticle.SetActive(true);
-        }
-        else
-        {
-            if (ui_reticle)
-                ui_reticle.SetActive(false);
-        }
-
-        //Hide cube highlights 
-        // DisableHighlightOfCubes();
-
         //Hide Red Tile
         if (redTile != null)
             redTile.gameObject.SetActive(false);
@@ -661,65 +716,24 @@ public class CheckerManager : Singleton<CheckerManager>
             return;
         }
 
-        //If we are not carrying an active cube
-        if (activeCubeIndex == -1)
-        {
-            //Ray to middle of screen
-            Vector3 middleScreen = new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0);
-            Ray middleRay = Camera.main.ScreenPointToRay(middleScreen);
-            RaycastHit hit;
-            
-            if (Physics.Raycast(middleRay, out hit, 1, cubeInteractionMask|cubePoolMask|interactionObjectsMask, QueryTriggerInteraction.Ignore))
-            {
-                //if we got a hit and its a interaction cube or pool cube
-            CubeNameID idOfCube = hit.collider.GetComponent<CubeNameID>();
-
-            //GREY CUBES ARE NON SELECTABLE FOR NOW
-            if (idOfCube != null && idOfCube.cubeID != "GreyCube")
-            {
-                //Issue a EventLost event on current Interaction Object
-                // IssueInterationEvents(null);
-
-                //Highlight the pointat cube
-                //Because cubes have hierarchy, highlight from parent coords
-                // CubeHighlight(idOfCube.transform.parent);
-
-                //If mouse press grab cube and enable carry cube, destroy interactible cube, set matrix to 0
-                
-                // if (OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch) >= 0.5
-                //     || OVRInput.Get(OVRInput.Axis1D.SecondaryHandTrigger, OVRInput.Controller.Touch) >= 0.5)
-                // {
-                    Debug.Log("--> SKANDALI PRESSED");
-                    // DisableHighlightOfCubes();
-
-                    //Show carry cube of same name, and set the active cube index
-                    EnableCube(idOfCube.cubeID);
-
-                    //If the cube is an interaction cube destroy and set chekker array to 0
-                    //else its a pool cube in which case the enable above is enough
-                    if (idOfCube.tag == "InteractionCube")
-                    {
-                        //Set matrix entry to 0
-                        checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
-
-                        //Because static interaction cubes have hierarchy, delete from parent
-                        Destroy(idOfCube.transform.parent.gameObject);
-                    }
-                // }
-            }
-        } 
-        else if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
+       // !! THIS HAS TO DO WITH RAYCASTING TO BIRDS
+            // else if (hit.transform.tag == "InteractionGeneralObject")
+            // {
+            // //if we got a hit and its an interaction cube
+            // OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
+            // IssueInterationEvents(interactionObj);
+            // }
+             
+        if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null)
             {
-                /****** compute the x,y coords of the player (cameraHook) inside the checker *****/
-                Vector3 offset;
-                int x, y;
-
                 //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
                 //Compute relative position of FPS cameraHook form corner by substracting the Hook form the corner.
-                offset = cameraHookForCube.position - cornerCheckerboard.position;
+                offset = cubePickedUp.transform.position - cornerCheckerboard.position;
+                // Debug.Log("OFFSET --> " + offset);
+                // Debug.Log("ACTIVE CUBE INDEX --> " + activeCubeIndex);
                 
                 //Clamp to size of array
                 //Because the (0,0) is top left z and x can be negative so use Abs
@@ -734,119 +748,45 @@ public class CheckerManager : Singleton<CheckerManager>
                 //Compute position of red highlight tile, 
                 //assume that cube is 1x1x0.5, therefore add offset, the pivot of the cube is in the bottom center
                 offset = cornerCheckerboard.right * (x + 0.5f) + cornerCheckerboard.forward * (y + 0.5f) + new Vector3(0, 0.01f, 0);
-                
+                // Debug.Log("OFFSET 2 --> " + offset);
                 //Place highlight tile and hide it
                 redTile.position = cornerCheckerboard.position + offset;
 
                 //Check if cube can be place in this x,y. return value has several values
                 //0:OK, -1:Occupied with color cube, 7:Occupied with Pavement, 8:Occupied with Bench 
                 //9:Next to fence, 1-6:Next to cube with different color, 10: cube pool
-                int adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
-                //print(adjacencyError);
+                adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
+                // print(adjacencyError);
+                // Debug.Log("ERROR --> " + adjacencyError);
 
                 //Draw a red tile only if field empty and not in pool
                 if (adjacencyError >= 0 && adjacencyError != 10)
                     redTile.gameObject.SetActive(true);
-
-                //Player stands in pool
-                if (adjacencyError == 10)
-                    playerIsInPool = true;
-                else
-                    playerIsInPool = false;
-
-                /****** Place a cube when input, the sequence is CarryCube->DropCube->(Instantiated) InteractionCube *****/
-                /****** CarryCube is the activeCubeIndex we are carying now                                          *****/
-                //In case button is pressed drop cube
-                if (Input.GetMouseButtonDown(0))
-                {
-                    //Test for errors and play sounds
-                    if (adjacencyError > 0 && adjacencyError <= 6)
-                    {
-                        AudioManager.Instance.playSound("forbiddenAdjacentBlock");
-                    } 
-                    else if (adjacencyError == 9)
-                    {
-                        AudioManager.Instance.playSound("forbiddenNext2Fence");
-                    }
-                    else if (adjacencyError == 8)
-                    {
-                        AudioManager.Instance.playSound("forbiddenOnBench");
-                    }
-                    else if (adjacencyError == 7)
-                    {
-                        AudioManager.Instance.playSound("forbiddenOnPath");
-                    }
-
-                    if (adjacencyError == 0 || playerIsInPool)
-                    {
-                        //Place new cube only of matrix is empty and player not in pool
-                        if (checkkerArray[x, y] == 0 && !playerIsInPool)
-                        {
-                            //Issue a start physics command with the cubeID name and its computed coord array positions
-                            //Also enables the dropCube and positions it correctly to where the hook is now
-                            //This will trigger a sequence of a physics dropCube falling and then
-                            //a static interaction cube will appear Instatiated (CreateStaticCube()).
-                            cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y);
-
-                            //Hide model of hands carying the cubes on the FPS controller
-                            // HandSwitcher.Instance.HideHands();
-
-                            //Disable switch to presentation mode until drop sequence finishes
-                            canChangeViewMode = false;
-                        }
-
-                        //Reset Carying cube only if matrix empty and we can place cube 
-                        //or if player is in pool trying to return object
-                        if (checkkerArray[x, y] == 0 || playerIsInPool)
-                        {
-                            if (playerIsInPool)
-                            {
-                                HandSwitcher.Instance.HideHands();
-                                AudioManager.Instance.playSound("dropBlock");
-                            }
-
-                            //Hide Carry cube
-                            // cubesArray[activeCubeIndex].caryCube.SetActive(false);
-
-                            //Inidicate that we dont carry anything anymore and hide redTile
-                            activeCubeIndex = -1;
-                            redTile.gameObject.SetActive(false);
-                        }
-                    }
-                }
             }
         } //carry cube section
 
 	}//Update
 
-    //Issue events on Interaction Objects
-    // public void IssueInterationEvents(OnInteraction interactionObj)
-    // {
-    //     //If interaction object changed issue events 
-    //     if (currentInteractionObject != interactionObj)
-    //     {
-    //         if (currentInteractionObject != null)
-    //             currentInteractionObject.OnFocusExit();
-
-    //         if (interactionObj != null)
-    //             interactionObj.OnFocusEnter();
-
-    //         //store current object or null if none
-    //         currentInteractionObject = interactionObj;
-    //     }
-
-    //     //Get click info
-    //     if (interactionObj != null)
-    //     {
-    //         if (Input.GetMouseButtonDown(0))
-    //         {
-    //             interactionObj.OnClicked();
-    //         }
-    //     }
-    // }
-    }
+    
     public void LoadScene(string name)
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(name);
+    }
+
+     //Issue events on Interaction Objects
+    public void IssueInterationEvents(OnInteraction interactionObj)
+    {
+        //If interaction object changed issue events 
+        if (currentInteractionObject != interactionObj)
+        {
+            if (currentInteractionObject != null)
+                currentInteractionObject.OnFocusExit();
+
+            if (interactionObj != null)
+                interactionObj.OnFocusEnter();
+
+            //store current object or null if none
+            currentInteractionObject = interactionObj;
+        }
     }
 }

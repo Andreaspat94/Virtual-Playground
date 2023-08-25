@@ -54,9 +54,11 @@ namespace Oculus.Interaction
             }
         }
 
+        public GrabEvent onCubeGrab;
+        public ReleaseEvent onCubeRelease;
+        public static GameObject cubeGrabbed;
         public Transform Transform => _targetTransform;
         public List<Pose> GrabPoints => _selectingPoints;
-
         private ITransformer _activeTransformer = null;
         private ITransformer OneGrabTransformer;
         private ITransformer TwoGrabTransformer;
@@ -150,13 +152,17 @@ namespace Oculus.Interaction
             switch (useGrabPoints)
             {
                 case 1:
-                    _activeTransformer = OneGrabTransformer;
+                    _activeTransformer = OneGrabTransformer;                    
+                    cubeGrabbed = gameObject.transform.parent.gameObject;
+                    onCubeGrab.TriggerEvent();
                     break;
                 case 2:
                     _activeTransformer = TwoGrabTransformer;
                     break;
                 default:
                     _activeTransformer = null;
+                    cubeGrabbed = null;
+                    onCubeRelease.TriggerEvent();
                     break;
             }
 
