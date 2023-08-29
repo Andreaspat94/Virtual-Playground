@@ -108,6 +108,8 @@ public class CheckerManager : Singleton<CheckerManager>
     //Is called when Playground is fixed
     public UnityEvent GameWonEvent;
 
+    public OneGrabTranslateTransformer pickedCubeTransformer;
+
     private CubeNameID idOfCube;
     private GameObject cubePickedUp;
     private int adjacencyError = -1;
@@ -202,7 +204,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 
                 //Set active index and enable cube gameobject under the Controller hierarchy
                 activeCubeIndex = i;
-                Debug.Log("ENABLE CUBE : activeCubeIndex--> " + activeCubeIndex);
             }
         }
     }
@@ -726,14 +727,17 @@ public class CheckerManager : Singleton<CheckerManager>
              
         if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
+            // Debug.Log("We carry a cube: activeCubeIndex --> " + activeCubeIndex);
+
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null)
             {
                 //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
-                //Compute relative position of FPS cameraHook form corner by substracting the Hook form the corner.
-                offset = cubePickedUp.transform.position - cornerCheckerboard.position;
-                // Debug.Log("OFFSET --> " + offset);
-                // Debug.Log("ACTIVE CUBE INDEX --> " + activeCubeIndex);
+                //Compute relative position of picked cube form corner by substracting the Hook form the corner.
+                pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabTranslateTransformer>();
+                offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
+                Debug.Log("OFFSET --> " + offset);
+                // Debug.Log("CORNER POSITION: --> " + cornerCheckerboard.position);
                 
                 //Clamp to size of array
                 //Because the (0,0) is top left z and x can be negative so use Abs

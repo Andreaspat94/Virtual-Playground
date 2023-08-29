@@ -28,6 +28,7 @@ namespace Oculus.Interaction
     /// </summary>
     public class OneGrabTranslateTransformer : MonoBehaviour, ITransformer
     {
+        public Vector3 targetTransformer;
         [Serializable]
         public class OneGrabTranslateConstraints
         {
@@ -182,6 +183,7 @@ namespace Oculus.Interaction
             }
 
             targetTransform.position = constrainedPosition;
+            targetTransformer = targetTransform.position;
         }
 
         public void EndTransform() { }
