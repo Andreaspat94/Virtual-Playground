@@ -9,27 +9,36 @@ public class Dropper : MonoBehaviour
     public bool isPhysicsOn = false;
     string cubeID;
     //coords on checkerbord grid we fall
-    int x, y;
+    int x, y, z;
+
+    // private GameObject fps_controller;
+    // void Start()
+    // {
+    //     fps_controller = GameObject.FindGameObjectWithTag("Player");
+    // }
 
     /// <summary> 
     /// Start physics by disabling Kinematic and store info and show dropCube
     /// Called form CheckerManager in Update() when player has an active cube and presses button to place
     /// </summary>
-    public void StartFalling(string name, int xpos, int ypos)
+    public void StartFalling(string name, int xpos, int ypos, int zpos)
     {
         //Store X,y checkker position where the final static interaction cube will be places
         x = xpos;
         y = ypos;    
-        
+        z = zpos;
         //Store id of cube (red,yellow etc)
         cubeID = name;
 
         //Compute checkker world position as we do from corner, just add an Y offset since the dropper has the pivot on top
-        Vector3 positionNewCube = CheckerManager.Instance.cornerCheckerboard.position + CheckerManager.Instance.cornerCheckerboard.right * (x + 0.5f) + CheckerManager.Instance.cornerCheckerboard.forward * (y + 0.5f) + (Vector3.up*0.5f);
-
+        Vector3 positionNewCube = CheckerManager.Instance.cornerCheckerboard.position + CheckerManager.Instance.cornerCheckerboard.right * (x + 0.5f) 
+                                + CheckerManager.Instance.cornerCheckerboard.forward * (y + 0.5f) + (Vector3.up * 1.0f);
+        // Debug.Log("PositionNeCube --> " + positionNewCube);
         //Position the dropCube represantation in the cube carry hook positions
-        transform.position = positionNewCube;//CheckerManager.Instance.cameraHookForCube.position;
-        transform.rotation = CheckerManager.Instance.cameraHookForCube.rotation;
+        transform.position = positionNewCube;
+
+        // transform.rotation = fps_controller.GetComponent<Transform>().rotation;
+        // transform.rotation = CheckerManager.Instance.cameraHookForCube.rotation;
 
         //Enable physics
         rg.isKinematic = false;

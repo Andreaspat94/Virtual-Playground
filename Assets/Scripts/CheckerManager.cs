@@ -70,6 +70,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private SimpleCapsuleWithStickMovement movementScript;
     private Rigidbody rb;
     private bool isExitViewModeOn;
+    private float delayTime;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -115,7 +116,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private int adjacencyError = -1;
     
     private Vector3 offset;
-    private int x, y;
+    private int x, y, z;
 
     //Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6, Pavement:7, Bench:8, Fence:9, 10:is cube pool
     //array x is Z (unity), array y is X Unity
@@ -129,7 +130,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 4, 4, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
-        {9, 9, 9, 9, 9, 0, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
+        {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
     int GetCubeId(string name)
@@ -598,6 +599,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 //Set matrix entry to 0
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
             }
+            // Debug.Log("RedTile should be TRUE--> "+ redTile.gameObject.activeSelf);
         }
     }
     public void CubeReleased()
@@ -627,27 +629,27 @@ public class CheckerManager : Singleton<CheckerManager>
             //Also enables the dropCube and positions it correctly to where the hook is now
             //This will trigger a sequence of a physics dropCube falling and then
             //a static interaction cube will appear Instatiated (CreateStaticCube()).
-            // cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y);
+            cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y, z);
 
             //Disable switch to presentation mode until drop sequence finishes
             canChangeViewMode = false;
 
-            AudioManager.Instance.playSound("dropBlock");
-
+            delayTime = 0.0f;
         }
         else
         {
-            //Destroy cube that is placed wrong
-            // Debug.Log("DESTROY --> " + cubePickedUp.transform.parent.gameObject);
-            Destroy(cubePickedUp);
+            delayTime = 1.0f;
         }
 
+        //Destroy cube that is placed wrong
+        Destroy(cubePickedUp, delayTime);
         cubePickedUp = null;
         idOfCube = null;
 
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
+        // Debug.Log("RedTile should be FALSE--> " + redTile.gameObject.activeSelf);
     }
     // Update is called once per frame
     void Update ()
@@ -708,8 +710,12 @@ public class CheckerManager : Singleton<CheckerManager>
         } 
 
         //Hide Red Tile
-        if (redTile != null)
-            redTile.gameObject.SetActive(false);
+        // if (redTile != null)
+        // {
+        //     redTile.gameObject.SetActive(false);
+        //     Debug.Log("This is UPDATE--> " + redTile.gameObject.activeSelf);
+        // }
+            
 
         //if we are in presentation mode no interaction
         if (view_mode_ == ViewModes.PRESENTATION || isZoomOutViewMode)
@@ -736,8 +742,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 //Compute relative position of picked cube form corner by substracting the Hook form the corner.
                 pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabTranslateTransformer>();
                 offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
-                Debug.Log("OFFSET --> " + offset);
-                // Debug.Log("CORNER POSITION: --> " + cornerCheckerboard.position);
+                // Debug.Log("OFFSET --> " + offset);
                 
                 //Clamp to size of array
                 //Because the (0,0) is top left z and x can be negative so use Abs
@@ -748,11 +753,11 @@ public class CheckerManager : Singleton<CheckerManager>
                 //compute int checkker array index
                 x = (int)offset.z;
                 y = (int)offset.x;
+                z = (int)offset.y;
 
                 //Compute position of red highlight tile, 
                 //assume that cube is 1x1x0.5, therefore add offset, the pivot of the cube is in the bottom center
                 offset = cornerCheckerboard.right * (x + 0.5f) + cornerCheckerboard.forward * (y + 0.5f) + new Vector3(0, 0.01f, 0);
-                // Debug.Log("OFFSET 2 --> " + offset);
                 //Place highlight tile and hide it
                 redTile.position = cornerCheckerboard.position + offset;
 
@@ -761,8 +766,8 @@ public class CheckerManager : Singleton<CheckerManager>
                 //9:Next to fence, 1-6:Next to cube with different color, 10: cube pool
                 adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
                 // print(adjacencyError);
-                // Debug.Log("ERROR --> " + adjacencyError);
-
+            
+                Debug.Log("adjacencyError --> " + adjacencyError);
                 //Draw a red tile only if field empty and not in pool
                 if (adjacencyError >= 0 && adjacencyError != 10)
                     redTile.gameObject.SetActive(true);

@@ -30,7 +30,6 @@ public class CubeHighlight : MonoBehaviour
     {
         if (parent.tag == "PoolCube" && poolCubeHighlight != null)
         {
-            Debug.Log("HIGHLIGHT--> " + poolCubeHighlight);
             poolCubeHighlight.transform.position = parent.position;
             poolCubeHighlight.transform.rotation = parent.rotation;
             poolCubeHighlight.SetActive(true);
