@@ -11,12 +11,6 @@ public class Dropper : MonoBehaviour
     //coords on checkerbord grid we fall
     int x, y, z;
 
-    // private GameObject fps_controller;
-    // void Start()
-    // {
-    //     fps_controller = GameObject.FindGameObjectWithTag("Player");
-    // }
-
     /// <summary> 
     /// Start physics by disabling Kinematic and store info and show dropCube
     /// Called form CheckerManager in Update() when player has an active cube and presses button to place
@@ -33,12 +27,9 @@ public class Dropper : MonoBehaviour
         //Compute checkker world position as we do from corner, just add an Y offset since the dropper has the pivot on top
         Vector3 positionNewCube = CheckerManager.Instance.cornerCheckerboard.position + CheckerManager.Instance.cornerCheckerboard.right * (x + 0.5f) 
                                 + CheckerManager.Instance.cornerCheckerboard.forward * (y + 0.5f) + (Vector3.up * 1.0f);
-        // Debug.Log("PositionNeCube --> " + positionNewCube);
+        
         //Position the dropCube represantation in the cube carry hook positions
         transform.position = positionNewCube;
-
-        // transform.rotation = fps_controller.GetComponent<Transform>().rotation;
-        // transform.rotation = CheckerManager.Instance.cameraHookForCube.rotation;
 
         //Enable physics
         rg.isKinematic = false;
@@ -60,7 +51,6 @@ public class Dropper : MonoBehaviour
     IEnumerator StartStop()
     {
         isPhysicsOn = false;
-        AudioManager.Instance.playSound("dropBlock");
         yield return new WaitForSeconds(timeToWait);
         rg.isKinematic = true;
         gameObject.SetActive(false);

@@ -30,8 +30,6 @@ public class CheckerManager : Singleton<CheckerManager>
 
     [Header ("Red Highlight Tile for cube placement")]
     public Transform redTile = null;
-    [Header("Position under camera where carried cube is placed")]
-    public Transform cameraHookForCube = null;
     [Header("Corner of Checkerboard designating 0,0")]
     public Transform cornerCheckerboard = null;
 
@@ -45,12 +43,14 @@ public class CheckerManager : Singleton<CheckerManager>
     //They are generated from prefabs Prefabs/**bas_collider_static pointed to form the CubesArray[]
     [Header("RayMask for the dynamic interactible cubes")]
     public LayerMask cubeInteractionMask;
-
+    
+    private string interactionCubeTag = "InteractionCube";
     //The cubes in the pool have a "CubePool" layer mask and are the cubes in the pool to be grabbed
     //They remain static in the pool and clicking on them just enable the carry cube
     [Header("RayMask for the interactible pool cubes")]
     public LayerMask cubePoolMask;
-
+    
+    private string poolCubeTag = "PoolCube";
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
@@ -599,11 +599,21 @@ public class CheckerManager : Singleton<CheckerManager>
                 //Set matrix entry to 0
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
             }
-            // Debug.Log("RedTile should be TRUE--> "+ redTile.gameObject.activeSelf);
+        }
+
+        // pick up from pool
+        if (cubePickedUp.layer == cubePoolMask)
+        {
+            // 1. Create Cube on the same position. 
+            //  When cube exits collision then activate MeshRenderer or RG.
+            CreateStaticCube(idOfCube.cubeID, 0, 0);
+            // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
         }
     }
     public void CubeReleased()
     {
+        AudioManager.Instance.playSound("dropBlock");
+
         //Test for errors and play sounds
         if (adjacencyError > 0 && adjacencyError <= 6)
         {
@@ -622,6 +632,8 @@ public class CheckerManager : Singleton<CheckerManager>
             AudioManager.Instance.playSound("forbiddenOnPath");
         }
         
+        delayTime = 1.0f;
+
         //Place new cube only of matrix is empty and player not in pool
         if (adjacencyError == 0 && checkkerArray[x, y] == 0)
         {
@@ -636,9 +648,10 @@ public class CheckerManager : Singleton<CheckerManager>
 
             delayTime = 0.0f;
         }
-        else
+        
+        if(adjacencyError == 10 || checkkerArray[x,y] == 10)
         {
-            delayTime = 1.0f;
+            delayTime = 0.0f;
         }
 
         //Destroy cube that is placed wrong
@@ -649,7 +662,6 @@ public class CheckerManager : Singleton<CheckerManager>
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
-        // Debug.Log("RedTile should be FALSE--> " + redTile.gameObject.activeSelf);
     }
     // Update is called once per frame
     void Update ()
@@ -709,31 +721,14 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         } 
 
-        //Hide Red Tile
-        // if (redTile != null)
-        // {
-        //     redTile.gameObject.SetActive(false);
-        //     Debug.Log("This is UPDATE--> " + redTile.gameObject.activeSelf);
-        // }
-            
-
         //if we are in presentation mode no interaction
         if (view_mode_ == ViewModes.PRESENTATION || isZoomOutViewMode)
         {
             return;
         }
-
-       // !! THIS HAS TO DO WITH RAYCASTING TO BIRDS
-            // else if (hit.transform.tag == "InteractionGeneralObject")
-            // {
-            // //if we got a hit and its an interaction cube
-            // OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
-            // IssueInterationEvents(interactionObj);
-            // }
              
         if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
-            // Debug.Log("We carry a cube: activeCubeIndex --> " + activeCubeIndex);
 
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null)
@@ -742,7 +737,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 //Compute relative position of picked cube form corner by substracting the Hook form the corner.
                 pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabTranslateTransformer>();
                 offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
-                // Debug.Log("OFFSET --> " + offset);
                 
                 //Clamp to size of array
                 //Because the (0,0) is top left z and x can be negative so use Abs
@@ -765,15 +759,21 @@ public class CheckerManager : Singleton<CheckerManager>
                 //0:OK, -1:Occupied with color cube, 7:Occupied with Pavement, 8:Occupied with Bench 
                 //9:Next to fence, 1-6:Next to cube with different color, 10: cube pool
                 adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
-                // print(adjacencyError);
             
-                Debug.Log("adjacencyError --> " + adjacencyError);
                 //Draw a red tile only if field empty and not in pool
                 if (adjacencyError >= 0 && adjacencyError != 10)
                     redTile.gameObject.SetActive(true);
             }
         } //carry cube section
 
+
+            // !! THIS HAS TO DO WITH RAYCASTING TO BIRDS
+            // else if (hit.transform.tag == "InteractionGeneralObject")
+            // {
+            // //if we got a hit and its an interaction cube
+            // OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
+            // IssueInterationEvents(interactionObj);
+            // }
 	}//Update
 
     
