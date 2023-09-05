@@ -161,8 +161,8 @@ namespace Oculus.Interaction
                     break;
                 default:
                     _activeTransformer = null;
-                    cubeGrabbed = null;
                     onCubeRelease.TriggerEvent();
+                    cubeGrabbed = null;
                     break;
             }
 

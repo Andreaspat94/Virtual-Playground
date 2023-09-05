@@ -585,6 +585,11 @@ public class CheckerManager : Singleton<CheckerManager>
     public void CubeGrabbed()
     {
         cubePickedUp = Grabbable.cubeGrabbed;
+        // GameObject handGrabInteractable = cubePickedUp.GetComponentInChildren<HandGrabInteractable>();
+        
+        InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
+        colorScript.enabled = false;
+
         idOfCube = cubePickedUp.GetComponentInChildren<CubeNameID>();
         if (idOfCube != null && idOfCube.cubeID != "GreyCube")
         {
@@ -600,20 +605,19 @@ public class CheckerManager : Singleton<CheckerManager>
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
             }
         }
-
         // pick up from pool
         if (cubePickedUp.layer == cubePoolMask)
         {
             // 1. Create Cube on the same position. 
             //  When cube exits collision then activate MeshRenderer or RG.
-            CreateStaticCube(idOfCube.cubeID, 0, 0);
+            // CreateStaticCube(idOfCube.cubeID, 0, 0);
             // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
         }
     }
     public void CubeReleased()
     {
         AudioManager.Instance.playSound("dropBlock");
-
+        Debug.Log("Adjacency Error--> "+ adjacencyError);
         //Test for errors and play sounds
         if (adjacencyError > 0 && adjacencyError <= 6)
         {
@@ -633,7 +637,9 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         
         delayTime = 1.0f;
-
+        // InteractableColorVisual colorScript = cubePickedUp.GetComponent<InteractableColorVisual>();
+        
+        
         //Place new cube only of matrix is empty and player not in pool
         if (adjacencyError == 0 && checkkerArray[x, y] == 0)
         {
@@ -641,7 +647,7 @@ public class CheckerManager : Singleton<CheckerManager>
             //Also enables the dropCube and positions it correctly to where the hook is now
             //This will trigger a sequence of a physics dropCube falling and then
             //a static interaction cube will appear Instatiated (CreateStaticCube()).
-            cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y, z);
+            cubesArray[activeCubeIndex].dropCube.StartFalling(cubesArray[activeCubeIndex].name, x, y);
 
             //Disable switch to presentation mode until drop sequence finishes
             canChangeViewMode = false;
@@ -658,13 +664,13 @@ public class CheckerManager : Singleton<CheckerManager>
         Destroy(cubePickedUp, delayTime);
         cubePickedUp = null;
         idOfCube = null;
-
+        
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
     }
     // Update is called once per frame
-    void Update ()
+    void Update()
     {
         if (!isActive)
             return;
@@ -731,7 +737,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {
 
             //Sanity check of references
-            if (redTile != null && cornerCheckerboard != null)
+            if (redTile != null && cornerCheckerboard != null && cubePickedUp != null)
             {
                 //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
                 //Compute relative position of picked cube form corner by substracting the Hook form the corner.

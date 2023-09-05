@@ -9,18 +9,17 @@ public class Dropper : MonoBehaviour
     public bool isPhysicsOn = false;
     string cubeID;
     //coords on checkerbord grid we fall
-    int x, y, z;
+    int x, y;
 
     /// <summary> 
     /// Start physics by disabling Kinematic and store info and show dropCube
     /// Called form CheckerManager in Update() when player has an active cube and presses button to place
     /// </summary>
-    public void StartFalling(string name, int xpos, int ypos, int zpos)
+    public void StartFalling(string name, int xpos, int ypos)
     {
         //Store X,y checkker position where the final static interaction cube will be places
         x = xpos;
         y = ypos;    
-        z = zpos;
         //Store id of cube (red,yellow etc)
         cubeID = name;
 

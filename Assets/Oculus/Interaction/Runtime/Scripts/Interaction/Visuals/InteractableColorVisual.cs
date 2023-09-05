@@ -165,6 +165,7 @@ namespace Oculus.Interaction
         public void InjectAllInteractableColorVisual(IInteractableView interactableView,
             MaterialPropertyBlockEditor editor)
         {
+            Debug.Log("Injecting interactableView --> " + interactableView);
             InjectInteractableView(interactableView);
             InjectMaterialPropertyBlockEditor(editor);
         }
@@ -172,6 +173,7 @@ namespace Oculus.Interaction
         public void InjectInteractableView(IInteractableView interactableview)
         {
             _interactableView = interactableview as UnityEngine.Object;
+            Debug.Log("Injecting _interactableView --> " + _interactableView);
             InteractableView = interactableview;
         }
 
