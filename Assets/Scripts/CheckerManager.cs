@@ -599,6 +599,8 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
+        var cubeTransform = cubePickedUp.transform;
+
         InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
         colorScript.enabled = false;
 
@@ -617,26 +619,31 @@ public class CheckerManager : Singleton<CheckerManager>
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
             }
         }
-        
-        // pick up from pool
+
+        // This section is for pool cubes
         if (cubePickedUp.layer == poolCubeLayerInteger)
         {
-            //array x is Z (unity), array y is X Unity
-
-            // 1. Create Cube on the same position. 
-            //  When cube exits collision then activate MeshRenderer or RG.
-            CreateStaticCube(idOfCube.cubeID, 0, 0, true);
-            // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
-            // clone.LayerMask.NameToLayer("CubePool");
-            clone.tag = "PoolCube";
-            clone.layer = 11;
-            //Move to pool (0.1, 0, -0,5)
-            float x = 0.1f;
-            float y = 0f;
-            float z = -0.5f;
-            clone.transform.position = new Vector3(x,y,z);
+            PickUpFromPool();
         }
     }
+
+    
+    void PickUpFromPool()
+    {
+        //array x is Z (unity), array y is X Unity
+        string cubeId = idOfCube.cubeID;
+        float x = 0;
+        float y = 0;
+        float z = 0;
+       
+        // 1. Create Cube on the same position. 
+        CreateStaticCube(cubeId, 0, 0, true);
+        // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
+        clone.tag = "PoolCube";
+        clone.layer = 11;  
+        clone.transform.position = cubePickedUp.transform.position;
+    }
+
     public void CubeReleased()
     {
         AudioManager.Instance.playSound("dropBlock");
