@@ -53,6 +53,6 @@ public class Dropper : MonoBehaviour
         yield return new WaitForSeconds(timeToWait);
         rg.isKinematic = true;
         gameObject.SetActive(false);
-        CheckerManager.Instance.CreateStaticCube(cubeID, x, y);
+        CheckerManager.Instance.CreateStaticCube(cubeID, x, y, false);
     }
 }

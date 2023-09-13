@@ -38,9 +38,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public GameObject talkingBirds = null;
     public GameObject owlBird = null;
 
-    //The interactible cubes have a "CubeInteraction" layer mask and are the big cubes placed on the ckecker board.
-    //Clicking on them enable the carry cube, destroys the currnt instance ans set the chekker arry to zero
-    //They are generated from prefabs Prefabs/**bas_collider_static pointed to form the CubesArray[]
+    //The interactible cubes have a "CubeInteraction" layer mask and are the big cubes placed on the checker board.
+    //Clicking on them enable the carry cube, destroys the current instance and set the chekker array to zero
+    //They are generated from prefabs Prefabs/**base_collider_static pointed to form the CubesArray[]
     [Header("RayMask for the dynamic interactible cubes")]
     public LayerMask cubeInteractionMask;
     
@@ -49,12 +49,16 @@ public class CheckerManager : Singleton<CheckerManager>
     //They remain static in the pool and clicking on them just enable the carry cube
     [Header("RayMask for the interactible pool cubes")]
     public LayerMask cubePoolMask;
-    
+
     private string poolCubeTag = "PoolCube";
+    // 11 means "CubePool" layer
+    private int poolCubeLayerInteger = 11;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
-
+    
+    // This is for 'CreateStaticCube' method
+    GameObject clone;
     OnInteraction currentInteractionObject = null;
 
     //this is set by the EnterPoolNotifier attached to cube_pool_fountain
@@ -81,6 +85,7 @@ public class CheckerManager : Singleton<CheckerManager>
         public string name; //nameID of cube
         public Dropper dropCube; //Represenation that is used when droping a cube has physics
         public GameObject prefabStaticCube; //Instance created when drop cube has hit the checkerboard
+        public GameObject prefabPoolCube; // Instance created when we pick up cube from pool and replace the existed one
     }
 
     [System.Serializable]
@@ -116,7 +121,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private int adjacencyError = -1;
     
     private Vector3 offset;
-    private int x, y, z;
+    private int x, y;
 
     //Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6, Pavement:7, Bench:8, Fence:9, 10:is cube pool
     //array x is Z (unity), array y is X Unity
@@ -182,7 +187,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 // If there is a colour stored in the matrix
                 if (checkkerArray[x, y] != 0 && checkkerArray[x, y] <= 6)
                 {
-                    CreateStaticCube(GetCubeName(checkkerArray[x, y]), x, y);
+                    CreateStaticCube(GetCubeName(checkkerArray[x, y]), x, y, false);
                 }
             }
         }
@@ -213,21 +218,29 @@ public class CheckerManager : Singleton<CheckerManager>
     //Add a static cube to the checker board.
     //Creates an instance and adds the entry to the checkker array
     //Is called form Dropper after collision or from Start() to creat initial cubes
-    public void CreateStaticCube(string cubeId, int x, int y)
+    public void CreateStaticCube(string cubeId, int x, int y, bool isPoolCube)
     {
         //DropCube finished now we can enable presentation switch
         canChangeViewMode = true;
-
+        GameObject prefabCube;
         foreach (Cubes cb in cubesArray)
         {
-            if (cb.name == cubeId && cb.prefabStaticCube != null)
+            if (isPoolCube)
+            {
+                prefabCube = cb.prefabPoolCube;
+            }
+            else
+            {
+                prefabCube = cb.prefabStaticCube;
+            }
+        
+            if (cb.name == cubeId && prefabCube != null)
             {
                 //Compute world position of new cube offseted by (0.5,0.5) since cube is 1x1 and pivot is base center
                 Vector3 positionNewCube = cornerCheckerboard.position + cornerCheckerboard.right * (x + 0.5f) + cornerCheckerboard.forward * (y + 0.5f);
 
                 //Add cube to world using the prefab for the static intersection cubes
-                GameObject clone;
-                clone = Instantiate(cb.prefabStaticCube, positionNewCube, Quaternion.identity);
+                clone = Instantiate(prefabCube, positionNewCube, Quaternion.identity);
 
                 //Add x,y checker position info to instatiated cube and add to matrix
                 if (clone != null)
@@ -584,9 +597,8 @@ public class CheckerManager : Singleton<CheckerManager>
     
     public void CubeGrabbed()
     {
+        clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
-        // GameObject handGrabInteractable = cubePickedUp.GetComponentInChildren<HandGrabInteractable>();
-        
         InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
         colorScript.enabled = false;
 
@@ -605,19 +617,29 @@ public class CheckerManager : Singleton<CheckerManager>
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
             }
         }
+        
         // pick up from pool
-        if (cubePickedUp.layer == cubePoolMask)
+        if (cubePickedUp.layer == poolCubeLayerInteger)
         {
+            //array x is Z (unity), array y is X Unity
+
             // 1. Create Cube on the same position. 
             //  When cube exits collision then activate MeshRenderer or RG.
-            // CreateStaticCube(idOfCube.cubeID, 0, 0);
+            CreateStaticCube(idOfCube.cubeID, 0, 0, true);
             // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
+            // clone.LayerMask.NameToLayer("CubePool");
+            clone.tag = "PoolCube";
+            clone.layer = 11;
+            //Move to pool (0.1, 0, -0,5)
+            float x = 0.1f;
+            float y = 0f;
+            float z = -0.5f;
+            clone.transform.position = new Vector3(x,y,z);
         }
     }
     public void CubeReleased()
     {
         AudioManager.Instance.playSound("dropBlock");
-        Debug.Log("Adjacency Error--> "+ adjacencyError);
         //Test for errors and play sounds
         if (adjacencyError > 0 && adjacencyError <= 6)
         {
@@ -735,7 +757,6 @@ public class CheckerManager : Singleton<CheckerManager>
              
         if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
-
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null && cubePickedUp != null)
             {
@@ -753,7 +774,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 //compute int checkker array index
                 x = (int)offset.z;
                 y = (int)offset.x;
-                z = (int)offset.y;
 
                 //Compute position of red highlight tile, 
                 //assume that cube is 1x1x0.5, therefore add offset, the pivot of the cube is in the bottom center
