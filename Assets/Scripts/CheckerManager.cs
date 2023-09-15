@@ -599,6 +599,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
+        Debug.Log("CubePickedUp--> " + cubePickedUp);
         var cubeTransform = cubePickedUp.transform;
 
         InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
