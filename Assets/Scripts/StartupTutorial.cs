@@ -43,8 +43,7 @@ public class StartupTutorial : MonoBehaviour
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
 
-
-    //Raycasting is only active if we are int this trigger bbox
+    //Raycasting is only active if we are int this trigger box
     private void OnTriggerEnter(Collider other)
     {
          if (other.tag == "Player")
@@ -126,12 +125,21 @@ public class StartupTutorial : MonoBehaviour
             rightRay.SetActive(false);
         }
     }
-
-    void SwitchOnOffRayInteractors()
+    
+    public void SwitchOnOffRayInteractors()
     {
         leftRay.SetActive(!leftRay.activeSelf);
         rightRay.SetActive(!rightRay.activeSelf);
     }
+    
+    // void switchOnOffBirdHolder(bool isActive)
+    // {
+    //     Transform holder = ListToHide[0].transform;
+    //     foreach (Transform bird in holder)
+    //     {
+    //         bird.GetComponentInChildren<Collider>().enabled = isActive;
+    //     }
+    // }
 
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
