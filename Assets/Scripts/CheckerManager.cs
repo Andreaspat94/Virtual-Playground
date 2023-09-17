@@ -642,6 +642,7 @@ public class CheckerManager : Singleton<CheckerManager>
         // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
         clone.tag = "PoolCube";
         clone.layer = 11;  
+        clone.transform.GetChild(0).gameObject.layer = 11;
         clone.transform.position = cubePickedUp.transform.position;
     }
 
