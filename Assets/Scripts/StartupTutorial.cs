@@ -26,6 +26,12 @@ public class StartupTutorial : MonoBehaviour
     private GameObject rightRay;
     private String pathToLeftRay = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/HandRayInteractorLeft";
     private String pathToRightRay = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/HandRayInteractorRight";
+
+    private GameObject leftHandGrab;
+    private GameObject rightHandGrab;
+    private String pathToLeftHandGrab = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorLeft";
+    private String pathToRightHandGrab = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorRight";
+
     public List<Wavs> wayPointList = new List<Wavs>();
 
     [Header ("Things to Hide at startup")]
@@ -68,7 +74,7 @@ public class StartupTutorial : MonoBehaviour
                 gs.SetActive(true);
         }
         // track ray interactors and switch them off
-        TrackRayInteractors();
+        TrackInteractors();
     }
 
     // Use this for initialization
@@ -88,6 +94,7 @@ public class StartupTutorial : MonoBehaviour
     void StartGame()
     {
         SwitchOnOffRayInteractors();
+        SwitchOnOffHandGrabInteractors();
         isActive = false;
         CheckerManager.Instance.isActive = true;
         owlAnimator.GetComponent<Collider>().enabled = false;
@@ -113,7 +120,7 @@ public class StartupTutorial : MonoBehaviour
         owlAnimator.gameObject.SetActive(true);
     }
 
-    void TrackRayInteractors()
+    void TrackInteractors()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
@@ -123,6 +130,12 @@ public class StartupTutorial : MonoBehaviour
 
             leftRay.SetActive(false);
             rightRay.SetActive(false);
+
+            leftHandGrab = player.transform.Find(pathToLeftHandGrab).gameObject;
+            rightHandGrab = player.transform.Find(pathToRightHandGrab).gameObject;
+
+            leftHandGrab.SetActive(false);
+            rightHandGrab.SetActive(false);
         }
     }
     
@@ -131,15 +144,12 @@ public class StartupTutorial : MonoBehaviour
         leftRay.SetActive(!leftRay.activeSelf);
         rightRay.SetActive(!rightRay.activeSelf);
     }
-    
-    // void switchOnOffBirdHolder(bool isActive)
-    // {
-    //     Transform holder = ListToHide[0].transform;
-    //     foreach (Transform bird in holder)
-    //     {
-    //         bird.GetComponentInChildren<Collider>().enabled = isActive;
-    //     }
-    // }
+
+    public void SwitchOnOffHandGrabInteractors()
+    {
+        leftHandGrab.SetActive(!leftHandGrab.activeSelf);
+        rightHandGrab.SetActive(!rightHandGrab.activeSelf);
+    }
 
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()

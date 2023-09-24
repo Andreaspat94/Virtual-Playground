@@ -45,14 +45,14 @@ public class CheckerManager : Singleton<CheckerManager>
     public LayerMask cubeInteractionMask;
     
     private string interactionCubeTag = "InteractionCube";
+    private string poolCubeTag = "PoolCube";
     //The cubes in the pool have a "CubePool" layer mask and are the cubes in the pool to be grabbed
     //They remain static in the pool and clicking on them just enable the carry cube
     [Header("RayMask for the interactible pool cubes")]
     public LayerMask cubePoolMask;
-
-    private string poolCubeTag = "PoolCube";
     // 11 means "CubePool" layer
     private int poolCubeLayerInteger = 11;
+    
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
@@ -60,9 +60,6 @@ public class CheckerManager : Singleton<CheckerManager>
     // This is for 'CreateStaticCube' method
     GameObject clone;
     OnInteraction currentInteractionObject = null;
-
-    //this is set by the EnterPoolNotifier attached to cube_pool_fountain
-    bool playerIsInPool = false;
 
     //Game is finished well done
     bool playGroundFinished = false;
@@ -74,6 +71,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private SimpleCapsuleWithStickMovement movementScript;
     private Rigidbody rb;
     private bool isExitViewModeOn;
+    public StartupTutorial startUpTutorial;
     private float delayTime;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
@@ -93,9 +91,10 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         public string color; //color of cubes that identify the playground object
         public GameObject playgroundObject; //Represenation of the playground object
-        public GameObject multiCubeRepresentation; //Parent of all cubes of the same color
+        public GameObject multiCubeRepresentation; //Parent of all interactioncubes of the same color
     }
-
+    
+    
     //This array has all the possible cubes we need and pointers to them.
     //the activeCubeIndex indexes into this array to indicate which cube is currently active carried
     [Header("Array holding all possible cubes")]
@@ -106,7 +105,8 @@ public class CheckerManager : Singleton<CheckerManager>
     //Its used to switch between presentation modes and to place new cubes into the right hierarchy
     [Header("Array holding all Playground objects")]
     public PlayGroundObjects[] playGroundObjectsArray = null;
-
+    [Header("Object pool hierarchy")]
+    public GameObject objectPool;
     [Header("Index into array of active cube or -1")]
     public int activeCubeIndex = -1;
 
@@ -233,6 +233,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 prefabCube = cb.prefabStaticCube;
             }
+            // if (isPoolCube) ? prefabCube = cb.prefabPoolCube : prefabCube = cb.prefabStaticCube;
         
             if (cb.name == cubeId && prefabCube != null)
             {
@@ -254,14 +255,25 @@ public class CheckerManager : Singleton<CheckerManager>
                         cubeScript.yCheckerArrayCoord = y;
 
                         //enter entry to checker array
-                        checkkerArray[x, y] = GetCubeId(cubeId);
+                        if (!isPoolCube)
+                        {
+                            checkkerArray[x, y] = GetCubeId(cubeId);
+                            Debug.Log("Entered cube (" + x + "," + y + ") with color: --> " +cubeId);
+                        }
 
                         //Search through list to find under which hierarchy to place the cube
                         foreach (PlayGroundObjects pg in playGroundObjectsArray)
                         {
                             if (pg.color == cubeId && pg.multiCubeRepresentation != null)
                             {
-                                clone.transform.parent = pg.multiCubeRepresentation.transform;
+                                if (clone.tag == poolCubeTag)
+                                {
+                                    RegulateCubePosition();
+                                }
+                                else if (clone.tag == interactionCubeTag)
+                                {
+                                    clone.transform.parent = pg.multiCubeRepresentation.transform;
+                                }
                             }
                         }
                     }
@@ -270,6 +282,17 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         } //foreach
     }
+
+    void RegulateCubePosition()
+    {
+        clone.tag = poolCubeTag;
+        clone.layer = 11;  // 11 means "CubePool" layer
+        clone.transform.parent = objectPool.transform;
+        clone.transform.GetChild(0).gameObject.layer = 11;
+        clone.transform.GetChild(0).gameObject.tag = poolCubeTag;
+        clone.transform.position = cubePickedUp.transform.position;
+    }
+
 
     //Show interaction cubes again and hide playground objects for continuiing interaction
     public void ResetToCubeRepresentation()
@@ -313,7 +336,6 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         //designamte if this checker was already tested
         int[,] localMatrix = new int[YDim, XDim];
-
         // Only six types of cubes in matrix supported
         // Has already been checked for
         bool[] idCheck = new bool[6] { false, false, false, false, false, false };
@@ -331,7 +353,7 @@ public class CheckerManager : Singleton<CheckerManager>
 			       {4, 4}, // red-swings
                    {3, 4}, // grey-sandpit
 			     };
-
+   
         //Color values available Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
         //Traverse all checkker array
         for (int x = 0; x < YDim; x++)
@@ -344,26 +366,26 @@ public class CheckerManager : Singleton<CheckerManager>
                 if (checkkerArray[x, y] != 0 && checkkerArray[x, y] <= 6)
                 {
                     whichColor = checkkerArray[x, y];
-
                     // If this entry has not been checked before skip
                     if (localMatrix[x, y] == 0)
                     {
                         // If this colour has already been tested for
                         if (!idCheck[whichColor - 1])
-                        {
+                        {                          
                             bool okNorm = false, okRotate = false;
 
                             // Test normal area
+                            // Debug.Log("whichColor--> " + whichColor + " (x,y)=  " + x +"," + y );
+                            
                             okNorm = testArea(x, y, colorSizes[whichColor - 1,0], colorSizes[whichColor - 1,1], whichColor, localMatrix);
-
-                            // Test are rotate 90 Degrees if normal test does not suceed
+                            // Test are rotate 90 Degrees if normal test does not succeed
                             if (!okNorm)
                                 okRotate = testArea(x, y, colorSizes[whichColor - 1,1], colorSizes[whichColor - 1,0], whichColor, localMatrix);
-
                             if (okNorm || okRotate)
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
+                                // Debug.Log("Color " + (whichColor-1) + " --> OK");
 
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
@@ -477,6 +499,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             for (int jx = x; jx < areax; jx++)
             {
+                // Debug.Log("LocalMatrix[" + jx+"," + iy+ "]--> " + localMatrix[jx, iy]);
                 localMatrix[jx, iy] = 1;
 
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
@@ -599,7 +622,6 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
-        Debug.Log("CubePickedUp--> " + cubePickedUp);
         var cubeTransform = cubePickedUp.transform;
 
         InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
@@ -614,7 +636,7 @@ public class CheckerManager : Singleton<CheckerManager>
            //Show carry cube of same name, and set the active cube index
            EnableCube(idOfCube.cubeID);
             
-            if (idOfCube.tag == "InteractionCube")
+            if (idOfCube.tag == "InteractionCube" || idOfCube.tag == "PoolCube")
             {
                 //Set matrix entry to 0
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
@@ -639,13 +661,10 @@ public class CheckerManager : Singleton<CheckerManager>
        
         // 1. Create Cube on the same position. 
         CreateStaticCube(cubeId, 0, 0, true);
-        // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube"
-        clone.tag = "PoolCube";
-        clone.layer = 11;  
-        clone.transform.GetChild(0).gameObject.layer = 11;
-        clone.transform.position = cubePickedUp.transform.position;
+        // 2. Change picked cube layer to "CubeInteraction" and Tag to "InteractionCube" 
     }
 
+    
     public void CubeReleased()
     {
         AudioManager.Instance.playSound("dropBlock");
@@ -670,8 +689,7 @@ public class CheckerManager : Singleton<CheckerManager>
         delayTime = 1.0f;
         // InteractableColorVisual colorScript = cubePickedUp.GetComponent<InteractableColorVisual>();
         
-        
-        //Place new cube only of matrix is empty and player not in pool
+        //Place new cube only of matrix is empty
         if (adjacencyError == 0 && checkkerArray[x, y] == 0)
         {
             //Issue a start physics command with the cubeID name and its computed coord array positions
@@ -750,10 +768,14 @@ public class CheckerManager : Singleton<CheckerManager>
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
             {
+                startUpTutorial.SwitchOnOffRayInteractors();
+                startUpTutorial.SwitchOnOffHandGrabInteractors();
                 CheckIfOK();
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {
+                startUpTutorial.SwitchOnOffRayInteractors();
+                startUpTutorial.SwitchOnOffHandGrabInteractors();
                 ResetToCubeRepresentation();
             }
         } 
@@ -800,22 +822,7 @@ public class CheckerManager : Singleton<CheckerManager>
                     redTile.gameObject.SetActive(true);
             }
         } //carry cube section
-
-
-            // !! THIS HAS TO DO WITH RAYCASTING TO BIRDS
-            // else if (hit.transform.tag == "InteractionGeneralObject")
-            // {
-            // //if we got a hit and its an interaction cube
-            // OnInteraction interactionObj = hit.collider.GetComponent<OnInteraction>();
-            // IssueInterationEvents(interactionObj);
-            // }
 	}//Update
-
-    
-    public void LoadScene(string name)
-    {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(name);
-    }
 
      //Issue events on Interaction Objects
     public void IssueInterationEvents(OnInteraction interactionObj)
