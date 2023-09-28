@@ -9,14 +9,13 @@ public class SceneChanger : MonoBehaviour
 
     public void FadeToLevel (string name)
     {
-        Debug.Log("FadeToLevel called... name --> " + name + " /sceneToLoad --> " + sceneToLoad);
         sceneToLoad = name;
         animator.SetTrigger("FadeOut");
+        Debug.Log("--> " + sceneToLoad);
     }
     
     public void OnFadeComplete()
     {
-        Debug.Log("OnFadeComplete called... name --> " + name + " /sceneToLoad --> " + sceneToLoad);
         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneToLoad);
     }
 }

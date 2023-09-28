@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using HoloToolkit.Unity;
 using UnityEngine.Events;
+using System.Collections;
 using Oculus.Interaction;
 
 public class CheckerManager : Singleton<CheckerManager>
@@ -21,8 +22,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public TextMesh[] totalCoveredTilesTextsUI;
 
     [Header("Reticle to show when in cube interaction mode")]
-    public GameObject ui_reticle = null;
+    public GameObject ui_canvas = null;
     public GameObject ui_escape = null;
+    public GameObject ui_collider = null;
 
     //Dimensions of Checker Grid
     const int XDim = 20;
@@ -72,7 +74,9 @@ public class CheckerManager : Singleton<CheckerManager>
     private Rigidbody rb;
     private bool isExitViewModeOn;
     public StartupTutorial startUpTutorial;
+    private Canvas canvas;
     private float delayTime;
+    
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -121,7 +125,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private int adjacencyError = -1;
     
     private Vector3 offset;
-    private int x, y;
+    private int x, y, X, Y;
 
     //Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6, Pavement:7, Bench:8, Fence:9, 10:is cube pool
     //array x is Z (unity), array y is X Unity
@@ -178,6 +182,7 @@ public class CheckerManager : Singleton<CheckerManager>
         fps_controller = GameObject.FindGameObjectWithTag("Player");
         movementScript = fps_controller.GetComponent<SimpleCapsuleWithStickMovement>();
         rb = fps_controller.GetComponent<Rigidbody>();
+        canvas = ui_canvas.GetComponent<Canvas>();
 
         //CreateStatic cubes from initial Chekker array
         for (int x = 0; x < YDim; x++)
@@ -258,7 +263,6 @@ public class CheckerManager : Singleton<CheckerManager>
                         if (!isPoolCube)
                         {
                             checkkerArray[x, y] = GetCubeId(cubeId);
-                            Debug.Log("Entered cube (" + x + "," + y + ") with color: --> " +cubeId);
                         }
 
                         //Search through list to find under which hierarchy to place the cube
@@ -373,10 +377,8 @@ public class CheckerManager : Singleton<CheckerManager>
                         if (!idCheck[whichColor - 1])
                         {                          
                             bool okNorm = false, okRotate = false;
-
-                            // Test normal area
-                            // Debug.Log("whichColor--> " + whichColor + " (x,y)=  " + x +"," + y );
                             
+                            // Test normal area    
                             okNorm = testArea(x, y, colorSizes[whichColor - 1,0], colorSizes[whichColor - 1,1], whichColor, localMatrix);
                             // Test are rotate 90 Degrees if normal test does not succeed
                             if (!okNorm)
@@ -385,8 +387,6 @@ public class CheckerManager : Singleton<CheckerManager>
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
-                                // Debug.Log("Color " + (whichColor-1) + " --> OK");
-
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
                                 Vector3 pos;
@@ -476,8 +476,8 @@ public class CheckerManager : Singleton<CheckerManager>
             if (talkingBirds)
                 talkingBirds.SetActive(false);
 
-            if (ui_reticle)
-                ui_reticle.SetActive(false);
+            // if (ui_reticle)
+            //     ui_reticle.SetActive(false);
 
             if (GameWonEvent != null)
                 GameWonEvent.Invoke();
@@ -499,7 +499,6 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             for (int jx = x; jx < areax; jx++)
             {
-                // Debug.Log("LocalMatrix[" + jx+"," + iy+ "]--> " + localMatrix[jx, iy]);
                 localMatrix[jx, iy] = 1;
 
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
@@ -574,38 +573,6 @@ public class CheckerManager : Singleton<CheckerManager>
         return 0;
     }
 
-    public void ZoomIn()
-    {
-        fps_controller.transform.position = previousFPSPos;
-        movementScript.enabled = true; //fps_controller.RestoreGroundForce();
-        rb.useGravity = true;
-        isZoomOutViewMode = false;
-        if (staticObjects) staticObjects.SetActive(true);
-        if (talkingBirds) talkingBirds.SetActive(true);
-        if (owlBird) owlBird.SetActive(true);
-        AudioManager.Instance.playSound("goGround");
-        fps_controller.transform.rotation = Quaternion.identity;
-        Camera.main.transform.localRotation = Quaternion.identity;
-    }
-
-    public void ZoomOut()
-    {
-        //disable player movement
-        movementScript.enabled = false; 
-        rb.useGravity = false;
-        isZoomOutViewMode = true;
-        if (staticObjects) staticObjects.SetActive(false);
-        if (talkingBirds) talkingBirds.SetActive(false);
-        if (owlBird) owlBird.SetActive(false);
-
-        
-        previousFPSPos = fps_controller.transform.position;
-        fps_controller.transform.position = vantagePoint.position;
-        fps_controller.transform.rotation = Quaternion.Euler(90, 0, 0);
-        Camera.main.transform.localRotation = Quaternion.identity;
-        AudioManager.Instance.playSound("goHigh");
-    }
-
     //Count total tile that are covered and update UI
     public void countCoveredBlocksUI()
     {
@@ -620,6 +587,10 @@ public class CheckerManager : Singleton<CheckerManager>
     
     public void CubeGrabbed()
     {
+        // Store location in grid, in case cube is realesed in forbidden place and has to go back
+        // X = x;
+        // Y = y;
+        // Debug.Log("Cube grabbed --> "+ x + "," + y);
         clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
         var cubeTransform = cubePickedUp.transform;
@@ -687,7 +658,6 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         
         delayTime = 1.0f;
-        // InteractableColorVisual colorScript = cubePickedUp.GetComponent<InteractableColorVisual>();
         
         //Place new cube only of matrix is empty
         if (adjacencyError == 0 && checkkerArray[x, y] == 0)
@@ -711,12 +681,92 @@ public class CheckerManager : Singleton<CheckerManager>
 
         //Destroy cube that is placed wrong
         Destroy(cubePickedUp, delayTime);
+        // if (adjacencyError != 0)
+        // {
+        //     StartCoroutine(CreateCubeForForbiddenDrop(delayTime));
+        // }
+        
         cubePickedUp = null;
         idOfCube = null;
         
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
+    }
+
+    // IEnumerator CreateCubeForForbiddenDrop(float timeToWait)
+    // {
+    //     Debug.Log("Wait --> " + timeToWait);
+    //     yield return new WaitForSecondsRealtime(timeToWait);
+    //     CreateStaticCube(idOfCube.cubeID, X, Y, false);
+    //     Debug.Log("Create Cube --> " + X +"," + Y);
+    // }
+
+      public void ZoomIn()
+    {
+        fps_controller.transform.position = previousFPSPos;
+        movementScript.enabled = true; //fps_controller.RestoreGroundForce();
+        rb.useGravity = true;
+        isZoomOutViewMode = false;
+        if (staticObjects) staticObjects.SetActive(true);
+        
+        if (owlBird) owlBird.SetActive(true);
+        AudioManager.Instance.playSound("goGround");
+        fps_controller.transform.rotation = Quaternion.identity;
+        Camera.main.transform.localRotation = Quaternion.identity;
+        
+        if (view_mode_ == ViewModes.PRESENTATION && talkingBirds)
+        {
+            talkingBirds.SetActive(false);
+        }
+        else
+        {
+            talkingBirds.SetActive(true);
+        }
+    }
+
+    public void ZoomOut()
+    {
+        //disable player movement
+        movementScript.enabled = false; 
+        rb.useGravity = false;
+        isZoomOutViewMode = true;
+        if (staticObjects) staticObjects.SetActive(false);
+        if (talkingBirds) talkingBirds.SetActive(false);
+        if (owlBird) owlBird.SetActive(false);
+        
+        previousFPSPos = fps_controller.transform.position;
+        fps_controller.transform.position = vantagePoint.position;
+        fps_controller.transform.rotation = Quaternion.Euler(90, 0, 0);
+        Camera.main.transform.localRotation = Quaternion.identity;
+        AudioManager.Instance.playSound("goHigh");
+    }
+
+      public void ReturnFromEscapeUI()
+    {
+       ui_escape.SetActive(false);
+       ui_collider.SetActive(false);
+       isExitViewModeOn = false;
+       movementScript.enabled = true;
+       startUpTutorial.SwitchOnOffHandGrabInteractors();
+    }
+
+    public void GoToEscapeUI()
+    {
+        startUpTutorial.SwitchOnOffHandGrabInteractors();
+        Vector3 player_position = fps_controller.transform.position;
+        Vector3 player_direction = fps_controller.transform.forward;
+        Quaternion player_rotation = fps_controller.transform.rotation;
+        float spawnDistance = 2.0f;
+
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.transform.position = player_position + player_direction * spawnDistance;
+        canvas.transform.rotation = player_rotation;
+
+        ui_escape.SetActive(true);
+        ui_collider.SetActive(true);
+        isExitViewModeOn = true;
+        movementScript.enabled = false;
     }
     // Update is called once per frame
     void Update()
@@ -729,15 +779,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             if (ui_escape && !isExitViewModeOn)
             {
-                ui_escape.SetActive(true);
-                isExitViewModeOn = true;
-                movementScript.enabled = false;
-            }
-            else
-            {
-                ui_escape.SetActive(false);
-                isExitViewModeOn = false;
-                movementScript.enabled = true;
+                GoToEscapeUI();
             }
         }
 
