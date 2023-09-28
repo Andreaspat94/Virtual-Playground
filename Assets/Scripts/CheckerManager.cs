@@ -76,6 +76,7 @@ public class CheckerManager : Singleton<CheckerManager>
     public StartupTutorial startUpTutorial;
     private Canvas canvas;
     private float delayTime;
+    public bool fadeOut;
     
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
@@ -753,20 +754,24 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void GoToEscapeUI()
     {
-        startUpTutorial.SwitchOnOffHandGrabInteractors();
-        Vector3 player_position = fps_controller.transform.position;
-        Vector3 player_direction = fps_controller.transform.forward;
-        Quaternion player_rotation = fps_controller.transform.rotation;
-        float spawnDistance = 2.0f;
+        //if not already fading out..
+        if (!fadeOut)
+        {
+            startUpTutorial.SwitchOnOffHandGrabInteractors();
+            Vector3 player_position = fps_controller.transform.position;
+            Vector3 player_direction = fps_controller.transform.forward;
+            Quaternion player_rotation = fps_controller.transform.rotation;
+            float spawnDistance = 2.0f;
 
-        canvas.renderMode = RenderMode.WorldSpace;
-        canvas.transform.position = player_position + player_direction * spawnDistance;
-        canvas.transform.rotation = player_rotation;
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.transform.position = player_position + player_direction * spawnDistance;
+            canvas.transform.rotation = player_rotation;
 
-        ui_escape.SetActive(true);
-        ui_collider.SetActive(true);
-        isExitViewModeOn = true;
-        movementScript.enabled = false;
+            ui_escape.SetActive(true);
+            ui_collider.SetActive(true);
+            isExitViewModeOn = true;
+            movementScript.enabled = false;
+        }
     }
     // Update is called once per frame
     void Update()
