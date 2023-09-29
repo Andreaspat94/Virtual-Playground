@@ -754,7 +754,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void GoToEscapeUI()
     {
-        //if not already fading out..
+        //if not fade out has started..
         if (!fadeOut)
         {
             startUpTutorial.SwitchOnOffHandGrabInteractors();
@@ -762,7 +762,7 @@ public class CheckerManager : Singleton<CheckerManager>
             Vector3 player_direction = fps_controller.transform.forward;
             Quaternion player_rotation = fps_controller.transform.rotation;
             float spawnDistance = 2.0f;
-
+            
             canvas.renderMode = RenderMode.WorldSpace;
             canvas.transform.position = player_position + player_direction * spawnDistance;
             canvas.transform.rotation = player_rotation;
