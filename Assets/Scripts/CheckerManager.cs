@@ -119,7 +119,7 @@ public class CheckerManager : Singleton<CheckerManager>
     //Is called when Playground is fixed
     public UnityEvent GameWonEvent;
 
-    public OneGrabTranslateTransformer pickedCubeTransformer;
+    public OneGrabFreeTransformer pickedCubeTransformer;
 
     private CubeNameID idOfCube;
     private GameObject cubePickedUp;
@@ -840,7 +840,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
                 //Compute relative position of picked cube form corner by substracting the Hook form the corner.
-                pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabTranslateTransformer>();
+                pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabFreeTransformer>();
                 offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
                 
                 //Clamp to size of array

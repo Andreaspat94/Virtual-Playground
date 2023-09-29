@@ -29,7 +29,7 @@ namespace Oculus.Interaction
     /// </summary>
     public class OneGrabFreeTransformer : MonoBehaviour, ITransformer
     {
-
+        public Vector3 targetTransformer;
         private IGrabbable _grabbable;
         private Pose _grabDeltaInLocalSpace;
 
@@ -52,6 +52,7 @@ namespace Oculus.Interaction
             var targetTransform = _grabbable.Transform;
             targetTransform.rotation = grabPoint.rotation * _grabDeltaInLocalSpace.rotation;
             targetTransform.position = grabPoint.position - targetTransform.TransformVector(_grabDeltaInLocalSpace.position);
+            targetTransformer = targetTransform.position;
         }
 
         public void EndTransform() { }
