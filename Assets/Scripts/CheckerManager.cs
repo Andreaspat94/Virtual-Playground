@@ -77,7 +77,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private Canvas canvas;
     private float delayTime;
     public bool fadeOut;
-    
+    private bool pickedUpCounter = true;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -98,7 +98,6 @@ public class CheckerManager : Singleton<CheckerManager>
         public GameObject playgroundObject; //Represenation of the playground object
         public GameObject multiCubeRepresentation; //Parent of all interactioncubes of the same color
     }
-    
     
     //This array has all the possible cubes we need and pointers to them.
     //the activeCubeIndex indexes into this array to indicate which cube is currently active carried
@@ -588,10 +587,7 @@ public class CheckerManager : Singleton<CheckerManager>
     
     public void CubeGrabbed()
     {
-        // Store location in grid, in case cube is realesed in forbidden place and has to go back
-        // X = x;
-        // Y = y;
-        // Debug.Log("Cube grabbed --> "+ x + "," + y);
+        //This is for storing cube location when picked up, in case it has to return there.
         clone = null;
         cubePickedUp = Grabbable.cubeGrabbed;
         var cubeTransform = cubePickedUp.transform;
@@ -608,7 +604,7 @@ public class CheckerManager : Singleton<CheckerManager>
            //Show carry cube of same name, and set the active cube index
            EnableCube(idOfCube.cubeID);
             
-            if (idOfCube.tag == "InteractionCube" || idOfCube.tag == "PoolCube")
+            if (idOfCube.tag == "InteractionCube" || idOfCube.tag == poolCubeTag)
             {
                 //Set matrix entry to 0
                 checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
@@ -658,8 +654,7 @@ public class CheckerManager : Singleton<CheckerManager>
             AudioManager.Instance.playSound("forbiddenOnPath");
         }
         
-        delayTime = 1.0f;
-        
+        delayTime = 2.0f;
         //Place new cube only of matrix is empty
         if (adjacencyError == 0 && checkkerArray[x, y] == 0)
         {
@@ -674,36 +669,43 @@ public class CheckerManager : Singleton<CheckerManager>
 
             delayTime = 0.0f;
         }
+        //after releasing cube in forbidden place, this section returns it back to its previous location
+        else if (cubePickedUp.tag != poolCubeTag && adjacencyError != 10 && checkkerArray[x,y] != 10)
+        {
+            canChangeViewMode = false;
+            string name = cubesArray[activeCubeIndex].name;
+            StartCoroutine(CreateCubeForForbiddenDrop(name, delayTime));
+            // CreateStaticCube(cubesArray[activeCubeIndex].name, X, Y, false);
+        }
         
         if(adjacencyError == 10 || checkkerArray[x,y] == 10)
         {
             delayTime = 0.0f;
         }
-
+        Debug.Log("Adjacency Error --> " + adjacencyError);
+        Debug.Log("Checkker array --> " + checkkerArray[x,y]);
+        
         //Destroy cube that is placed wrong
         Destroy(cubePickedUp, delayTime);
-        // if (adjacencyError != 0)
-        // {
-        //     StartCoroutine(CreateCubeForForbiddenDrop(delayTime));
-        // }
         
         cubePickedUp = null;
         idOfCube = null;
+        pickedUpCounter = true;
         
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
     }
 
-    // IEnumerator CreateCubeForForbiddenDrop(float timeToWait)
-    // {
-    //     Debug.Log("Wait --> " + timeToWait);
-    //     yield return new WaitForSecondsRealtime(timeToWait);
-    //     CreateStaticCube(idOfCube.cubeID, X, Y, false);
-    //     Debug.Log("Create Cube --> " + X +"," + Y);
-    // }
+    IEnumerator CreateCubeForForbiddenDrop(string name, float timeToWait)
+    {
+        // Debug.Log("Wait --> " + timeToWait);
+        yield return new WaitForSecondsRealtime(timeToWait);
+        CreateStaticCube(name, X, Y, false);
+        // Debug.Log("Create Cube --> " + X +"," + Y);
+    }
 
-      public void ZoomIn()
+    public void ZoomIn()
     {
         fps_controller.transform.position = previousFPSPos;
         movementScript.enabled = true; //fps_controller.RestoreGroundForce();
@@ -838,35 +840,7 @@ public class CheckerManager : Singleton<CheckerManager>
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null && cubePickedUp != null)
             {
-                //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
-                //Compute relative position of picked cube form corner by substracting the Hook form the corner.
-                pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabFreeTransformer>();
-                offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
-                
-                //Clamp to size of array
-                //Because the (0,0) is top left z and x can be negative so use Abs
-                //Also remove decimals and floor values
-                offset.x = Mathf.Floor(Mathf.Clamp(Mathf.Abs(offset.x), 0, XDim - 1));
-                offset.z = Mathf.Floor(Mathf.Clamp(Mathf.Abs(offset.z), 0, YDim - 1));
-
-                //compute int checkker array index
-                x = (int)offset.z;
-                y = (int)offset.x;
-
-                //Compute position of red highlight tile, 
-                //assume that cube is 1x1x0.5, therefore add offset, the pivot of the cube is in the bottom center
-                offset = cornerCheckerboard.right * (x + 0.5f) + cornerCheckerboard.forward * (y + 0.5f) + new Vector3(0, 0.01f, 0);
-                //Place highlight tile and hide it
-                redTile.position = cornerCheckerboard.position + offset;
-
-                //Check if cube can be place in this x,y. return value has several values
-                //0:OK, -1:Occupied with color cube, 7:Occupied with Pavement, 8:Occupied with Bench 
-                //9:Next to fence, 1-6:Next to cube with different color, 10: cube pool
-                adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
-            
-                //Draw a red tile only if field empty and not in pool
-                if (adjacencyError >= 0 && adjacencyError != 10)
-                    redTile.gameObject.SetActive(true);
+                CalculateRedTilePosition();
             }
         } //carry cube section
 	}//Update
@@ -886,5 +860,47 @@ public class CheckerManager : Singleton<CheckerManager>
             //store current object or null if none
             currentInteractionObject = interactionObj;
         }
+    }
+
+    void CalculateRedTilePosition()
+    {
+        //The corner is the (0,0) of the Checker. Compute the int coords of where the carried cube is now
+        //Compute relative position of picked cube form corner by substracting the Hook form the corner.
+        pickedCubeTransformer = cubePickedUp.GetComponentInChildren<OneGrabFreeTransformer>();
+        offset = pickedCubeTransformer.targetTransformer - cornerCheckerboard.position;
+        
+        //Clamp to size of array
+        //Because the (0,0) is top left z and x can be negative so use Abs
+        //Also remove decimals and floor values
+        offset.x = Mathf.Floor(Mathf.Clamp(Mathf.Abs(offset.x), 0, XDim - 1));
+        offset.z = Mathf.Floor(Mathf.Clamp(Mathf.Abs(offset.z), 0, YDim - 1));
+
+        //compute int checkker array index
+        x = (int)offset.z;
+        y = (int)offset.x;
+
+        // We want to store location in grid, in case cube is realesed in forbidden place and has to go back
+        // Enter if statement just once (when cube is grabbed).
+        if (pickedUpCounter)
+        {
+            X = x;
+            Y = y;
+            pickedUpCounter = false;
+        }
+        
+        //Compute position of red highlight tile, 
+        //assume that cube is 1x1x0.5, therefore add offset, the pivot of the cube is in the bottom center
+        offset = cornerCheckerboard.right * (x + 0.5f) + cornerCheckerboard.forward * (y + 0.5f) + new Vector3(0, 0.01f, 0);
+        //Place highlight tile and hide it
+        redTile.position = cornerCheckerboard.position + offset;
+
+        //Check if cube can be place in this x,y. return value has several values
+        //0:OK, -1:Occupied with color cube, 7:Occupied with Pavement, 8:Occupied with Bench 
+        //9:Next to fence, 1-6:Next to cube with different color, 10: cube pool
+        adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
+    
+        //Draw a red tile only if field empty and not in pool
+        if (adjacencyError >= 0 && adjacencyError != 10)
+            redTile.gameObject.SetActive(true);
     }
 }
