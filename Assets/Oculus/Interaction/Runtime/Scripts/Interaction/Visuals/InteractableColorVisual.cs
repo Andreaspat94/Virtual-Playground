@@ -104,7 +104,7 @@ namespace Oculus.Interaction
         protected virtual void UpdateVisual()
         {
             ColorState target = ColorForState(InteractableView.State);
-            if (target != _target)
+            if (target != _target && target != _disabledColorState)
             {
                 _target = target;
                 CancelRoutine();

@@ -592,9 +592,6 @@ public class CheckerManager : Singleton<CheckerManager>
         cubePickedUp = Grabbable.cubeGrabbed;
         var cubeTransform = cubePickedUp.transform;
 
-        InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
-        colorScript.enabled = false;
-
         idOfCube = cubePickedUp.GetComponentInChildren<CubeNameID>();
         if (idOfCube != null && idOfCube.cubeID != "GreyCube")
         {
@@ -682,9 +679,10 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             delayTime = 0.0f;
         }
-        Debug.Log("Adjacency Error --> " + adjacencyError);
-        Debug.Log("Checkker array --> " + checkkerArray[x,y]);
         
+        InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
+        colorScript.enabled = false;
+
         //Destroy cube that is placed wrong
         Destroy(cubePickedUp, delayTime);
         
@@ -699,10 +697,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
     IEnumerator CreateCubeForForbiddenDrop(string name, float timeToWait)
     {
-        // Debug.Log("Wait --> " + timeToWait);
         yield return new WaitForSecondsRealtime(timeToWait);
         CreateStaticCube(name, X, Y, false);
-        // Debug.Log("Create Cube --> " + X +"," + Y);
     }
 
     public void ZoomIn()
