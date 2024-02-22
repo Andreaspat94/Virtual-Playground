@@ -53,12 +53,12 @@ public class StartupTutorial : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
          if (other.tag == "Player")
-            SwitchOnOffRayInteractors();
+            ActivateRayInteractors(true);
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "Player")
-            SwitchOnOffRayInteractors();
+            ActivateRayInteractors(false);
     }
 
     void Awake()
@@ -93,8 +93,8 @@ public class StartupTutorial : MonoBehaviour
 
     void StartGame()
     {
-        SwitchOnOffRayInteractors();
-        SwitchOnOffHandGrabInteractors();
+        ActivateRayInteractors(true);
+        ActivateGrabInteractors();
         isActive = false;
         CheckerManager.Instance.isActive = true;
         owlAnimator.GetComponent<Collider>().enabled = false;
@@ -139,13 +139,13 @@ public class StartupTutorial : MonoBehaviour
         }
     }
     
-    public void SwitchOnOffRayInteractors()
+    public void ActivateRayInteractors(bool activate)
     {
-        leftRay.SetActive(!leftRay.activeSelf);
-        rightRay.SetActive(!rightRay.activeSelf);
+        leftRay.SetActive(activate);
+        rightRay.SetActive(activate);
     }
 
-    public void SwitchOnOffHandGrabInteractors()
+    public void ActivateGrabInteractors()
     {
         leftHandGrab.SetActive(!leftHandGrab.activeSelf);
         rightHandGrab.SetActive(!rightHandGrab.activeSelf);
@@ -161,7 +161,7 @@ public class StartupTutorial : MonoBehaviour
         //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
         GameObject.Find("OwlOutline").SetActive(false);        
     
-        SwitchOnOffRayInteractors();
+        ActivateRayInteractors(false);
         // CheckerManager.Instance.IssueInterationEvents(null);
         StartCoroutine(PlaySounds());
         

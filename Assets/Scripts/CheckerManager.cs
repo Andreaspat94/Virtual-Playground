@@ -118,6 +118,7 @@ public class CheckerManager : Singleton<CheckerManager>
     //Is called when Playground is fixed
     public UnityEvent GameWonEvent;
 
+    [HideInInspector]
     public OneGrabFreeTransformer pickedCubeTransformer;
 
     private CubeNameID idOfCube;
@@ -134,8 +135,8 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   8,  8, 9, 9, 9, 9, 9, 9, 9, 9, 9},
         {9, 0, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 0, 11,11,11,0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 0, 11,11,11,0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
+        {9, 11,11,11,0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
+        {9, 11,11,11,0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
         {9, 0, 2, 4, 4, 4, 4, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
         {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 11,11,0, 5, 5, 5, 9},
         {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 11,11,0, 5, 5, 5, 9},
@@ -748,7 +749,7 @@ public class CheckerManager : Singleton<CheckerManager>
        ui_collider.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
-       startUpTutorial.SwitchOnOffHandGrabInteractors();
+       startUpTutorial.ActivateGrabInteractors();
     }
 
     public void GoToEscapeUI()
@@ -756,7 +757,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if not fade out has started..
         if (!fadeOut)
         {
-            startUpTutorial.SwitchOnOffHandGrabInteractors();
+            startUpTutorial.ActivateGrabInteractors();
             Vector3 player_position = fps_controller.transform.position;
             Vector3 player_direction = fps_controller.transform.forward;
             Quaternion player_rotation = fps_controller.transform.rotation;
@@ -814,14 +815,14 @@ public class CheckerManager : Singleton<CheckerManager>
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
             {
-                startUpTutorial.SwitchOnOffRayInteractors();
-                startUpTutorial.SwitchOnOffHandGrabInteractors();
+                startUpTutorial.ActivateRayInteractors(false);
+                startUpTutorial.ActivateGrabInteractors();
                 CheckIfOK();
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {
-                startUpTutorial.SwitchOnOffRayInteractors();
-                startUpTutorial.SwitchOnOffHandGrabInteractors();
+                startUpTutorial.ActivateRayInteractors(true);
+                startUpTutorial.ActivateGrabInteractors();
                 ResetToCubeRepresentation();
             }
         } 
