@@ -52,5 +52,6 @@
         "temp/":true,
         "Temp/":true
     },
-    "dotnet.defaultSolution": "Virtual-Playground.sln"
+    "dotnet.defaultSolution": "Virtual-Playground.sln",
+    "dotnet.preferCSharpExtension": true
 }

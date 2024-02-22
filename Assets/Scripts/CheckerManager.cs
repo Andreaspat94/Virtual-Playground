@@ -3,9 +3,17 @@ using HoloToolkit.Unity;
 using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
+using System;
+using UnityEngine.Animations;
+using Oculus.Interaction.HandGrab;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
+    // List of object that are OK
+    [SerializeField]
+    GameObject cubeHierarchy;
+
+
     [Header("Info needed to switch into cube interaction mode")]
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
@@ -221,7 +229,6 @@ public class CheckerManager : Singleton<CheckerManager>
         }
     }
 
-
     //Add a static cube to the checker board.
     //Creates an instance and adds the entry to the checkker array
     //Is called form Dropper after collision or from Start() to creat initial cubes
@@ -389,6 +396,7 @@ public class CheckerManager : Singleton<CheckerManager>
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
+                                NotGrabbableAnymore(whichColor-1);
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
                                 Vector3 pos;
@@ -396,7 +404,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
                                 if (okNorm)
                                 {
-                                    Vector3 offset = cornerCheckerboard.right * (x + colorSizes[whichColor - 1, 0]*0.5f) + cornerCheckerboard.forward * (y + colorSizes[whichColor - 1, 1] * 0.5f);
+                                    Vector3 offset = cornerCheckerboard.right * (x + colorSizes[whichColor - 1, 0] * 0.5f) + cornerCheckerboard.forward * (y + colorSizes[whichColor - 1, 1] * 0.5f);
                                     pos = cornerCheckerboard.position + offset;
                                 }
                                 else
@@ -488,6 +496,24 @@ public class CheckerManager : Singleton<CheckerManager>
         }
     }
 
+    void NotGrabbableAnymore(int id)
+    {
+        // Get color group
+        GameObject parentColor = cubeHierarchy.transform.GetChild(id).gameObject;
+        foreach (Transform child in parentColor.transform)
+        {   
+            DistanceHandGrabInteractable script = child.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
+            if (script != null)
+                script.enabled = false;
+        }
+
+        // now change tag/layer for pool cube as well.
+        GameObject poolCube = objectPool.transform.GetChild(id).gameObject;
+        DistanceHandGrabInteractable poolScript = poolCube.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
+        if (poolScript != null)
+            poolScript.enabled = false;
+    }
+
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
     {
@@ -510,7 +536,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 }
             }
         }
-
         return true;
     }
 
@@ -550,7 +575,7 @@ public class CheckerManager : Singleton<CheckerManager>
             return -1;
         }
         //Occupied with special cases
-        if (checkkerArray[x, y] >= 7 && checkkerArray[x, y] <= 10)
+        if (checkkerArray[x, y] >= 7 && checkkerArray[x, y] <= 11)
         {
             return checkkerArray[x, y];
         }
