@@ -750,8 +750,8 @@ public class CheckerManager : Singleton<CheckerManager>
         fps_controller.transform.position = previousFPSPos;
         movementScript.enabled = true; //fps_controller.RestoreGroundForce();
         rb.useGravity = true;
-        startUpTutorial.ActivateGrabInteractors(false);
-        startUpTutorial.ActivateRayInteractors(false);
+        startUpTutorial.ActivateGrabInteractors(true);
+        startUpTutorial.ActivateRayInteractors(true);
         isZoomOutViewMode = false;
         if (staticObjects) staticObjects.SetActive(true);
         
@@ -790,7 +790,7 @@ public class CheckerManager : Singleton<CheckerManager>
         AudioManager.Instance.playSound("goHigh");
     }
 
-      public void ReturnFromEscapeUI()
+    public void ReturnFromEscapeUI()
     {
        ui_escape.SetActive(false);
        ui_collider.SetActive(false);
@@ -945,7 +945,7 @@ public class CheckerManager : Singleton<CheckerManager>
         adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
     
         //Draw a red tile only if field empty and not in pool
-        if (adjacencyError >= 0 && adjacencyError != 10)
+        if (adjacencyError >= 0 && adjacencyError != 10 && adjacencyError != 11)
             redTile.gameObject.SetActive(true);
     }
 }
