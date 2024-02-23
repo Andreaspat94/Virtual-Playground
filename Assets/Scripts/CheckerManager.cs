@@ -4,8 +4,6 @@ using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
 using System;
-using UnityEngine.Animations;
-using Oculus.Interaction.HandGrab;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -603,7 +601,6 @@ public class CheckerManager : Singleton<CheckerManager>
                     return (checkkerArray[xlocal, ylocal]);
             }
         }
-
         return 0;
     }
 
@@ -635,11 +632,11 @@ public class CheckerManager : Singleton<CheckerManager>
            //Show carry cube of same name, and set the active cube index
            EnableCube(idOfCube.cubeID);
             
-            if (idOfCube.tag == "InteractionCube" || idOfCube.tag == poolCubeTag)
-            {
-                //Set matrix entry to 0
-                checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
-            }
+           if (idOfCube.tag == "InteractionCube" || idOfCube.tag == poolCubeTag)
+           {
+               //Set matrix entry to 0
+               checkkerArray[idOfCube.xCheckerArrayCoord, idOfCube.yCheckerArrayCoord] = 0;
+           }
         }
 
         // This section is for pool cubes
@@ -666,6 +663,8 @@ public class CheckerManager : Singleton<CheckerManager>
     
     public void CubeReleased()
     {
+        StartCoroutine(LetTimeForCubeToDrop());
+        
         AudioManager.Instance.playSound("dropBlock");
         //Test for errors and play sounds
         if (adjacencyError > 0 && adjacencyError <= 6)
@@ -717,7 +716,7 @@ public class CheckerManager : Singleton<CheckerManager>
         InteractableColorVisual colorScript = cubePickedUp.GetComponentInChildren<InteractableColorVisual>();
         colorScript.enabled = false;
 
-        //Destroy cube that is placed wrong
+        //Destroy released cube
         Destroy(cubePickedUp, delayTime);
         
         cubePickedUp = null;
@@ -727,6 +726,17 @@ public class CheckerManager : Singleton<CheckerManager>
         //Inidicate that we dont carry anything anymore and hide redTile
         activeCubeIndex = -1;
         redTile.gameObject.SetActive(false);
+    }
+
+    IEnumerator LetTimeForCubeToDrop()
+    {
+        startUpTutorial.ActivateGrabInteractors(false);
+        startUpTutorial.ActivateRayInteractors(false);
+        yield return new WaitForSeconds(2.0f);
+
+        //activate hand grabs
+        startUpTutorial.ActivateRayInteractors(true);
+        startUpTutorial.ActivateGrabInteractors(true);
     }
 
     IEnumerator CreateCubeForForbiddenDrop(string name, float timeToWait)
@@ -740,6 +750,8 @@ public class CheckerManager : Singleton<CheckerManager>
         fps_controller.transform.position = previousFPSPos;
         movementScript.enabled = true; //fps_controller.RestoreGroundForce();
         rb.useGravity = true;
+        startUpTutorial.ActivateGrabInteractors(false);
+        startUpTutorial.ActivateRayInteractors(false);
         isZoomOutViewMode = false;
         if (staticObjects) staticObjects.SetActive(true);
         
@@ -762,6 +774,9 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         //disable player movement
         movementScript.enabled = false; 
+        startUpTutorial.ActivateGrabInteractors(false);
+        startUpTutorial.ActivateRayInteractors(false);
+
         rb.useGravity = false;
         isZoomOutViewMode = true;
         if (staticObjects) staticObjects.SetActive(false);
@@ -781,7 +796,7 @@ public class CheckerManager : Singleton<CheckerManager>
        ui_collider.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
-       startUpTutorial.ActivateGrabInteractors();
+       startUpTutorial.ActivateGrabInteractors(true);
     }
 
     public void GoToEscapeUI()
@@ -789,7 +804,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if not fade out has started..
         if (!fadeOut)
         {
-            startUpTutorial.ActivateGrabInteractors();
+            startUpTutorial.ActivateGrabInteractors(false);
             Vector3 player_position = fps_controller.transform.position;
             Vector3 player_direction = fps_controller.transform.forward;
             Quaternion player_rotation = fps_controller.transform.rotation;
@@ -848,13 +863,13 @@ public class CheckerManager : Singleton<CheckerManager>
             if (view_mode_ != ViewModes.PRESENTATION)
             {
                 startUpTutorial.ActivateRayInteractors(false);
-                startUpTutorial.ActivateGrabInteractors();
+                startUpTutorial.ActivateGrabInteractors(false);
                 CheckIfOK();
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {
                 startUpTutorial.ActivateRayInteractors(true);
-                startUpTutorial.ActivateGrabInteractors();
+                startUpTutorial.ActivateGrabInteractors(true);
                 ResetToCubeRepresentation();
             }
         } 

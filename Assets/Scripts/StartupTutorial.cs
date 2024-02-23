@@ -94,7 +94,7 @@ public class StartupTutorial : MonoBehaviour
     void StartGame()
     {
         ActivateRayInteractors(true);
-        ActivateGrabInteractors();
+        ActivateGrabInteractors(true);
         isActive = false;
         CheckerManager.Instance.isActive = true;
         owlAnimator.GetComponent<Collider>().enabled = false;
@@ -145,10 +145,10 @@ public class StartupTutorial : MonoBehaviour
         rightRay.SetActive(activate);
     }
 
-    public void ActivateGrabInteractors()
+    public void ActivateGrabInteractors(bool activate)
     {
-        leftHandGrab.SetActive(!leftHandGrab.activeSelf);
-        rightHandGrab.SetActive(!rightHandGrab.activeSelf);
+        leftHandGrab.SetActive(activate);
+        rightHandGrab.SetActive(activate);
     }
 
     //This is called afer clicking on the owl, it starts the Tutorial sequence
