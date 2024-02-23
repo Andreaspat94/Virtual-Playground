@@ -396,7 +396,7 @@ public class CheckerManager : Singleton<CheckerManager>
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
-                                NotGrabbableAnymore(whichColor-1);
+                                // NotGrabbableAnymore(whichColor-1);
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
                                 Vector3 pos;
@@ -496,23 +496,30 @@ public class CheckerManager : Singleton<CheckerManager>
         }
     }
 
-    void NotGrabbableAnymore(int id)
-    {
-        // Get color group
-        GameObject parentColor = cubeHierarchy.transform.GetChild(id).gameObject;
-        foreach (Transform child in parentColor.transform)
-        {   
-            DistanceHandGrabInteractable script = child.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
-            if (script != null)
-                script.enabled = false;
-        }
+    
+    /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.
+    /// DONT USE IT
+    
+    // void NotGrabbableAnymore(int id)
+    // {
+        // Debug.Log("--->NotGrabableAnymore called...");
+        // // Get color group
+        // GameObject parentColor = cubeHierarchy.transform.GetChild(id).gameObject;
+        // foreach (Transform child in parentColor.transform)
+        // {   
+        //     DistanceHandGrabInteractable script = child.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
+        //     if (script != null)
+        //         script.enabled = false;
+        // }
 
-        // now change tag/layer for pool cube as well.
-        GameObject poolCube = objectPool.transform.GetChild(id).gameObject;
-        DistanceHandGrabInteractable poolScript = poolCube.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
-        if (poolScript != null)
-            poolScript.enabled = false;
-    }
+        // // now change tag/layer for pool cube as well.
+        // GameObject poolCube = objectPool.transform.GetChild(id).gameObject;
+        // DistanceHandGrabInteractable poolScript = poolCube.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
+        // if (poolScript != null)
+        //     poolScript.enabled = false;
+        
+        // Debug.Log("-->Not grabbable anymore..." + parentColor + " and " + poolCube.name);
+    // }
 
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
