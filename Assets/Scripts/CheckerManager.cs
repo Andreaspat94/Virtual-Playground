@@ -141,12 +141,12 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   8,  8, 9, 9, 9, 9, 9, 9, 9, 9, 9},
         {9, 0, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 11,11,11,0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 11,11,11,0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
+        {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
+        {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
         {9, 0, 2, 4, 4, 4, 4, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
-        {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 11,11,0, 5, 5, 5, 9},
-        {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 11,11,0, 5, 5, 5, 9},
-        {8, 0, 2, 4, 4, 4, 4, 0, 0,   7,  7, 0, 0, 11,11,0, 5, 5, 5, 9},
+        {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 4, 4, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -309,6 +309,8 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
+        startUpTutorial.ActivateRayInteractors(true);
+        startUpTutorial.ActivateGrabInteractors(true);
 
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
@@ -390,11 +392,18 @@ public class CheckerManager : Singleton<CheckerManager>
                             // Test are rotate 90 Degrees if normal test does not succeed
                             if (!okNorm)
                                 okRotate = testArea(x, y, colorSizes[whichColor - 1,1], colorSizes[whichColor - 1,0], whichColor, localMatrix);
+                            // if (whichColor == 5)
+                            //     Debug.Log("okNorm--> "  + okNorm + " ...OkRotate--> " + okRotate + "... Color --> " + whichColor);
                             if (okNorm || okRotate)
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
+                                // for (int i = 0; i < idOK.Length; i++)
+                                // {
+                                //     Debug.Log("idOK[" + i  + "]--> " + idOK[i]);
+                                // }
                                 // NotGrabbableAnymore(whichColor-1);
+
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
                                 Vector3 pos;
@@ -444,8 +453,10 @@ public class CheckerManager : Singleton<CheckerManager>
         bool allOK = true;
 
         //Set to default value and see if there is any cube island that is correct, 
-        //if no island correct do not swith to PResentation mode 
+        //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
+        startUpTutorial.ActivateRayInteractors(true);
+        startUpTutorial.ActivateGrabInteractors(true);
 
         // Check trough all the colors and switch geometry on/off.
         for (int i = 0; i < playGroundObjectsArray.Length; i++)
@@ -463,6 +474,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
+                startUpTutorial.ActivateRayInteractors(false);
+                startUpTutorial.ActivateGrabInteractors(false);
             }
             else
             {
@@ -532,9 +545,12 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             for (int jx = x; jx < areax; jx++)
             {
-                localMatrix[jx, iy] = 1;
-
+                localMatrix[jx, iy] = 1;   
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
+                if (ID == 5)
+                {
+                    Debug.Log("adjacentCheck--> " + adjacentCheck(jx,iy, ID));
+                }
                 if ((checkkerArray[jx, iy] != ID) || (ID > 6) || adjacentCheck(jx,iy, ID))
                 {
                     return false;
@@ -545,9 +561,10 @@ public class CheckerManager : Singleton<CheckerManager>
     }
 
     //Returns true if there are adjacent cubes with different color and the cube can not be placed
-    bool adjacentCheck(int x, int y, int CubeID)
+    bool adjacentCheck(int x, int y, int ID)
     {
         int xlocal, ylocal;
+        // this represents the 8 spots surround the placed cube.
         int[,] offsetArray = new int[8,2] {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
     
         for (int i = 0; i<8; i++)
@@ -557,22 +574,24 @@ public class CheckerManager : Singleton<CheckerManager>
 	
 	        if (xlocal<YDim && xlocal>=0 && ylocal<XDim && ylocal>=0)
             {
-                //Check if adjacent ID is different and not 0:empty,7:pavemtn, 9:fence
-	            if ((checkkerArray[xlocal, ylocal] != CubeID) && 
+                if (ID == 5)
+                    Debug.Log("checkkerArray[xlocal, ylocal] --> " + (checkkerArray[xlocal, ylocal]));
+                //Check if adjacent ID is different and not 0:empty,7:pavement, 9:fence
+	            if ((checkkerArray[xlocal, ylocal] != ID) && 
                     (checkkerArray[xlocal, ylocal] != 0) &&
                     (checkkerArray[xlocal, ylocal] != 7) &&
                     (checkkerArray[xlocal, ylocal] != 9))
                     return true;
 	        }
-        } 
-    
+        }
         return false;
     }
 
     int forbiddenCheck(int x, int y, int CubeID)
     {
         int xlocal, ylocal;
-        int[,] offsetArray = new int[8, 2] { { 1, 0 }, { 1, 1 }, { 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 } };
+        // this represents the 8 spots surround the placed cube.
+        int[,] offsetArray = new int[8, 2] {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
 
         //Check if already occupied with color cube
         if (checkkerArray[x, y] != 0 && checkkerArray[x, y] <= 6)
@@ -580,7 +599,7 @@ public class CheckerManager : Singleton<CheckerManager>
             return -1;
         }
         //Occupied with special cases
-        if (checkkerArray[x, y] >= 7 && checkkerArray[x, y] <= 11)
+        if (checkkerArray[x, y] >= 7 && checkkerArray[x, y] <= 10)
         {
             return checkkerArray[x, y];
         }
@@ -685,8 +704,8 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         
         delayTime = 2.0f;
-        //Place new cube only of matrix is empty
-        if (adjacencyError == 0 && checkkerArray[x, y] == 0)
+        //Place new cube only if matrix is empty
+        if (adjacencyError == 0  && checkkerArray[x, y] == 0)
         {
             //Issue a start physics command with the cubeID name and its computed coord array positions
             //Also enables the dropCube and positions it correctly to where the hook is now
@@ -701,7 +720,7 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         //after releasing cube in forbidden place, this section returns it back to its previous location
         else if (cubePickedUp.tag != poolCubeTag && adjacencyError != 10 && checkkerArray[x,y] != 10)
-        {
+        {   
             canChangeViewMode = false;
             string name = cubesArray[activeCubeIndex].name;
             StartCoroutine(CreateCubeForForbiddenDrop(name, delayTime));
@@ -731,11 +750,8 @@ public class CheckerManager : Singleton<CheckerManager>
     IEnumerator LetTimeForCubeToDrop()
     {
         startUpTutorial.ActivateGrabInteractors(false);
-        startUpTutorial.ActivateRayInteractors(false);
         yield return new WaitForSeconds(2.0f);
-
         //activate hand grabs
-        startUpTutorial.ActivateRayInteractors(true);
         startUpTutorial.ActivateGrabInteractors(true);
     }
 
@@ -750,8 +766,12 @@ public class CheckerManager : Singleton<CheckerManager>
         fps_controller.transform.position = previousFPSPos;
         movementScript.enabled = true; //fps_controller.RestoreGroundForce();
         rb.useGravity = true;
-        startUpTutorial.ActivateGrabInteractors(true);
-        startUpTutorial.ActivateRayInteractors(true);
+        if (view_mode_ == ViewModes.CUBE_INTERACTION)
+        {
+            startUpTutorial.ActivateGrabInteractors(true);
+            startUpTutorial.ActivateRayInteractors(true);
+        }
+    
         isZoomOutViewMode = false;
         if (staticObjects) staticObjects.SetActive(true);
         
@@ -862,14 +882,10 @@ public class CheckerManager : Singleton<CheckerManager>
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
             {
-                startUpTutorial.ActivateRayInteractors(false);
-                startUpTutorial.ActivateGrabInteractors(false);
                 CheckIfOK();
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {
-                startUpTutorial.ActivateRayInteractors(true);
-                startUpTutorial.ActivateGrabInteractors(true);
                 ResetToCubeRepresentation();
             }
         } 
@@ -945,7 +961,7 @@ public class CheckerManager : Singleton<CheckerManager>
         adjacencyError = forbiddenCheck(x,y, GetCubeId(cubesArray[activeCubeIndex].name));
     
         //Draw a red tile only if field empty and not in pool
-        if (adjacencyError >= 0 && adjacencyError != 10 && adjacencyError != 11)
+        if (adjacencyError >= 0 && adjacencyError != 10)
             redTile.gameObject.SetActive(true);
     }
 }
