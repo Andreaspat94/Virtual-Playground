@@ -11,7 +11,6 @@ public class CheckerManager : Singleton<CheckerManager>
     [SerializeField]
     GameObject cubeHierarchy;
 
-
     [Header("Info needed to switch into cube interaction mode")]
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
@@ -82,9 +81,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public StartupTutorial startUpTutorial;
     private Canvas canvas;
     private float delayTime;
+    [HideInInspector]
     public bool fadeOut;
     private bool pickedUpCounter = true;
-
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
     //When dropcube is colliding with checker it becomes inactive and a prefabStaticCube is created in the respective checker pos
@@ -133,7 +132,6 @@ public class CheckerManager : Singleton<CheckerManager>
     
     private Vector3 offset;
     private int x, y, X, Y;
-
     //Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6, 
     //         Pavement:7, Bench:8, Fence:9, Cube pool:10, Flower bed: 11
     //array x is Z (unity), array y is X Unity
@@ -191,7 +189,6 @@ public class CheckerManager : Singleton<CheckerManager>
         movementScript = fps_controller.GetComponent<SimpleCapsuleWithStickMovement>();
         rb = fps_controller.GetComponent<Rigidbody>();
         canvas = ui_canvas.GetComponent<Canvas>();
-
         //CreateStatic cubes from initial Chekker array
         for (int x = 0; x < YDim; x++)
         {
@@ -497,9 +494,6 @@ public class CheckerManager : Singleton<CheckerManager>
             if (talkingBirds)
                 talkingBirds.SetActive(false);
 
-            // if (ui_reticle)
-            //     ui_reticle.SetActive(false);
-
             if (GameWonEvent != null)
                 GameWonEvent.Invoke();
 
@@ -510,7 +504,6 @@ public class CheckerManager : Singleton<CheckerManager>
     
     /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.
     /// DONT USE IT
-    
     // void NotGrabbableAnymore(int id)
     // {
         // Debug.Log("--->NotGrabableAnymore called...");
@@ -547,10 +540,6 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 localMatrix[jx, iy] = 1;   
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
-                if (ID == 5)
-                {
-                    Debug.Log("adjacentCheck--> " + adjacentCheck(jx,iy, ID));
-                }
                 if ((checkkerArray[jx, iy] != ID) || (ID > 6) || adjacentCheck(jx,iy, ID))
                 {
                     return false;
@@ -817,6 +806,7 @@ public class CheckerManager : Singleton<CheckerManager>
        isExitViewModeOn = false;
        movementScript.enabled = true;
        startUpTutorial.ActivateGrabInteractors(true);
+       canvas.renderMode = RenderMode.ScreenSpaceCamera;
     }
 
     public void GoToEscapeUI()
@@ -879,6 +869,9 @@ public class CheckerManager : Singleton<CheckerManager>
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)
         {
+            // start confirm answer sequence that leads to presentation mode.
+            startUpTutorial.ConfirmAnswer();
+            // this section shows the answer
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
             {

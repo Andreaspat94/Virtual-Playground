@@ -33,6 +33,7 @@ public class StartupTutorial : MonoBehaviour
     private String pathToRightHandGrab = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorRight";
 
     public List<Wavs> wayPointList = new List<Wavs>();
+    public List<Wavs> confirmColorList = new List<Wavs>();
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -42,8 +43,14 @@ public class StartupTutorial : MonoBehaviour
 
     public bool isActive = true;
     bool isSayingInfo = false;
-    public Text instructionTextUI = null;
+    public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
+    string displayText;
+    Collider collider;
+    [SerializeField]
+    GameObject owlOutline;
+    [SerializeField]
+    GameObject confirmPanel;
 
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
@@ -75,6 +82,7 @@ public class StartupTutorial : MonoBehaviour
         }
         // track ray interactors and switch them off
         TrackInteractors();
+        collider = owlAnimator.GetComponent<Collider>();
     }
 
     // Use this for initialization
@@ -83,6 +91,7 @@ public class StartupTutorial : MonoBehaviour
         //if not active proceed to play immediately
         if (isActive)
         {
+            displayText = "The Playground is a mess.\nAsk the Owl how to fix it.";
             StartCoroutine(AskTheOwl());
         }
         else
@@ -90,34 +99,12 @@ public class StartupTutorial : MonoBehaviour
             StartGame();
         }
 	}
-
-    void StartGame()
+    public void ConfirmAnswer()
     {
-        ActivateRayInteractors(true);
-        ActivateGrabInteractors(true);
-        isActive = false;
-        CheckerManager.Instance.isActive = true;
-        owlAnimator.GetComponent<Collider>().enabled = false;
-        gameObject.SetActive(false);
-
-        foreach (GameObject gs in ListToHide)
-            gs.SetActive(true);
-
-        foreach (GameObject gs in badPlayground)
-            gs.SetActive(false);
-
-        isSayingInfo = false;
-
-        if (owlAnimator)
-            owlAnimator.Reset();
-
-        CheckerManager.Instance.countCoveredBlocksUI();
-
-        instructionTextUI.gameObject.SetActive(false);
-        CanvasGroup gr = instructionTextUI.GetComponent<CanvasGroup>();
-        gr.alpha = 1;
-        // the owl model switcher was turned off when tutorial ends for some reason. This line of code solves this issue.
-        owlAnimator.gameObject.SetActive(true);
+        GetComponent<Collider>().enabled = false;
+        collider.enabled = true;
+        displayText = "Do you want to check your answer?\nLet's ask the Owl!";
+        StartCoroutine(AskTheOwl());
     }
 
     void TrackInteractors()
@@ -159,7 +146,7 @@ public class StartupTutorial : MonoBehaviour
         owlAnimator.GetComponent<Collider>().enabled = false;
 
         //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
-        GameObject.Find("OwlOutline").SetActive(false);        
+        owlOutline.SetActive(false);        
     
         ActivateRayInteractors(false);
         // CheckerManager.Instance.IssueInterationEvents(null);
@@ -178,25 +165,25 @@ public class StartupTutorial : MonoBehaviour
             StartGame();            
         }
     }
-
+    
     //Show instruction text to aske the owl and fade out
     IEnumerator AskTheOwl()
     {
-        if (instructionTextUI)
+        if (instructionText)
         {
-            instructionTextUI.text = "The Playground is a mess.\nAsk the Owl how to fix it.";
-            instructionTextUI.gameObject.SetActive(true);
+            instructionText.text = displayText;
+            instructionText.gameObject.SetActive(true);
             yield return new WaitForSeconds(5);
         }
 
-        CanvasGroup gr = instructionTextUI.GetComponent<CanvasGroup>();
+        CanvasGroup gr = instructionText.GetComponent<CanvasGroup>();
         while (gr.alpha > 0)
         {
             gr.alpha -= Time.deltaTime*0.4f;
             yield return null;
         }
 
-        instructionTextUI.gameObject.SetActive(false);
+        instructionText.gameObject.SetActive(false);
         gr.alpha = 1;
         yield return null;
     }
@@ -218,10 +205,10 @@ public class StartupTutorial : MonoBehaviour
                 owlAnimator.PlayAnimation();
 
             //Display a info text if there is one
-            if (!string.IsNullOrEmpty(wa.instructionText) && instructionTextUI)
+            if (!string.IsNullOrEmpty(wa.instructionText) && instructionText)
             {
-                instructionTextUI.text = wa.instructionText;
-                instructionTextUI.gameObject.SetActive(true);
+                instructionText.text = wa.instructionText;
+                instructionText.gameObject.SetActive(true);
             }
 
             //Wait duration of sound
@@ -235,10 +222,10 @@ public class StartupTutorial : MonoBehaviour
             if (wa.keyToProceed != OVRInput.Button.None)
             {
                 //Display text to inform about key press
-                if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionTextUI)
+                if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionText)
                 {
-                    instructionTextUI.text = wa.keyInstructionText;
-                    instructionTextUI.gameObject.SetActive(true);
+                    instructionText.text = wa.keyInstructionText;
+                    instructionText.gameObject.SetActive(true);
                 }
 
                 //wait unti key pressed
@@ -263,8 +250,8 @@ public class StartupTutorial : MonoBehaviour
             }
 
             //Hide ui
-            if (instructionTextUI)
-                instructionTextUI.gameObject.SetActive(false);
+            if (instructionText)
+                instructionText.gameObject.SetActive(false);
 
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
@@ -272,5 +259,34 @@ public class StartupTutorial : MonoBehaviour
 
         //Activate the game manager
         StartGame();
+    }
+
+    void StartGame()
+    {
+        ActivateRayInteractors(true);
+        ActivateGrabInteractors(true);
+        isActive = false;
+        CheckerManager.Instance.isActive = true;
+        collider.enabled = false;
+        gameObject.SetActive(false);
+
+        foreach (GameObject gs in ListToHide)
+            gs.SetActive(true);
+
+        foreach (GameObject gs in badPlayground)
+            gs.SetActive(false);
+
+        isSayingInfo = false;
+
+        if (owlAnimator)
+            owlAnimator.Reset();
+
+        CheckerManager.Instance.countCoveredBlocksUI();
+
+        instructionText.gameObject.SetActive(false);
+        CanvasGroup gr = instructionText.GetComponent<CanvasGroup>();
+        gr.alpha = 1;
+        // the owl model switcher was turned off when tutorial ends for some reason. This line of code solves this issue.
+        owlAnimator.gameObject.SetActive(true);
     }
 }
