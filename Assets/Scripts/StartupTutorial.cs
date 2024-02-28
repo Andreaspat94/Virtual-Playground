@@ -42,7 +42,6 @@ public class StartupTutorial : MonoBehaviour
     public GameObject[] badPlayground;
 
     public bool isActive = true;
-    bool isSayingInfo = false;
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
     string displayText;
@@ -51,7 +50,7 @@ public class StartupTutorial : MonoBehaviour
     GameObject owlOutline;
     [SerializeField]
     GameObject confirmPanel;
-
+    bool isTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
@@ -83,6 +82,7 @@ public class StartupTutorial : MonoBehaviour
         // track ray interactors and switch them off
         TrackInteractors();
         collider = owlAnimator.GetComponent<Collider>();
+        isTutorial = true;
     }
 
     // Use this for initialization
@@ -99,13 +99,6 @@ public class StartupTutorial : MonoBehaviour
             StartGame();
         }
 	}
-    public void ConfirmAnswer()
-    {
-        GetComponent<Collider>().enabled = false;
-        collider.enabled = true;
-        displayText = "Do you want to check your answer?\nLet's ask the Owl!";
-        StartCoroutine(AskTheOwl());
-    }
 
     void TrackInteractors()
     {
@@ -141,17 +134,16 @@ public class StartupTutorial : MonoBehaviour
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
     {
-        isSayingInfo = true;
         GetComponent<Collider>().enabled = false;
         owlAnimator.GetComponent<Collider>().enabled = false;
 
         //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
         owlOutline.SetActive(false);        
-    
+
         ActivateRayInteractors(false);
         // CheckerManager.Instance.IssueInterationEvents(null);
         StartCoroutine(PlaySounds());
-        
+      
     }
 	
 	// Update is called once per frame
@@ -187,12 +179,45 @@ public class StartupTutorial : MonoBehaviour
         gr.alpha = 1;
         yield return null;
     }
+    void ResetTheOwl()
+    {
+        GetComponent<Collider>().enabled = true;
+        owlAnimator.GetComponent<Collider>().enabled = true;
+        owlOutline.SetActive(true);
+
+    }
+    // Here the confirmation sequence for given answer starts 
+    // [1] -- This method is called when 'X' touch controller button is pressed.
+    public void ConfirmAnswer()
+    {
+        GetComponent<Collider>().enabled = false;
+        collider.enabled = true;
+        displayText = "Do you want to check your answer?\nLet's ask the Owl!";
+        
+        // [2] -- click the owl and panel with button appears
+        StartCoroutine(AskTheOwl());
+    }
+    
+    // [3] -- This is called when button is clicked in panel
+    public void CheckColor(string color)
+    {
+        Debug.Log("CheckColor..." + color);
+    }
 
     //This coroutine plays all the pre-game text
     IEnumerator PlaySounds()
     {
+        List<Wavs> wavList = new List<Wavs>();
+        if (isTutorial)
+        {
+            wavList = wayPointList;
+        }
+        else
+        {
+            wavList = confirmColorList;
+        }
         //for each entry in the text, each entry if a text file
-        foreach (Wavs wa in wayPointList)
+        foreach (Wavs wa in wavList)
         {
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -266,6 +291,7 @@ public class StartupTutorial : MonoBehaviour
         ActivateRayInteractors(true);
         ActivateGrabInteractors(true);
         isActive = false;
+        isTutorial = false;
         CheckerManager.Instance.isActive = true;
         collider.enabled = false;
         gameObject.SetActive(false);
@@ -275,8 +301,6 @@ public class StartupTutorial : MonoBehaviour
 
         foreach (GameObject gs in badPlayground)
             gs.SetActive(false);
-
-        isSayingInfo = false;
 
         if (owlAnimator)
             owlAnimator.Reset();

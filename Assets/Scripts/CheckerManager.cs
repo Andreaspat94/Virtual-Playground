@@ -78,7 +78,7 @@ public class CheckerManager : Singleton<CheckerManager>
     private SimpleCapsuleWithStickMovement movementScript;
     private Rigidbody rb;
     private bool isExitViewModeOn;
-    public StartupTutorial startUpTutorial;
+    public StartupTutorial startupTutorial;
     private Canvas canvas;
     private float delayTime;
     [HideInInspector]
@@ -306,8 +306,8 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        startUpTutorial.ActivateRayInteractors(true);
-        startUpTutorial.ActivateGrabInteractors(true);
+        startupTutorial.ActivateRayInteractors(true);
+        startupTutorial.ActivateGrabInteractors(true);
 
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
@@ -452,8 +452,8 @@ public class CheckerManager : Singleton<CheckerManager>
         //Set to default value and see if there is any cube island that is correct, 
         //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        startUpTutorial.ActivateRayInteractors(true);
-        startUpTutorial.ActivateGrabInteractors(true);
+        startupTutorial.ActivateRayInteractors(true);
+        startupTutorial.ActivateGrabInteractors(true);
 
         // Check trough all the colors and switch geometry on/off.
         for (int i = 0; i < playGroundObjectsArray.Length; i++)
@@ -471,8 +471,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
-                startUpTutorial.ActivateRayInteractors(false);
-                startUpTutorial.ActivateGrabInteractors(false);
+                startupTutorial.ActivateRayInteractors(false);
+                startupTutorial.ActivateGrabInteractors(false);
             }
             else
             {
@@ -738,10 +738,10 @@ public class CheckerManager : Singleton<CheckerManager>
 
     IEnumerator LetTimeForCubeToDrop()
     {
-        startUpTutorial.ActivateGrabInteractors(false);
+        startupTutorial.ActivateGrabInteractors(false);
         yield return new WaitForSeconds(2.0f);
         //activate hand grabs
-        startUpTutorial.ActivateGrabInteractors(true);
+        startupTutorial.ActivateGrabInteractors(true);
     }
 
     IEnumerator CreateCubeForForbiddenDrop(string name, float timeToWait)
@@ -757,8 +757,8 @@ public class CheckerManager : Singleton<CheckerManager>
         rb.useGravity = true;
         if (view_mode_ == ViewModes.CUBE_INTERACTION)
         {
-            startUpTutorial.ActivateGrabInteractors(true);
-            startUpTutorial.ActivateRayInteractors(true);
+            startupTutorial.ActivateGrabInteractors(true);
+            startupTutorial.ActivateRayInteractors(true);
         }
     
         isZoomOutViewMode = false;
@@ -783,8 +783,8 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         //disable player movement
         movementScript.enabled = false; 
-        startUpTutorial.ActivateGrabInteractors(false);
-        startUpTutorial.ActivateRayInteractors(false);
+        startupTutorial.ActivateGrabInteractors(false);
+        startupTutorial.ActivateRayInteractors(false);
 
         rb.useGravity = false;
         isZoomOutViewMode = true;
@@ -805,7 +805,7 @@ public class CheckerManager : Singleton<CheckerManager>
        ui_collider.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
-       startUpTutorial.ActivateGrabInteractors(true);
+       startupTutorial.ActivateGrabInteractors(true);
        canvas.renderMode = RenderMode.ScreenSpaceCamera;
     }
 
@@ -814,7 +814,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if not fade out has started..
         if (!fadeOut)
         {
-            startUpTutorial.ActivateGrabInteractors(false);
+            startupTutorial.ActivateGrabInteractors(false);
             Vector3 player_position = fps_controller.transform.position;
             Vector3 player_direction = fps_controller.transform.forward;
             Quaternion player_rotation = fps_controller.transform.rotation;
@@ -869,8 +869,10 @@ public class CheckerManager : Singleton<CheckerManager>
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)
         {
+            //open canvas
+            ui_canvas.SetActive(true);
             // start confirm answer sequence that leads to presentation mode.
-            startUpTutorial.ConfirmAnswer();
+            startupTutorial.ConfirmAnswer();
             // this section shows the answer
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
