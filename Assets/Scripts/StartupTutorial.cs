@@ -21,6 +21,16 @@ public class StartupTutorial : MonoBehaviour
         public string instructionText = null;
     }
 
+    [System.Serializable]
+    public class Wavs2
+    {
+        public string audioname;
+        public float duration = 0;
+        public float pause = 0;
+        public Button[] colorButtons;
+        public UnityEvent OnEvent;
+    }
+
     private GameObject player;
     private GameObject leftRay;
     private GameObject rightRay;
@@ -33,7 +43,7 @@ public class StartupTutorial : MonoBehaviour
     private String pathToRightHandGrab = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorRight";
 
     public List<Wavs> wayPointList = new List<Wavs>();
-    public List<Wavs> confirmColorList = new List<Wavs>();
+    public List<Wavs> confirmAudioList = new List<Wavs>();
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -141,9 +151,7 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
-        // CheckerManager.Instance.IssueInterationEvents(null);
         StartCoroutine(PlaySounds());
-      
     }
 	
 	// Update is called once per frame
@@ -197,12 +205,6 @@ public class StartupTutorial : MonoBehaviour
         // [2] -- click the owl and panel with button appears
         StartCoroutine(AskTheOwl());
     }
-    
-    // [3] -- This is called when button is clicked in panel
-    public void CheckColor(string color)
-    {
-        Debug.Log("CheckColor..." + color);
-    }
 
     //This coroutine plays all the pre-game text
     IEnumerator PlaySounds()
@@ -214,7 +216,7 @@ public class StartupTutorial : MonoBehaviour
         }
         else
         {
-            wavList = confirmColorList;
+            wavList = confirmAudioList;
         }
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
@@ -282,8 +284,10 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
+        CheckerManager.Instance.inSequence = false;
         //Activate the game manager
-        StartGame();
+        if (isTutorial)
+            StartGame();
     }
 
     void StartGame()

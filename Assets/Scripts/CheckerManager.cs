@@ -84,6 +84,7 @@ public class CheckerManager : Singleton<CheckerManager>
     [HideInInspector]
     public bool fadeOut;
     private bool pickedUpCounter = true;
+    public bool inSequence;
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
     //When dropcube is colliding with checker it becomes inactive and a prefabStaticCube is created in the respective checker pos
@@ -867,12 +868,15 @@ public class CheckerManager : Singleton<CheckerManager>
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 && !isExitViewModeOn)
+            activeCubeIndex == -1 && !isExitViewModeOn
+            && !inSequence)
         {
             //open canvas
             ui_canvas.SetActive(true);
             // start confirm answer sequence that leads to presentation mode.
+            inSequence = true;
             startupTutorial.ConfirmAnswer();
+            
             // this section shows the answer
             AudioManager.Instance.playSound("magic");
             if (view_mode_ != ViewModes.PRESENTATION)
