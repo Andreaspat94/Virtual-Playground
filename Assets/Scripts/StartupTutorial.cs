@@ -55,27 +55,26 @@ public class StartupTutorial : MonoBehaviour
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
     string displayText;
-    Collider collider;
+    Collider owlCollider;
     [SerializeField]
     GameObject owlOutline;
-    [SerializeField]
-    GameObject confirmPanel;
     bool isTutorial;
+    bool isPlayingSounds;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
 
     //Raycasting is only active if we are int this trigger box
-    private void OnTriggerEnter(Collider other)
-    {
-         if (other.tag == "Player")
-            ActivateRayInteractors(true);
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.tag == "Player")
-            ActivateRayInteractors(false);
-    }
+   // private void OnTriggerEnter(Collider other)
+   // {
+      //   if (other.tag == "Player")
+    //        ActivateRayInteractors(true);
+   // }
+    //private void OnTriggerExit(Collider other)
+    //{
+  //      if (other.tag == "Player")
+   //         ActivateRayInteractors(false);
+  //  }
 
     void Awake()
     {
@@ -91,7 +90,7 @@ public class StartupTutorial : MonoBehaviour
         }
         // track ray interactors and switch them off
         TrackInteractors();
-        collider = owlAnimator.GetComponent<Collider>();
+        owlCollider = owlAnimator.GetComponent<Collider>();
         isTutorial = true;
     }
 
@@ -158,7 +157,7 @@ public class StartupTutorial : MonoBehaviour
 	void Update ()
     {
         //Press 'Y' to skip intro
-        if (OVRInput.GetDown(OVRInput.Button.Four))
+        if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
@@ -198,15 +197,32 @@ public class StartupTutorial : MonoBehaviour
     // [1] -- This method is called when 'X' touch controller button is pressed.
     public void ConfirmAnswer()
     {
-        GetComponent<Collider>().enabled = false;
-        collider.enabled = true;
+        Debug.Log("Sequence started. --");
+        isPlayingSounds = true;
+        StartCoroutine(StartConfirmSequence());
+    }
+
+    IEnumerator StartConfirmSequence()
+    {
+        GetComponent<Collider>().enabled = true;
+        owlCollider.enabled = true;
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
-        
-        // [2] -- click the owl and panel with button appears
         StartCoroutine(AskTheOwl());
+
+        Debug.Log("isPlayingsounds -- " + isPlayingSounds);
+        yield return new WaitUntil(() => !isPlayingSounds);
+        Debug.Log("Sounds OVER -- ");
+
+        AudioManager.Instance.playSound("magic");
+        CheckerManager.Instance.CheckIfOK();
     }
 
     //This coroutine plays all the pre-game text
+    public void SequenceIsPlaying(bool over)
+    {
+        isPlayingSounds = over;
+        CheckerManager.Instance.inSequence = over;
+    }
     IEnumerator PlaySounds()
     {
         List<Wavs> wavList = new List<Wavs>();
@@ -284,7 +300,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
-        CheckerManager.Instance.inSequence = false;
+        SequenceIsPlaying(false);
         //Activate the game manager
         if (isTutorial)
             StartGame();
@@ -297,8 +313,8 @@ public class StartupTutorial : MonoBehaviour
         isActive = false;
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
-        collider.enabled = false;
-        gameObject.SetActive(false);
+        owlCollider.enabled = false;
+        //gameObject.SetActive(false);
 
         foreach (GameObject gs in ListToHide)
             gs.SetActive(true);

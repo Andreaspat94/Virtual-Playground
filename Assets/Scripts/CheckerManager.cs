@@ -3,7 +3,6 @@ using HoloToolkit.Unity;
 using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
-using System;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -564,8 +563,6 @@ public class CheckerManager : Singleton<CheckerManager>
 	
 	        if (xlocal<YDim && xlocal>=0 && ylocal<XDim && ylocal>=0)
             {
-                if (ID == 5)
-                    Debug.Log("checkkerArray[xlocal, ylocal] --> " + (checkkerArray[xlocal, ylocal]));
                 //Check if adjacent ID is different and not 0:empty,7:pavement, 9:fence
 	            if ((checkkerArray[xlocal, ylocal] != ID) && 
                     (checkkerArray[xlocal, ylocal] != 0) &&
@@ -867,6 +864,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
+        //if (Input.GetMouseButtonDown(0) &&
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn
             && !inSequence)
@@ -875,18 +873,19 @@ public class CheckerManager : Singleton<CheckerManager>
             ui_canvas.SetActive(true);
             // start confirm answer sequence that leads to presentation mode.
             inSequence = true;
+
             startupTutorial.ConfirmAnswer();
             
             // this section shows the answer
-            AudioManager.Instance.playSound("magic");
-            if (view_mode_ != ViewModes.PRESENTATION)
-            {
-                CheckIfOK();
-            }
-            else if (view_mode_ == ViewModes.PRESENTATION)
-            {
-                ResetToCubeRepresentation();
-            }
+            
+            //if (view_mode_ != ViewModes.PRESENTATION)
+            //{
+            
+           //}
+           // else if (view_mode_ == ViewModes.PRESENTATION)
+           // {
+           //     ResetToCubeRepresentation();
+           // }
         } 
 
         //if we are in presentation mode no interaction
