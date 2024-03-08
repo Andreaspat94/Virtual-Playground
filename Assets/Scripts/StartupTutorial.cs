@@ -156,9 +156,10 @@ public class StartupTutorial : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        //Press 'Y' to skip intro
+            //Press 'Y' to skip intro
         if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
         {
+            Debug.Log("Y pressed --");
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
             StartGame();            
@@ -197,7 +198,6 @@ public class StartupTutorial : MonoBehaviour
     // [1] -- This method is called when 'X' touch controller button is pressed.
     public void ConfirmAnswer()
     {
-        Debug.Log("Sequence started. --");
         isPlayingSounds = true;
         StartCoroutine(StartConfirmSequence());
     }
@@ -208,10 +208,7 @@ public class StartupTutorial : MonoBehaviour
         owlCollider.enabled = true;
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
         StartCoroutine(AskTheOwl());
-
-        Debug.Log("isPlayingsounds -- " + isPlayingSounds);
         yield return new WaitUntil(() => !isPlayingSounds);
-        Debug.Log("Sounds OVER -- ");
 
         AudioManager.Instance.playSound("magic");
         CheckerManager.Instance.CheckIfOK();
@@ -280,6 +277,10 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
             }
 
+            if (!isTutorial)
+            {
+                ActivateRayInteractors(true);
+            }
             //Wait for econd keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
             {
@@ -315,7 +316,7 @@ public class StartupTutorial : MonoBehaviour
         CheckerManager.Instance.isActive = true;
         owlCollider.enabled = false;
         //gameObject.SetActive(false);
-
+        
         foreach (GameObject gs in ListToHide)
             gs.SetActive(true);
 
