@@ -58,23 +58,12 @@ public class StartupTutorial : MonoBehaviour
     Collider owlCollider;
     [SerializeField]
     GameObject owlOutline;
-    bool isTutorial;
+    public bool isTutorial;
     bool isPlayingSounds;
+    public bool owlIsSpeaking;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
-
-    //Raycasting is only active if we are int this trigger box
-   // private void OnTriggerEnter(Collider other)
-   // {
-      //   if (other.tag == "Player")
-    //        ActivateRayInteractors(true);
-   // }
-    //private void OnTriggerExit(Collider other)
-    //{
-  //      if (other.tag == "Player")
-   //         ActivateRayInteractors(false);
-  //  }
 
     void Awake()
     {
@@ -150,6 +139,7 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
+        Debug.Log("Activate from StartPlayingTheSounds()-- " + false);
         StartCoroutine(PlaySounds());
     }
 	
@@ -159,7 +149,6 @@ public class StartupTutorial : MonoBehaviour
             //Press 'Y' to skip intro
         if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
         {
-            Debug.Log("Y pressed --");
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
             StartGame();            
@@ -242,8 +231,11 @@ public class StartupTutorial : MonoBehaviour
 
             //Start owl morph
             if (owlAnimator)
+            {
                 owlAnimator.PlayAnimation();
-
+                owlIsSpeaking = true;
+            }
+                
             //Display a info text if there is one
             if (!string.IsNullOrEmpty(wa.instructionText) && instructionText)
             {
@@ -256,8 +248,12 @@ public class StartupTutorial : MonoBehaviour
 
             //Stop wol morph
             if (owlAnimator)
+            {
                 owlAnimator.PauseAnimation();
+                owlIsSpeaking = false;
+            }    
 
+            ActivateRayInteractors(true);
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -277,10 +273,10 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
             }
 
-            if (!isTutorial)
-            {
-                ActivateRayInteractors(true);
-            }
+            // if (!isTutorial)
+            // {
+            //     ActivateRayInteractors(true);
+            // }
             //Wait for econd keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
             {

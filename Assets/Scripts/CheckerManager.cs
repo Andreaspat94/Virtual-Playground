@@ -307,6 +307,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
         startupTutorial.ActivateRayInteractors(true);
+        Debug.Log("Activate from ResetToCubeRepresentation()-- " + true);
         startupTutorial.ActivateGrabInteractors(true);
 
         if (talkingBirds) talkingBirds.SetActive(true);
@@ -453,6 +454,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
         startupTutorial.ActivateRayInteractors(true);
+        Debug.Log("Activate from CheckIfOK()-- " + true);
         startupTutorial.ActivateGrabInteractors(true);
 
         // Check trough all the colors and switch geometry on/off.
@@ -472,6 +474,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
                 startupTutorial.ActivateRayInteractors(false);
+                Debug.Log("Activate from CheckIf ok (2)-- " + false);
                 startupTutorial.ActivateGrabInteractors(false);
             }
             else
@@ -501,7 +504,6 @@ public class CheckerManager : Singleton<CheckerManager>
         }
     }
 
-    
     /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.
     /// DONT USE IT
     // void NotGrabbableAnymore(int id)
@@ -856,7 +858,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 ZoomIn();
             }
-            else if (canChangeViewMode)
+            else if (canChangeViewMode && !startupTutorial.owlIsSpeaking)
             {
                 ZoomOut();
             }
