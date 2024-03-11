@@ -139,7 +139,7 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
-        Debug.Log("Activate from StartPlayingTheSounds()-- " + false);
+        // Debug.Log("Activate from StartPlayingTheSounds()-- " + false);
         StartCoroutine(PlaySounds());
     }
 	
@@ -198,17 +198,15 @@ public class StartupTutorial : MonoBehaviour
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
         StartCoroutine(AskTheOwl());
         yield return new WaitUntil(() => !isPlayingSounds);
-
-        AudioManager.Instance.playSound("magic");
-        CheckerManager.Instance.CheckIfOK();
+        // AudioManager.Instance.playSound("magic");
     }
 
     //This coroutine plays all the pre-game text
-    public void SequenceIsPlaying(bool over)
-    {
-        isPlayingSounds = over;
-        CheckerManager.Instance.inSequence = over;
-    }
+    // public void SequenceIsPlaying(bool over)
+    // {
+    //     isPlayingSounds = over;
+    //     CheckerManager.Instance.inSequence = over;
+    // }
     IEnumerator PlaySounds()
     {
         List<Wavs> wavList = new List<Wavs>();
@@ -277,7 +275,7 @@ public class StartupTutorial : MonoBehaviour
             // {
             //     ActivateRayInteractors(true);
             // }
-            //Wait for econd keypress
+            //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
             {
                 yield return new WaitForSeconds(2);
@@ -297,7 +295,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
-        SequenceIsPlaying(false);
+        isPlayingSounds = false;
         //Activate the game manager
         if (isTutorial)
             StartGame();

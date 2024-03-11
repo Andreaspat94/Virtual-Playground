@@ -307,7 +307,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
         startupTutorial.ActivateRayInteractors(true);
-        Debug.Log("Activate from ResetToCubeRepresentation()-- " + true);
+        // Debug.Log("Activate from ResetToCubeRepresentation()-- " + true);
         startupTutorial.ActivateGrabInteractors(true);
 
         if (talkingBirds) talkingBirds.SetActive(true);
@@ -446,7 +446,6 @@ public class CheckerManager : Singleton<CheckerManager>
             }//y //Traverse all checkker array
         }//x //Traverse all checkker array
 
-
         //Now do final check and show playground objects if ok or leave as cubes
         bool allOK = true;
 
@@ -454,7 +453,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
         startupTutorial.ActivateRayInteractors(true);
-        Debug.Log("Activate from CheckIfOK()-- " + true);
+        // Debug.Log("Activate from CheckIfOK()-- " + true);
         startupTutorial.ActivateGrabInteractors(true);
 
         // Check trough all the colors and switch geometry on/off.
@@ -474,7 +473,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
                 startupTutorial.ActivateRayInteractors(false);
-                Debug.Log("Activate from CheckIf ok (2)-- " + false);
+                // Debug.Log("Activate from CheckIfOK (2)-- " + false);
                 startupTutorial.ActivateGrabInteractors(false);
             }
             else
@@ -868,26 +867,29 @@ public class CheckerManager : Singleton<CheckerManager>
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
         //if (Input.GetMouseButtonDown(0) &&
             canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 && !isExitViewModeOn
-            && !inSequence)
+            activeCubeIndex == -1 && !isExitViewModeOn)
         {
-            //open canvas
-            ui_canvas.SetActive(true);
-            // start confirm answer sequence that leads to presentation mode.
-            inSequence = true;
+            if (!inSequence)
+            {
+                //open canvas
+                ui_canvas.SetActive(true);
+                // start confirm answer sequence that leads to presentation mode.
+                inSequence = true;
 
-            startupTutorial.ConfirmAnswer();
+                startupTutorial.ConfirmAnswer();
+            }
             
             // this section shows the answer
-            
-            //if (view_mode_ != ViewModes.PRESENTATION)
-            //{
-            
-           //}
-           // else if (view_mode_ == ViewModes.PRESENTATION)
-           // {
-           //     ResetToCubeRepresentation();
-           // }
+            if (view_mode_ == ViewModes.CUBE_INTERACTION)
+            {
+                // CheckIfOK();
+            }
+            else if (view_mode_ == ViewModes.PRESENTATION)
+            {
+               ResetToCubeRepresentation();
+               AudioManager.Instance.playSound("magic");
+               inSequence = false;
+            }
         } 
 
         //if we are in presentation mode no interaction
