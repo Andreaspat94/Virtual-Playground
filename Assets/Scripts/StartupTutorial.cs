@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Oculus.Interaction.Demo;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -244,6 +245,8 @@ public class StartupTutorial : MonoBehaviour
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
+            Debug.Log("wa--" + wa.audioname);
+            
             //Stop wol morph
             if (owlAnimator)
             {
@@ -251,7 +254,12 @@ public class StartupTutorial : MonoBehaviour
                 owlIsSpeaking = false;
             }    
 
-            ActivateRayInteractors(true);
+            if (wa.audioname.Equals("check1"))
+            {
+                Debug.Log("Got it--");
+                ActivateGrabInteractors(true);
+                ActivateRayInteractors(true);
+            }
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -271,10 +279,6 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
             }
 
-            // if (!isTutorial)
-            // {
-            //     ActivateRayInteractors(true);
-            // }
             //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
             {
