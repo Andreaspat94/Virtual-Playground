@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Oculus.Interaction.Demo;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -61,7 +60,9 @@ public class StartupTutorial : MonoBehaviour
     GameObject owlOutline;
     public bool isTutorial;
     bool isPlayingSounds;
+    [HideInInspector]
     public bool owlIsSpeaking;
+    bool cubeReleasedEventTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
@@ -222,6 +223,10 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
+            // if (!wa.audioname.Equals("owl5_2") || !wa.audioname.Equals("owl6"))
+            // {
+            //     continue;
+            // }
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
@@ -245,8 +250,6 @@ public class StartupTutorial : MonoBehaviour
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
-            Debug.Log("wa--" + wa.audioname);
-            
             //Stop wol morph
             if (owlAnimator)
             {
@@ -254,12 +257,9 @@ public class StartupTutorial : MonoBehaviour
                 owlIsSpeaking = false;
             }    
 
-            if (wa.audioname.Equals("check1"))
-            {
-                Debug.Log("Got it--");
-                ActivateGrabInteractors(true);
-                ActivateRayInteractors(true);
-            }
+            // This is for passive
+            PassiveTutorCheck(wa.audioname);
+            
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -277,6 +277,22 @@ public class StartupTutorial : MonoBehaviour
                 //Issue event that key was pressed
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
+            }
+            else
+            {
+                if (wa.audioname.Equals("owl5_2"))
+                {
+                    //Display text to inform about key press
+                    if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionText)
+                    {
+                        instructionText.text = wa.keyInstructionText;
+                        instructionText.gameObject.SetActive(true);
+                    }
+                    
+                    //WAIT UNTIL CUBE RELEASED !!! 
+                    while (!cubeReleasedEventTutorial)
+                        yield return null;
+                }
             }
 
             //Wait for second keypress
@@ -305,6 +321,18 @@ public class StartupTutorial : MonoBehaviour
             StartGame();
     }
 
+    public void ReleaseEventTutorial()
+    {
+        cubeReleasedEventTutorial = true;
+    }
+    void PassiveTutorCheck(string wa)
+    {
+        if (wa.Equals("check1"))
+            {
+                ActivateGrabInteractors(true);
+                ActivateRayInteractors(true);
+            }
+    }
     void StartGame()
     {
         ActivateRayInteractors(true);
