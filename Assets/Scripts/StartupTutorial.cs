@@ -61,6 +61,7 @@ public class StartupTutorial : MonoBehaviour
     public bool isTutorial;
     bool isPlayingSounds;
     public bool owlIsSpeaking;
+    bool cubeReleasedTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
@@ -201,12 +202,6 @@ public class StartupTutorial : MonoBehaviour
         // AudioManager.Instance.playSound("magic");
     }
 
-    //This coroutine plays all the pre-game text
-    // public void SequenceIsPlaying(bool over)
-    // {
-    //     isPlayingSounds = over;
-    //     CheckerManager.Instance.inSequence = over;
-    // }
     IEnumerator PlaySounds()
     {
         List<Wavs> wavList = new List<Wavs>();
@@ -239,6 +234,8 @@ public class StartupTutorial : MonoBehaviour
             {
                 instructionText.text = wa.instructionText;
                 instructionText.gameObject.SetActive(true);
+                if (wa.audioname.Equals("owl5_2"))
+                    ActivateGrabInteractors(true);
             }
 
             //Wait duration of sound
@@ -250,8 +247,13 @@ public class StartupTutorial : MonoBehaviour
                 owlAnimator.PauseAnimation();
                 owlIsSpeaking = false;
             }    
-
-            ActivateRayInteractors(true);
+            
+            if (wa.audioname.Equals("owl5_2"))
+            {
+                yield return new WaitUntil(() => cubeReleasedTutorial);
+                Debug.Log("I waited enough... ");
+                ActivateGrabInteractors(false);
+            }
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -271,10 +273,6 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
             }
 
-            // if (!isTutorial)
-            // {
-            //     ActivateRayInteractors(true);
-            // }
             //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
             {
@@ -299,6 +297,11 @@ public class StartupTutorial : MonoBehaviour
         //Activate the game manager
         if (isTutorial)
             StartGame();
+    }
+    
+    public void ReleaseEventTutorial()
+    {
+        cubeReleasedTutorial = true;
     }
 
     void StartGame()
