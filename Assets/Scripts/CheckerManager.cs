@@ -908,7 +908,7 @@ public class CheckerManager : Singleton<CheckerManager>
         } //carry cube section
 	}//Update
 
-     //Issue events on Interaction Objects
+    //Issue events on Interaction Objects
     public void IssueInterationEvents(OnInteraction interactionObj)
     {
         //If interaction object changed issue events 
