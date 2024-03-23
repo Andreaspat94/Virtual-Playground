@@ -140,7 +140,6 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
-        // Debug.Log("Activate from StartPlayingTheSounds()-- " + false);
         StartCoroutine(PlaySounds());
     }
 	
@@ -251,7 +250,6 @@ public class StartupTutorial : MonoBehaviour
             if (wa.audioname.Equals("owl5_2"))
             {
                 yield return new WaitUntil(() => cubeReleasedTutorial);
-                Debug.Log("I waited enough... ");
                 ActivateGrabInteractors(false);
             }
             //Wait until key is pressed

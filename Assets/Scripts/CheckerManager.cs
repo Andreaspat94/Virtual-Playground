@@ -84,6 +84,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public bool fadeOut;
     private bool pickedUpCounter = true;
     public bool inSequence;
+    
+    [SerializeField]
+    GameObject helpPanel;
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
     //When dropcube is colliding with checker it becomes inactive and a prefabStaticCube is created in the respective checker pos
@@ -800,12 +803,12 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void ReturnFromEscapeUI()
     {
+        Debug.Log("INTERACTED -- ");
        ui_escape.SetActive(false);
        ui_collider.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
        startupTutorial.ActivateGrabInteractors(true);
-       canvas.renderMode = RenderMode.ScreenSpaceCamera;
     }
 
     public void GoToEscapeUI()
@@ -814,14 +817,8 @@ public class CheckerManager : Singleton<CheckerManager>
         if (!fadeOut)
         {
             startupTutorial.ActivateGrabInteractors(false);
-            Vector3 player_position = fps_controller.transform.position;
-            Vector3 player_direction = fps_controller.transform.forward;
-            Quaternion player_rotation = fps_controller.transform.rotation;
-            float spawnDistance = 2.0f;
-            
-            canvas.renderMode = RenderMode.WorldSpace;
-            canvas.transform.position = player_position + player_direction * spawnDistance;
-            canvas.transform.rotation = player_rotation;
+            // float spawnDistance = 2.0f;
+            // canvas.planeDistance = 2.0f;
 
             ui_escape.SetActive(true);
             ui_collider.SetActive(true);
