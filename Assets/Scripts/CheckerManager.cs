@@ -29,7 +29,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public GameObject ui_canvas = null;
     public GameObject helpPanel = null;
     public GameObject ui_collider = null;
-    public GameObject planeSurface;
 
     //Dimensions of Checker Grid
     const int XDim = 20;
@@ -802,8 +801,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ReturnFromEscapeUI()
     {
        helpPanel.SetActive(false);
-    //    planeSurface.SetActive(false);
-    //    ui_collider.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
        startupTutorial.ActivateGrabInteractors(true);
@@ -816,8 +813,6 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             startupTutorial.ActivateGrabInteractors(false);
             helpPanel.SetActive(true);
-            // planeSurface.SetActive(true);
-            // ui_collider.SetActive(true);
             isExitViewModeOn = true;
             movementScript.enabled = false;
         }

@@ -198,7 +198,7 @@ public class StartupTutorial : MonoBehaviour
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
         StartCoroutine(AskTheOwl());
         yield return new WaitUntil(() => !isPlayingSounds);
-        // AudioManager.Instance.playSound("magic");
+        AudioManager.Instance.playSound("magic");
     }
 
     IEnumerator PlaySounds()
