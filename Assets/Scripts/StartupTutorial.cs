@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class StartupTutorial : MonoBehaviour
 {
@@ -44,6 +45,8 @@ public class StartupTutorial : MonoBehaviour
 
     public List<Wavs> wayPointList = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
+    public List<Wavs> redWavList = new List<Wavs>();
+    Dictionary<string, List<Wavs>> tutoringWavs;
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -85,8 +88,9 @@ public class StartupTutorial : MonoBehaviour
     }
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
+        tutoringWavs.Add("red",redWavList);
         //if not active proceed to play immediately
         if (isActive)
         {
@@ -197,10 +201,58 @@ public class StartupTutorial : MonoBehaviour
         owlCollider.enabled = true;
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
         StartCoroutine(AskTheOwl());
-        yield return new WaitUntil(() => !isPlayingSounds);
-        AudioManager.Instance.playSound("magic");
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (currentScene.Equals("Passive"))
+        {
+            yield return new WaitUntil(() => !isPlayingSounds);
+            AudioManager.Instance.playSound("magic");
+        }
+        // else if (currentScene.Equals("Active"))
+        // {
+            
+        // }
+        
+    }
+    public void RedTutoring(string color)
+    {
+        List<Wavs> wavList = tutoringWavs[color];
+        StartCoroutine(PlaySequence(redWavList));
     }
 
+    IEnumerator PlaySequence(List<Wavs> wavList)
+    {
+        
+        foreach (Wavs wa in wavList)
+        {
+            if (string.IsNullOrEmpty(wa.audioname))
+                continue;
+
+            //Play explanation
+            AudioManager.Instance.playSound(wa.audioname);
+
+            //Start owl morph
+            if (owlAnimator)
+            {
+                owlAnimator.PlayAnimation();
+                owlIsSpeaking = true;
+            }
+            //Wait duration of sound
+            yield return new WaitForSeconds(wa.duration);
+
+            //Stop wol morph
+            if (owlAnimator)
+            {
+                owlAnimator.PauseAnimation();
+                owlIsSpeaking = false;
+            }
+
+            // wait until button
+
+
+            //pause a bit
+            yield return new WaitForSeconds(wa.pause);
+        }
+    }
     IEnumerator PlaySounds()
     {
         List<Wavs> wavList = new List<Wavs>();
