@@ -501,6 +501,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
             playGroundFinished = true;
         }
+        // !! DONT WORK OF COURSE...
+        startupTutorial.colorIsOk = idOK[i];
     }
 
     /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.

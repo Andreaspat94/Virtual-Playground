@@ -46,7 +46,17 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> wayPointList = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
+    [HideInInspector]
+    public bool colorIsOk;
     Dictionary<string, List<Wavs>> tutoringWavs;
+    Dictionary<string, int> idOK = new Dictionary<string, int> 
+    {
+        {"blue", 1},
+        {"yellow", 2},
+        {"brown", 3},
+        {"green", 4},
+        {"swings", 5}
+    };
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -61,8 +71,14 @@ public class StartupTutorial : MonoBehaviour
     Collider owlCollider;
     [SerializeField]
     GameObject owlOutline;
+    [SerializeField]
+    GameObject tutoringCanvas;
+    GameObject mainPanel;
+    GameObject whichColorPanel;
+    [HideInInspector]
     public bool isTutorial;
     bool isPlayingSounds;
+    [HideInInspector]
     public bool owlIsSpeaking;
     bool cubeReleasedTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
@@ -91,6 +107,8 @@ public class StartupTutorial : MonoBehaviour
     void Start()
     {
         tutoringWavs.Add("red",redWavList);
+        whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
+        mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
         //if not active proceed to play immediately
         if (isActive)
         {
@@ -150,7 +168,7 @@ public class StartupTutorial : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-            //Press 'Y' to skip intro
+        //Press 'Y' to skip intro
         if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
         {
             AudioManager.Instance.ResetSound();
@@ -180,13 +198,14 @@ public class StartupTutorial : MonoBehaviour
         gr.alpha = 1;
         yield return null;
     }
+
     void ResetTheOwl()
     {
         GetComponent<Collider>().enabled = true;
         owlAnimator.GetComponent<Collider>().enabled = true;
         owlOutline.SetActive(true);
-
     }
+
     // Here the confirmation sequence for given answer starts 
     // [1] -- This method is called when 'X' touch controller button is pressed.
     public void ConfirmAnswer()
@@ -205,23 +224,30 @@ public class StartupTutorial : MonoBehaviour
         if (currentScene.Equals("Passive"))
         {
             yield return new WaitUntil(() => !isPlayingSounds);
+            // put it inside CheckIfOk()
             AudioManager.Instance.playSound("magic");
         }
-        // else if (currentScene.Equals("Active"))
-        // {
-            
-        // }
-        
-    }
-    public void RedTutoring(string color)
-    {
-        List<Wavs> wavList = tutoringWavs[color];
-        StartCoroutine(PlaySequence(redWavList));
     }
 
-    IEnumerator PlaySequence(List<Wavs> wavList)
+    //Color values available:
+    // Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
+    public void SelectColorFromPanel(string color)
     {
-        
+        colorIsOk = false;
+        whichColorPanel.SetActive(false);
+        // checkIfOk() - that sets the bool 'colorIsOk'
+        GameManager.Instance.CheckIfOK();
+    }
+    public void Tutoring(string color)
+    {      
+        // STOP - ALT
+        List<Wavs> wavList = tutoringWavs[color];
+        StartCoroutine(PlayTutoringSequence(redWavList));
+    }
+
+    IEnumerator PlayTutoringSequence(List<Wavs> wavList)
+    {
+        bool buttonClicked;
         foreach (Wavs wa in wavList)
         {
             if (string.IsNullOrEmpty(wa.audioname))
@@ -246,7 +272,7 @@ public class StartupTutorial : MonoBehaviour
                 owlIsSpeaking = false;
             }
 
-            // wait until button
+            // wait until button clicked
 
 
             //pause a bit
@@ -304,6 +330,7 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => cubeReleasedTutorial);
                 ActivateGrabInteractors(false);
             }
+
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -339,9 +366,35 @@ public class StartupTutorial : MonoBehaviour
             if (instructionText)
                 instructionText.gameObject.SetActive(false);
 
+             // show "which color" panel
+           
+            if (wa.audioname.Equals("which"))
+            {
+                tutoringCanvas.SetActive(true);
+                whichColorPanel.SetActive(true);
+                // precaution
+                mainPanel.SetActive(false);
+                
+                // wait until CheckIfOk finishes.
+                yield return new WaitUntil(() => colorIsOk != null);
+                if (colorIsOk)
+                {
+                    tutoringCanvas.SetActive(false);
+                    colorIsOk = null;
+                }
+                else
+                {
+                    Debug.Log("BREAK --> ");
+                    break;
+                }
+            }
+
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
+
+        if (!colorIsOk)
+            Tutoring();
 
         isPlayingSounds = false;
         //Activate the game manager
