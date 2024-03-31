@@ -14,6 +14,9 @@ public class StartupTutorial : MonoBehaviour
         public string audioname;
         public float duration = 0;
         public float pause = 0;
+        public bool waitForButtonClick = false;
+        public Sprite image;
+        public string text;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
         public OVRInput.Button secondkeyToProceed = OVRInput.Button.None;
@@ -32,6 +35,13 @@ public class StartupTutorial : MonoBehaviour
         public UnityEvent OnEvent;
     }
 
+    // [System.Serializable]
+    // public class TutoringImages
+    // {
+    //     public string name;
+    //     public Sprite image;
+    // }
+
     private GameObject player;
     private GameObject leftRay;
     private GameObject rightRay;
@@ -47,16 +57,23 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
     [HideInInspector]
-    public bool colorIsOk;
     Dictionary<string, List<Wavs>> tutoringWavs;
-    Dictionary<string, int> idOK = new Dictionary<string, int> 
+    string colorToCheck;
+    bool gotIt;
+
+    // public List<TutoringImages> tutoringImages = new List<TutoringImages>();
+    public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
     {
         {"blue", 1},
         {"yellow", 2},
         {"brown", 3},
         {"green", 4},
-        {"swings", 5}
+        {"red", 5},
+        {"grey", 6}
     };
+
+    [HideInInspector]
+    public bool[] idOK = new bool[6] { false, false, false, false, false, false};
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -74,6 +91,7 @@ public class StartupTutorial : MonoBehaviour
     [SerializeField]
     GameObject tutoringCanvas;
     GameObject mainPanel;
+    GameObject gotItButton;
     GameObject whichColorPanel;
     [HideInInspector]
     public bool isTutorial;
@@ -233,29 +251,42 @@ public class StartupTutorial : MonoBehaviour
     // Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
     public void SelectColorFromPanel(string color)
     {
-        colorIsOk = false;
         whichColorPanel.SetActive(false);
+        colorToCheck = color;
         // checkIfOk() - that sets the bool 'colorIsOk'
-        GameManager.Instance.CheckIfOK();
+        CheckerManager.Instance.CheckIfOK();
     }
-    public void Tutoring(string color)
+    public void Tutoring()
     {      
-        // STOP - ALT
-        List<Wavs> wavList = tutoringWavs[color];
+        List<Wavs> wavList = tutoringWavs[colorToCheck];
+        mainPanel.SetActive(true);
+        gotItButton = mainPanel.transform.GetChild(0).gameObject;
         StartCoroutine(PlayTutoringSequence(redWavList));
     }
-
+    public void GotIt()
+    {
+        gotIt = true;
+    }
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
-        bool buttonClicked;
+        Image image = mainPanel.GetComponent<Image>();
+        Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
+
         foreach (Wavs wa in wavList)
         {
+            gotIt = false;
+            image.sprite = null;
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
             //Play explanation
             AudioManager.Instance.playSound(wa.audioname);
-
+            
+            if (wa.image != null)
+                image.sprite = wa.image;
+            
+            if (!string.IsNullOrEmpty(wa.text))
+                tutorText.text = wa.text;
             //Start owl morph
             if (owlAnimator)
             {
@@ -273,8 +304,14 @@ public class StartupTutorial : MonoBehaviour
             }
 
             // wait until button clicked
+            if (wa.waitForButtonClick)
+            {
+                gotItButton.SetActive(true);
+                yield return new WaitUntil(() => gotIt);
+                gotItButton.SetActive(false);
+            }
 
-
+            image.sprite = null;
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
@@ -366,21 +403,18 @@ public class StartupTutorial : MonoBehaviour
             if (instructionText)
                 instructionText.gameObject.SetActive(false);
 
-             // show "which color" panel
-           
+            // show "which color" panel
             if (wa.audioname.Equals("which"))
             {
                 tutoringCanvas.SetActive(true);
                 whichColorPanel.SetActive(true);
                 // precaution
                 mainPanel.SetActive(false);
-                
                 // wait until CheckIfOk finishes.
-                yield return new WaitUntil(() => colorIsOk != null);
-                if (colorIsOk)
+                yield return new WaitUntil(() => !idOK[idOKDictionary[colorToCheck]]);
+                if (idOK[5])
                 {
                     tutoringCanvas.SetActive(false);
-                    colorIsOk = null;
                 }
                 else
                 {
@@ -393,7 +427,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
-        if (!colorIsOk)
+        if (!idOK[idOKDictionary[colorToCheck]])
             Tutoring();
 
         isPlayingSounds = false;

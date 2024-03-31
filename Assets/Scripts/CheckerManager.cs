@@ -461,6 +461,9 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             if (idOK[i])
             {
+                // update startuptutorial dictionary
+                startupTutorial.idOK[i] = true;
+
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
 
@@ -501,8 +504,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
             playGroundFinished = true;
         }
-        // !! DONT WORK OF COURSE...
-        startupTutorial.colorIsOk = idOK[i];
+        
     }
 
     /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.
