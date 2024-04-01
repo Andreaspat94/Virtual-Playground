@@ -13,7 +13,6 @@ public class CheckerManager : Singleton<CheckerManager>
     [Header("Info needed to switch into cube interaction mode")]
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
-    ViewModes previousViewMode;
     Vector3 previousFPSPos;
     bool isZoomOutViewMode = false;
 

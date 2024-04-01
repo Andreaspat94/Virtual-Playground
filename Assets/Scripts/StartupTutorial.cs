@@ -15,6 +15,7 @@ public class StartupTutorial : MonoBehaviour
         public float duration = 0;
         public float pause = 0;
         public bool waitForButtonClick = false;
+        public bool chooseBetween = false;
         public Sprite image;
         public string text;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
@@ -59,6 +60,8 @@ public class StartupTutorial : MonoBehaviour
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs;
     string colorToCheck;
+    GameObject leftButton;
+    GameObject rightButton;
     bool gotIt;
 
     // public List<TutoringImages> tutoringImages = new List<TutoringImages>();
@@ -267,11 +270,24 @@ public class StartupTutorial : MonoBehaviour
     {
         gotIt = true;
     }
+    public void CorrectAnswer()
+    {
+        StopAllCoroutines();
+        mainPanel.SetActive(false);
+        AudioManager.Instance.playSound("magic");
+        // !!TODO: write code that puts the cubes. Then call checkIfOk method.
+    }
+
+    public void WrongAnswer()
+    {
+
+    }
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
-
+        leftButton = mainPanel.transform.GetChild(2).gameObject;
+        rightButton = mainPanel.transform.GetChild(3).gameObject;
         foreach (Wavs wa in wavList)
         {
             gotIt = false;
@@ -303,12 +319,20 @@ public class StartupTutorial : MonoBehaviour
                 owlIsSpeaking = false;
             }
 
+            if (wa.chooseBetween)
+            {
+                leftButton.SetActive(true);
+                rightButton.SetActive(false);
+                tutorText.text = string.Empty;
+            }
+
             // wait until button clicked
             if (wa.waitForButtonClick)
             {
                 gotItButton.SetActive(true);
                 yield return new WaitUntil(() => gotIt);
                 gotItButton.SetActive(false);
+                tutorText.text = string.Empty;
             }
 
             image.sprite = null;
@@ -316,6 +340,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
     }
+
     IEnumerator PlaySounds()
     {
         List<Wavs> wavList = new List<Wavs>();
