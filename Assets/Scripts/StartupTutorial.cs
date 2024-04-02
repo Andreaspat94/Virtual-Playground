@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class StartupTutorial : MonoBehaviour
 {
-    [System.Serializable]
+    [Serializable]
     public class Wavs
     {
         public string audioname;
@@ -26,7 +26,7 @@ public class StartupTutorial : MonoBehaviour
         public string instructionText = null;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class Wavs2
     {
         public string audioname;
@@ -35,14 +35,6 @@ public class StartupTutorial : MonoBehaviour
         public Button[] colorButtons;
         public UnityEvent OnEvent;
     }
-
-    // [System.Serializable]
-    // public class TutoringImages
-    // {
-    //     public string name;
-    //     public Sprite image;
-    // }
-
     private GameObject player;
     private GameObject leftRay;
     private GameObject rightRay;
@@ -63,6 +55,7 @@ public class StartupTutorial : MonoBehaviour
     GameObject leftButton;
     GameObject rightButton;
     bool gotIt;
+    bool choosedAnswer;
 
     // public List<TutoringImages> tutoringImages = new List<TutoringImages>();
     public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
@@ -101,6 +94,7 @@ public class StartupTutorial : MonoBehaviour
     bool isPlayingSounds;
     [HideInInspector]
     public bool owlIsSpeaking;
+    GameObject correctObjects;
     bool cubeReleasedTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
@@ -130,6 +124,7 @@ public class StartupTutorial : MonoBehaviour
         tutoringWavs.Add("red",redWavList);
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
+        GameObject correctObjects = GameObject.FindWithTag("CorrectObjects");
         //if not active proceed to play immediately
         if (isActive)
         {
@@ -270,18 +265,23 @@ public class StartupTutorial : MonoBehaviour
     {
         gotIt = true;
     }
+    public void ChooseBetween(bool leftbutton)
+    {
+        choosedAnswer = leftButton;
+    }
     public void CorrectAnswer()
     {
         StopAllCoroutines();
         mainPanel.SetActive(false);
-        AudioManager.Instance.playSound("magic");
-        // !!TODO: write code that puts the cubes. Then call checkIfOk method.
+
+        /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
+        CheckerManager.Instance.ClickedTheCorrectButton(idOKDictionary[colorToCheck]);
     }
 
     public void WrongAnswer()
     {
-
     }
+
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
         Image image = mainPanel.GetComponent<Image>();
@@ -291,6 +291,7 @@ public class StartupTutorial : MonoBehaviour
         foreach (Wavs wa in wavList)
         {
             gotIt = false;
+            choosedAnswer = false;
             image.sprite = null;
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -306,6 +307,7 @@ public class StartupTutorial : MonoBehaviour
             //Start owl morph
             if (owlAnimator)
             {
+                ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
                 owlIsSpeaking = true;
             }
@@ -315,6 +317,7 @@ public class StartupTutorial : MonoBehaviour
             //Stop wol morph
             if (owlAnimator)
             {
+                ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
                 owlIsSpeaking = false;
             }
@@ -322,8 +325,21 @@ public class StartupTutorial : MonoBehaviour
             if (wa.chooseBetween)
             {
                 leftButton.SetActive(true);
-                rightButton.SetActive(false);
+                rightButton.SetActive(true);
                 tutorText.text = string.Empty;
+                yield return new WaitUntil(() => gotIt);
+                leftButton.SetActive(false);
+                rightButton.SetActive(false);
+
+                if (choosedAnswer)
+                {
+                    //choosed left
+                    CorrectAnswer();
+                }
+                else
+                {
+                    WrongAnswer();
+                }
             }
 
             // wait until button clicked
@@ -338,6 +354,15 @@ public class StartupTutorial : MonoBehaviour
             image.sprite = null;
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
+        }
+    }
+    void ActivateTalkingBirds(bool activate)
+    {
+        GameObject birds = CheckerManager.Instance.talkingBirds;
+        Component[] birdColliders = birds.GetComponentsInChildren(typeof(Collider));
+        foreach (Collider collider in birdColliders)
+        {
+            collider.enabled = activate;
         }
     }
 
@@ -364,6 +389,7 @@ public class StartupTutorial : MonoBehaviour
             //Start owl morph
             if (owlAnimator)
             {
+                ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
                 owlIsSpeaking = true;
             }
@@ -383,6 +409,7 @@ public class StartupTutorial : MonoBehaviour
             //Stop wol morph
             if (owlAnimator)
             {
+                ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
                 owlIsSpeaking = false;
             }    
@@ -468,6 +495,7 @@ public class StartupTutorial : MonoBehaviour
 
     void StartGame()
     {
+        ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
         ActivateGrabInteractors(true);
         isActive = false;

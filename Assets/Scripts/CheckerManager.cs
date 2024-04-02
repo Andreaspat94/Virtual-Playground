@@ -395,11 +395,6 @@ public class CheckerManager : Singleton<CheckerManager>
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
-                                // for (int i = 0; i < idOK.Length; i++)
-                                // {
-                                //     Debug.Log("idOK[" + i  + "]--> " + idOK[i]);
-                                // }
-                                // NotGrabbableAnymore(whichColor-1);
 
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
@@ -462,7 +457,6 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 // update startuptutorial dictionary
                 startupTutorial.idOK[i] = true;
-
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
 
@@ -505,30 +499,49 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         
     }
+    
+    public void ClickedTheCorrectButton(int id)
+    {
+        // 1) hide all cubes of that color
+        GameObject colorParent = cubeHierarchy.transform.GetChild(id - 1).gameObject;
+        int childCount = colorParent.transform.childCount;
+        for (int i = 0; i < childCount -1; i++)
+        {
+            GameObject childCube = colorParent.transform.GetChild(i).gameObject;
+            if (childCube != null)
+                Destroy(childCube);
+        }        
 
-    /// Propably it will create problems in case brown cubes are solved in the area of greens, leaving no space for the greens.
-    /// DONT USE IT
-    // void NotGrabbableAnymore(int id)
-    // {
-        // Debug.Log("--->NotGrabableAnymore called...");
-        // // Get color group
-        // GameObject parentColor = cubeHierarchy.transform.GetChild(id).gameObject;
-        // foreach (Transform child in parentColor.transform)
-        // {   
-        //     DistanceHandGrabInteractable script = child.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
-        //     if (script != null)
-        //         script.enabled = false;
-        // }
+        // 2) CreateStaticCubes 
+        CreateIsland(id);
 
-        // // now change tag/layer for pool cube as well.
-        // GameObject poolCube = objectPool.transform.GetChild(id).gameObject;
-        // DistanceHandGrabInteractable poolScript = poolCube.gameObject.GetComponentInChildren<DistanceHandGrabInteractable>();
-        // if (poolScript != null)
-        //     poolScript.enabled = false;
-        
-        // Debug.Log("-->Not grabbable anymore..." + parentColor + " and " + poolCube.name);
-    // }
+        // 3) show good object
+        CheckIfOK();
+        AudioManager.Instance.playSound("magic");
+    }
 
+    void CreateIsland(int id)
+    {
+        if (id == 5)
+        {
+            CreateStaticCube("RedCube", 5, 16, false);
+            CreateStaticCube("RedCube", 5, 17, false);
+            CreateStaticCube("RedCube", 5, 18, false);
+            CreateStaticCube("RedCube", 5, 19, false);
+            CreateStaticCube("RedCube", 6, 16, false);
+            CreateStaticCube("RedCube", 6, 17, false);
+            CreateStaticCube("RedCube", 6, 18, false);
+            CreateStaticCube("RedCube", 6, 19, false);
+            CreateStaticCube("RedCube", 7, 16, false);
+            CreateStaticCube("RedCube", 7, 17, false);
+            CreateStaticCube("RedCube", 7, 18, false);
+            CreateStaticCube("RedCube", 7, 19, false);
+            CreateStaticCube("RedCube", 8, 16, false);
+            CreateStaticCube("RedCube", 8, 17, false);
+            CreateStaticCube("RedCube", 8, 18, false);
+            CreateStaticCube("RedCube", 8, 19, false);
+        }
+    }
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
     {
