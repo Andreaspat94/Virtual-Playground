@@ -18,6 +18,8 @@ public class StartupTutorial : MonoBehaviour
         public bool chooseBetween = false;
         public Sprite image;
         public string text;
+        public string buttonLeft;
+        public string buttonRight;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
         public OVRInput.Button secondkeyToProceed = OVRInput.Button.None;
@@ -52,8 +54,7 @@ public class StartupTutorial : MonoBehaviour
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs;
     string colorToCheck;
-    GameObject leftButton;
-    GameObject rightButton;
+    GameObject lastQuestionObjects;
     bool gotIt;
     bool choosedAnswer;
 
@@ -267,7 +268,7 @@ public class StartupTutorial : MonoBehaviour
     }
     public void ChooseBetween(bool leftbutton)
     {
-        choosedAnswer = leftButton;
+        choosedAnswer = leftbutton;
     }
     public void CorrectAnswer()
     {
@@ -280,14 +281,14 @@ public class StartupTutorial : MonoBehaviour
 
     public void WrongAnswer()
     {
+        CheckerManager.Instance.ResetTheCubeNumberOfColor(idOKDictionary[colorToCheck]);
     }
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
-        leftButton = mainPanel.transform.GetChild(2).gameObject;
-        rightButton = mainPanel.transform.GetChild(3).gameObject;
+        lastQuestionObjects = mainPanel.transform.GetChild(2).gameObject;
         foreach (Wavs wa in wavList)
         {
             gotIt = false;
@@ -324,13 +325,15 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.chooseBetween)
             {
-                leftButton.SetActive(true);
-                rightButton.SetActive(true);
+                lastQuestionObjects.SetActive(true);
+                //set main text and buttons text
+                lastQuestionObjects.transform.GetChild(0).GetComponent<Text>().text = wa.text;
+                lastQuestionObjects.transform.GetChild(1).GetComponent<Text>().text = wa.buttonLeft;
+                lastQuestionObjects.transform.GetChild(2).GetComponent<Text>().text = wa.buttonRight;
                 tutorText.text = string.Empty;
                 yield return new WaitUntil(() => gotIt);
-                leftButton.SetActive(false);
-                rightButton.SetActive(false);
-
+                lastQuestionObjects.SetActive(false);
+                
                 if (choosedAnswer)
                 {
                     //choosed left

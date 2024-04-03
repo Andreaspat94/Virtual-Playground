@@ -497,12 +497,29 @@ public class CheckerManager : Singleton<CheckerManager>
 
             playGroundFinished = true;
         }
-        
+
     }
     
     public void ClickedTheCorrectButton(int id)
+    {  
+        ResetTheCubeNumberOfColor(id);
+        // 3) show good object
+        CheckIfOK();
+        AudioManager.Instance.playSound("magic");
+    }
+
+
+    public void ResetTheCubeNumberOfColor(int id)
     {
-        // 1) hide all cubes of that color
+        // 1) hide all cubes of that color 
+        EraseCubesOfColor(id);
+
+        // 2) CreateStaticCubes 
+        CreateIsland(id);
+    }
+  
+    public void EraseCubesOfColor(int id)
+    {
         GameObject colorParent = cubeHierarchy.transform.GetChild(id - 1).gameObject;
         int childCount = colorParent.transform.childCount;
         for (int i = 0; i < childCount -1; i++)
@@ -511,15 +528,7 @@ public class CheckerManager : Singleton<CheckerManager>
             if (childCube != null)
                 Destroy(childCube);
         }        
-
-        // 2) CreateStaticCubes 
-        CreateIsland(id);
-
-        // 3) show good object
-        CheckIfOK();
-        AudioManager.Instance.playSound("magic");
     }
-
     void CreateIsland(int id)
     {
         if (id == 5)
