@@ -18,8 +18,9 @@ public class StartupTutorial : MonoBehaviour
         public bool chooseBetween = false;
         public Sprite image;
         public string text;
-        public string buttonLeft;
-        public string buttonRight;
+        public string buttonA;
+        public string buttonB;
+        public string correctAnswer;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
         public OVRInput.Button secondkeyToProceed = OVRInput.Button.None;
@@ -56,7 +57,7 @@ public class StartupTutorial : MonoBehaviour
     string colorToCheck;
     GameObject lastQuestionObjects;
     bool gotIt;
-    bool choosedAnswer;
+    string lastButtonClicked;
 
     // public List<TutoringImages> tutoringImages = new List<TutoringImages>();
     public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
@@ -266,22 +267,9 @@ public class StartupTutorial : MonoBehaviour
     {
         gotIt = true;
     }
-    public void ChooseBetween(bool leftbutton)
+    public void ChooseBetween(string buttonName)
     {
-        choosedAnswer = leftbutton;
-    }
-    public void CorrectAnswer()
-    {
-        StopAllCoroutines();
-        mainPanel.SetActive(false);
-
-        /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
-        CheckerManager.Instance.ClickedTheCorrectButton(idOKDictionary[colorToCheck]);
-    }
-
-    public void WrongAnswer()
-    {
-        CheckerManager.Instance.ResetTheCubeNumberOfColor(idOKDictionary[colorToCheck]);
+        lastButtonClicked = buttonName;
     }
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
@@ -292,8 +280,14 @@ public class StartupTutorial : MonoBehaviour
         foreach (Wavs wa in wavList)
         {
             gotIt = false;
-            choosedAnswer = false;
+            lastButtonClicked = string.Empty;
             image.sprite = null;
+            if (wa.audioname.StartsWith("final"))
+            {
+                mainPanel.SetActive(false);
+                tutoringCanvas.SetActive(false);
+            }
+
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
@@ -328,24 +322,27 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(true);
                 //set main text and buttons text
                 lastQuestionObjects.transform.GetChild(0).GetComponent<Text>().text = wa.text;
-                lastQuestionObjects.transform.GetChild(1).GetComponent<Text>().text = wa.buttonLeft;
-                lastQuestionObjects.transform.GetChild(2).GetComponent<Text>().text = wa.buttonRight;
+                lastQuestionObjects.transform.GetChild(1).GetComponent<Text>().text = wa.buttonA;
+                lastQuestionObjects.transform.GetChild(2).GetComponent<Text>().text = wa.buttonB;
                 tutorText.text = string.Empty;
                 yield return new WaitUntil(() => gotIt);
                 lastQuestionObjects.SetActive(false);
-                
-                if (choosedAnswer)
+
+                if (lastButtonClicked.Equals(wa.correctAnswer))
                 {
-                    //choosed left
-                    CorrectAnswer();
+                    StopAllCoroutines();
+                    mainPanel.SetActive(false);
+
+                    /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
+                    CheckerManager.Instance.ClickedTheCorrectButton(idOKDictionary[colorToCheck]);
                 }
                 else
                 {
-                    WrongAnswer();
+                    CheckerManager.Instance.ResetTheCubeNumberOfColor(idOKDictionary[colorToCheck]);
                 }
             }
 
-            // wait until button clicked
+            // wait until 'got it' button clicked. single button appears on the panel now.
             if (wa.waitForButtonClick)
             {
                 gotItButton.SetActive(true);
