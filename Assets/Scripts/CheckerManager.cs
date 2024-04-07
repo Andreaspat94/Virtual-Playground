@@ -3,6 +3,7 @@ using HoloToolkit.Unity;
 using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -446,9 +447,9 @@ public class CheckerManager : Singleton<CheckerManager>
         //Set to default value and see if there is any cube island that is correct, 
         //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        startupTutorial.ActivateRayInteractors(true);
-        // Debug.Log("Activate from CheckIfOK()-- " + true);
-        startupTutorial.ActivateGrabInteractors(true);
+
+        // startupTutorial.ActivateRayInteractors(true);
+        // startupTutorial.ActivateGrabInteractors(true);
 
         // Check trough all the colors and switch geometry on/off.
         for (int i = 0; i < playGroundObjectsArray.Length; i++)
@@ -457,6 +458,8 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 // update startuptutorial dictionary
                 startupTutorial.idOK[i] = true;
+                startupTutorial.GotIt();
+
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
 
@@ -482,7 +485,6 @@ public class CheckerManager : Singleton<CheckerManager>
 
                 if (talkingBirds) talkingBirds.SetActive(false);
                 //if (owlBird) owlBird.SetActive(false);
-
                 allOK = false;
             }
         }
@@ -507,7 +509,23 @@ public class CheckerManager : Singleton<CheckerManager>
         CheckIfOK();
         AudioManager.Instance.playSound("magic");
     }
+    
+    public void MakeIslandNotInteractable(int id)
+    {
+        ResetTheCubeNumberOfColor(id);
+        // Make them interactable
+        GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
+        DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
+        foreach(DistanceHandGrabInteractable script in scripts)
+        {
+            script.enabled = false;
+        }
 
+        //pool cube as well
+        // GameObject[] pool = GameObject.FindWithTag("Pool");
+        // foreach (GameObject cube in pool)
+        // poolCube.GetComponentInChildren<Grabbable>().enabled = false;
+    }
 
     public void ResetTheCubeNumberOfColor(int id)
     {
@@ -517,40 +535,41 @@ public class CheckerManager : Singleton<CheckerManager>
         // 2) CreateStaticCubes 
         CreateIsland(id);
     }
-  
+    
     public void EraseCubesOfColor(int id)
     {
-        GameObject colorParent = cubeHierarchy.transform.GetChild(id - 1).gameObject;
+        GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         int childCount = colorParent.transform.childCount;
-        for (int i = 0; i < childCount -1; i++)
+        for (int i = 0; i < childCount; i++)
         {
             GameObject childCube = colorParent.transform.GetChild(i).gameObject;
             if (childCube != null)
                 Destroy(childCube);
-        }        
+        }       
     }
     void CreateIsland(int id)
     {
-        if (id == 5)
+        if (id == 4)
         {
+            CreateStaticCube("RedCube", 5, 15, false);
             CreateStaticCube("RedCube", 5, 16, false);
             CreateStaticCube("RedCube", 5, 17, false);
             CreateStaticCube("RedCube", 5, 18, false);
-            CreateStaticCube("RedCube", 5, 19, false);
+            CreateStaticCube("RedCube", 6, 15, false);
             CreateStaticCube("RedCube", 6, 16, false);
             CreateStaticCube("RedCube", 6, 17, false);
             CreateStaticCube("RedCube", 6, 18, false);
-            CreateStaticCube("RedCube", 6, 19, false);
+            CreateStaticCube("RedCube", 7, 15, false);
             CreateStaticCube("RedCube", 7, 16, false);
             CreateStaticCube("RedCube", 7, 17, false);
             CreateStaticCube("RedCube", 7, 18, false);
-            CreateStaticCube("RedCube", 7, 19, false);
+            CreateStaticCube("RedCube", 8, 15, false);
             CreateStaticCube("RedCube", 8, 16, false);
             CreateStaticCube("RedCube", 8, 17, false);
             CreateStaticCube("RedCube", 8, 18, false);
-            CreateStaticCube("RedCube", 8, 19, false);
         }
     }
+
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
     {
@@ -864,7 +883,8 @@ public class CheckerManager : Singleton<CheckerManager>
         countCoveredBlocksUI();
         
         //Switch to and from zoom mode
-        if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn && activeCubeIndex == -1)
+        if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn
+             && activeCubeIndex == -1)
         {
             if (isZoomOutViewMode)
             {
@@ -880,7 +900,8 @@ public class CheckerManager : Singleton<CheckerManager>
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
         //if (Input.GetMouseButtonDown(0) &&
             canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 && !isExitViewModeOn)
+            activeCubeIndex == -1 && !isExitViewModeOn
+            && !startupTutorial.owlIsSpeaking)
         {
             if (!inSequence)
             {

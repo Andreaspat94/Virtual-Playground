@@ -20,6 +20,8 @@ public class StartupTutorial : MonoBehaviour
         public string text;
         public string buttonA;
         public string buttonB;
+        public bool activateGrab;
+        public bool activateRay;
         public string correctAnswer;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
@@ -53,7 +55,7 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
     [HideInInspector]
-    Dictionary<string, List<Wavs>> tutoringWavs;
+    Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     string colorToCheck;
     GameObject lastQuestionObjects;
     bool gotIt;
@@ -96,7 +98,6 @@ public class StartupTutorial : MonoBehaviour
     bool isPlayingSounds;
     [HideInInspector]
     public bool owlIsSpeaking;
-    GameObject correctObjects;
     bool cubeReleasedTutorial;
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
@@ -126,7 +127,6 @@ public class StartupTutorial : MonoBehaviour
         tutoringWavs.Add("red",redWavList);
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
-        GameObject correctObjects = GameObject.FindWithTag("CorrectObjects");
         //if not active proceed to play immediately
         if (isActive)
         {
@@ -180,6 +180,7 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
+        ActivateGrabInteractors(false);
         StartCoroutine(PlaySounds());
     }
 	
@@ -368,6 +369,7 @@ public class StartupTutorial : MonoBehaviour
 
     IEnumerator PlaySounds()
     {
+        gotIt = false;
         List<Wavs> wavList = new List<Wavs>();
         if (isTutorial)
         {
@@ -380,6 +382,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
+            // Debug.Log("PlaySounds-->" + wa.audioname);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
@@ -454,7 +457,11 @@ public class StartupTutorial : MonoBehaviour
             //Hide ui
             if (instructionText)
                 instructionText.gameObject.SetActive(false);
-
+            
+            // Check if ray or grab is needed
+            ActivateGrabInteractors(wa.activateGrab);
+            ActivateRayInteractors(wa.activateRay);
+                
             // show "which color" panel
             if (wa.audioname.Equals("which"))
             {
@@ -463,14 +470,17 @@ public class StartupTutorial : MonoBehaviour
                 // precaution
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
-                yield return new WaitUntil(() => !idOK[idOKDictionary[colorToCheck]]);
-                if (idOK[5])
+                yield return new WaitUntil(() => gotIt);
+                if (idOK[4])
                 {
+                    CheckerManager.Instance.MakeIslandNotInteractable(4);
                     tutoringCanvas.SetActive(false);
+                    AudioManager.Instance.playSound("magic");
+                    GrayOutWhichPanelButton(4);
                 }
                 else
                 {
-                    Debug.Log("BREAK --> ");
+                    Debug.Log("playsounds BREAK --> ");
                     break;
                 }
             }
@@ -487,7 +497,17 @@ public class StartupTutorial : MonoBehaviour
         if (isTutorial)
             StartGame();
     }
-    
+
+    void GrayOutWhichPanelButton(int id)
+    {
+        GameObject panelButton = whichColorPanel.transform.GetChild(id).gameObject;
+        Button buttonComponent = panelButton.GetComponent<Button>();
+        buttonComponent.interactable = false;
+        ColorBlock cb = buttonComponent.colors;
+        cb.normalColor = Color.gray;
+        buttonComponent.colors = cb;
+    }
+
     public void ReleaseEventTutorial()
     {
         cubeReleasedTutorial = true;
