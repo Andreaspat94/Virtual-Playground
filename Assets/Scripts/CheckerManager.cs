@@ -301,7 +301,6 @@ public class CheckerManager : Singleton<CheckerManager>
         clone.transform.position = cubePickedUp.transform.position;
     }
 
-
     //Show interaction cubes again and hide playground objects for continuiing interaction
     public void ResetToCubeRepresentation()
     {

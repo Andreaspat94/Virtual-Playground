@@ -16,6 +16,7 @@ public class StartupTutorial : MonoBehaviour
         public float pause = 0;
         public bool waitForButtonClick = false;
         public bool chooseBetween = false;
+        public bool openMainPanel = false;
         public Sprite image;
         public string text;
         public string buttonA;
@@ -70,6 +71,16 @@ public class StartupTutorial : MonoBehaviour
         {"green", 4},
         {"red", 5},
         {"grey", 6}
+    };
+
+    Dictionary<int, string> poolDictionary = new Dictionary<int, string>
+    {
+        {0, "cube_blue_pool_collider_static(Clone)"},
+        {1, "cube_yellow_pool_collider_static(Clone)"},
+        {2, "cube_orange_pool_collider_static(Clone)"},
+        {3, "cube_green_pool_collider_static(Clone)"},
+        {4, "cube_red_pool_collider_static(Clone)"},
+        {5, "cube_grey_pool_collider_static(Clone)"}
     };
 
     [HideInInspector]
@@ -259,15 +270,17 @@ public class StartupTutorial : MonoBehaviour
     }
     public void Tutoring()
     {      
+        owlIsSpeaking = true;
         List<Wavs> wavList = tutoringWavs[colorToCheck];
-        mainPanel.SetActive(true);
         gotItButton = mainPanel.transform.GetChild(0).gameObject;
         StartCoroutine(PlayTutoringSequence(redWavList));
     }
+
     public void GotIt()
     {
         gotIt = true;
     }
+
     public void ChooseBetween(string buttonName)
     {
         lastButtonClicked = buttonName;
@@ -275,23 +288,24 @@ public class StartupTutorial : MonoBehaviour
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
+        yield return new WaitForSeconds(2.5f);
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         lastQuestionObjects = mainPanel.transform.GetChild(2).gameObject;
         foreach (Wavs wa in wavList)
-        {
-            gotIt = false;
-            lastButtonClicked = string.Empty;
-            image.sprite = null;
-            if (wa.audioname.StartsWith("final"))
-            {
-                mainPanel.SetActive(false);
-                tutoringCanvas.SetActive(false);
-            }
-
+        {            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
+            Debug.Log("wa name -->" + wa.audioname);
+            gotIt = false;
+            lastButtonClicked = string.Empty;
+            image.sprite = null;
+            
+            // open main panel
+            tutoringCanvas.SetActive(wa.openMainPanel);
+            mainPanel.SetActive(wa.openMainPanel);
+            
             //Play explanation
             AudioManager.Instance.playSound(wa.audioname);
             
@@ -305,7 +319,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
-                owlIsSpeaking = true;
+                // owlIsSpeaking = true;
             }
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
@@ -315,7 +329,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
-                owlIsSpeaking = false;
+                // owlIsSpeaking = false;
             }
 
             if (wa.chooseBetween)
@@ -347,15 +361,20 @@ public class StartupTutorial : MonoBehaviour
             if (wa.waitForButtonClick)
             {
                 gotItButton.SetActive(true);
+                // Check if ray or grab is needed
+                ActivateGrabInteractors(wa.activateGrab);
+                ActivateRayInteractors(wa.activateRay);
                 yield return new WaitUntil(() => gotIt);
                 gotItButton.SetActive(false);
                 tutorText.text = string.Empty;
             }
 
-            image.sprite = null;
+            mainPanel.SetActive(false);
+            // image.sprite = null;
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
+        // owlIsSpeaking = false;
     }
     void ActivateTalkingBirds(bool activate)
     {
@@ -477,10 +496,14 @@ public class StartupTutorial : MonoBehaviour
                     tutoringCanvas.SetActive(false);
                     AudioManager.Instance.playSound("magic");
                     GrayOutWhichPanelButton(4);
+
+                    //!!TODO: disable pool cube
+                    // DisablePoolCube(4);
                 }
                 else
                 {
-                    Debug.Log("playsounds BREAK --> ");
+                    AudioManager.Instance.playSound("wrong_buzz");
+                    tutoringCanvas.SetActive(false);
                     break;
                 }
             }
@@ -489,7 +512,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
-        if (!idOK[idOKDictionary[colorToCheck]])
+        if (!idOK[idOKDictionary[colorToCheck]] == false)
             Tutoring();
 
         isPlayingSounds = false;
@@ -506,6 +529,16 @@ public class StartupTutorial : MonoBehaviour
         ColorBlock cb = buttonComponent.colors;
         cb.normalColor = Color.gray;
         buttonComponent.colors = cb;
+    }
+
+    void DisablePoolCube(int id)
+    {
+        GameObject pool = CheckerManager.Instance.objectPool;
+        string objName = string.Concat("/", poolDictionary[id]); 
+        Debug.Log("OBJ name --> " + objName);
+        GameObject poolCube = pool.transform.Find(objName).gameObject;
+        Debug.Log("FOUND POOL CUBE --> " + poolCube);
+        // poolCube.GetComponentInChildren<Grabbable>().enabled = false;
     }
 
     public void ReleaseEventTutorial()
