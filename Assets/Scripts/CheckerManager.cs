@@ -189,6 +189,7 @@ public class CheckerManager : Singleton<CheckerManager>
         movementScript = fps_controller.GetComponent<SimpleCapsuleWithStickMovement>();
         rb = fps_controller.GetComponent<Rigidbody>();
         canvas = ui_canvas.GetComponent<Canvas>();
+
         //CreateStatic cubes from initial Chekker array
         for (int x = 0; x < YDim; x++)
         {
@@ -501,7 +502,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
     }
     
-    public void ClickedTheCorrectButton(int id)
+    // This logic erases all cubes of the correct's answer color and replace it with the correct island
+    public void MakeIsland(int id)
     {  
         ResetTheCubeNumberOfColor(id);
         // 3) show good object
@@ -513,8 +515,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public void MakeIslandNotInteractable(int id)
     {
         id--;
-        // ResetTheCubeNumberOfColor(id);
-        // Debug.Log("ResetTheCubeNumberOfColor is OK --> ");
         // Make them interactable
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
@@ -536,10 +536,8 @@ public class CheckerManager : Singleton<CheckerManager>
         id--;
         // 1) hide all cubes of that color 
         EraseCubesOfColor(id);
-        Debug.Log("EraseCubesOfColor OK --> ");
         // 2) CreateStaticCubes 
         CreateIsland(id);
-        Debug.Log("CreateIsland OK --> ");
     }
     
     public void EraseCubesOfColor(int id)
@@ -924,6 +922,7 @@ public class CheckerManager : Singleton<CheckerManager>
             if (view_mode_ == ViewModes.CUBE_INTERACTION)
             {
                 // CheckIfOK();
+                owlBird.GetComponent<Collider>().enabled = true;
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {

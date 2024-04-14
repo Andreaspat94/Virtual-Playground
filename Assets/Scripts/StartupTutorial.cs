@@ -102,6 +102,10 @@ public class StartupTutorial : MonoBehaviour
     GameObject owlOutline;
     [SerializeField]
     GameObject tutoringCanvas;
+    [SerializeField]
+    GameObject instructionsCanvas;
+    [SerializeField]
+    GameObject instructionsTextObj;
     GameObject mainPanel;
     GameObject gotItButton;
     GameObject whichColorPanel;
@@ -290,19 +294,22 @@ public class StartupTutorial : MonoBehaviour
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(2f);
         ActivateTalkingBirds(false);
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         lastQuestionObjects = mainPanel.transform.GetChild(2).gameObject;
+        bool skipCorrectWa = false;
         foreach (Wavs wa in wavList)
         {            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
+            if (skipCorrectWa)
+                continue;
 
-            Debug.Log("wa name -->" + wa.audioname);
+            // Debug.Log("wa name -->" + wa.audioname);
              
-             // Check if ray or grab is needed
+            // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
 
@@ -326,21 +333,14 @@ public class StartupTutorial : MonoBehaviour
 
             //Start owl morph
             if (owlAnimator)
-            {
-                // ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
-                // owlIsSpeaking = true;
-            }
+
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
-            //Stop wol morph
+            //Stop owl morph
             if (owlAnimator)
-            {
-                // ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
-                // owlIsSpeaking = false;
-            }
 
             if (wa.chooseBetween)
             {
@@ -352,18 +352,13 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => gotIt);
                 lastQuestionObjects.SetActive(false);
                 
-                // if correct answer
-                if (lastButtonClicked.Equals(wa.correctAnswer))
+                // if wrong answer
+                if (!lastButtonClicked.Equals(wa.correctAnswer))
                 {
                     tutoringCanvas.SetActive(false);
-                    // AudioManager.Instance.playSound("correct");
+                    skipCorrectWa = true;
                     /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
-                    CheckerManager.Instance.ClickedTheCorrectButton(idOKDictionary[colorToCheck]);
-                }
-                else
-                {
-                    Debug.Log("FALSE ANSWER GIVEN-->");
-                    CheckerManager.Instance.ResetTheCubeNumberOfColor(idOKDictionary[colorToCheck]);
+                    // CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]);
                 }
             }
 
@@ -385,15 +380,57 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
             
             // Stop Tutoring
-            if (wa.audioname.Equals("correct"))
+            //Wait until key is pressed
+            if (wa.keyToProceed != OVRInput.Button.None)
             {
-                StopAllCoroutines();
-                owlIsSpeaking = false;
+                //Display text to inform about key press
+                if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionText)
+                {
+                    instructionsCanvas.SetActive(true);
+                    instructionsTextObj.SetActive(true);
+                    instructionText.text = wa.keyInstructionText;
+                    instructionText.gameObject.SetActive(true);
+                }
+
+                //wait unti key pressed
+                while (!OVRInput.GetDown(wa.keyToProceed))
+                    yield return null;
+
+                //Issue event that key was pressed
+                if (wa.OnKeyEvent != null)
+                    wa.OnKeyEvent.Invoke();
                 break;
+            }
+
+            if (wa.audioname.Equals("final_no"))
+            {
+                CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]);
+                owlIsSpeaking = false;
             }
         }
         // owlIsSpeaking = false;
     }
+
+    public void ExitInstructions()
+    {
+        StopAllCoroutines();
+        ActivateTalkingBirds(true);
+        instructionsCanvas.SetActive(false);
+        owlIsSpeaking = false;
+    }
+    /**
+    red: 4
+    */
+    void FinishTutoring(int id)
+    {
+        
+         CheckerManager.Instance.MakeIsland(id);
+         tutoringCanvas.SetActive(false);
+         GrayOutWhichPanelButton(id);
+         ActivateTalkingBirds(true);
+         owlIsSpeaking = false;
+    }
+
     void ActivateTalkingBirds(bool activate)
     {
         GameObject birds = CheckerManager.Instance.talkingBirds;
@@ -508,19 +545,16 @@ public class StartupTutorial : MonoBehaviour
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
-                if (idOK[4])
+                int id = idOKDictionary[colorToCheck] - 1;
+                if (idOK[id])
                 {
-                    CheckerManager.Instance.MakeIslandNotInteractable(4);
-                    tutoringCanvas.SetActive(false);
-                    AudioManager.Instance.playSound("magic");
-                    GrayOutWhichPanelButton(4);
-
+                    FinishTutoring(id);
                     //!!TODO: disable pool cube
                     // DisablePoolCube(4);
                 }
                 else
                 {
-                    AudioManager.Instance.playSound("wrong_buzz");
+                    AudioManager.Instance.playSound("magic");
                     tutoringCanvas.SetActive(false);
                     break;
                 }
