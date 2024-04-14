@@ -507,13 +507,17 @@ public class CheckerManager : Singleton<CheckerManager>
         // 3) show good object
         CheckIfOK();
         AudioManager.Instance.playSound("magic");
+        MakeIslandNotInteractable(id);
     }
     
     public void MakeIslandNotInteractable(int id)
     {
-        ResetTheCubeNumberOfColor(id);
+        id--;
+        // ResetTheCubeNumberOfColor(id);
+        // Debug.Log("ResetTheCubeNumberOfColor is OK --> ");
         // Make them interactable
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
+        Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
         DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
         foreach(DistanceHandGrabInteractable script in scripts)
         {
@@ -528,17 +532,21 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void ResetTheCubeNumberOfColor(int id)
     {
+        //the real color id
+        id--;
         // 1) hide all cubes of that color 
         EraseCubesOfColor(id);
-
+        Debug.Log("EraseCubesOfColor OK --> ");
         // 2) CreateStaticCubes 
         CreateIsland(id);
+        Debug.Log("CreateIsland OK --> ");
     }
     
     public void EraseCubesOfColor(int id)
     {
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         int childCount = colorParent.transform.childCount;
+        // Debug.Log("childCount --> " + childCount);
         for (int i = 0; i < childCount; i++)
         {
             GameObject childCube = colorParent.transform.GetChild(i).gameObject;
@@ -781,7 +789,7 @@ public class CheckerManager : Singleton<CheckerManager>
     IEnumerator LetTimeForCubeToDrop()
     {
         startupTutorial.ActivateGrabInteractors(false);
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.5f);
         //activate hand grabs
         startupTutorial.ActivateGrabInteractors(true);
     }

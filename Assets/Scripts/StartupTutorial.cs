@@ -19,6 +19,7 @@ public class StartupTutorial : MonoBehaviour
         public bool openMainPanel = false;
         public Sprite image;
         public string text;
+        public string topText;
         public string buttonA;
         public string buttonB;
         public bool activateGrab;
@@ -284,11 +285,13 @@ public class StartupTutorial : MonoBehaviour
     public void ChooseBetween(string buttonName)
     {
         lastButtonClicked = buttonName;
+        Debug.Log("LastButtonClicked "+ lastButtonClicked);
     }
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
         yield return new WaitForSeconds(2.5f);
+        ActivateTalkingBirds(false);
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         lastQuestionObjects = mainPanel.transform.GetChild(2).gameObject;
@@ -298,9 +301,15 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             Debug.Log("wa name -->" + wa.audioname);
+             
+             // Check if ray or grab is needed
+            ActivateGrabInteractors(wa.activateGrab);
+            ActivateRayInteractors(wa.activateRay);
+
             gotIt = false;
             lastButtonClicked = string.Empty;
             image.sprite = null;
+            tutorText.text = string.Empty;
             
             // open main panel
             tutoringCanvas.SetActive(wa.openMainPanel);
@@ -314,10 +323,11 @@ public class StartupTutorial : MonoBehaviour
             
             if (!string.IsNullOrEmpty(wa.text))
                 tutorText.text = wa.text;
+
             //Start owl morph
             if (owlAnimator)
             {
-                ActivateTalkingBirds(false);
+                // ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
                 // owlIsSpeaking = true;
             }
@@ -327,7 +337,7 @@ public class StartupTutorial : MonoBehaviour
             //Stop wol morph
             if (owlAnimator)
             {
-                ActivateTalkingBirds(true);
+                // ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
                 // owlIsSpeaking = false;
             }
@@ -336,23 +346,23 @@ public class StartupTutorial : MonoBehaviour
             {
                 lastQuestionObjects.SetActive(true);
                 //set main text and buttons text
-                lastQuestionObjects.transform.GetChild(0).GetComponent<Text>().text = wa.text;
-                lastQuestionObjects.transform.GetChild(1).GetComponent<Text>().text = wa.buttonA;
-                lastQuestionObjects.transform.GetChild(2).GetComponent<Text>().text = wa.buttonB;
-                tutorText.text = string.Empty;
+                lastQuestionObjects.transform.GetChild(0).GetComponent<Text>().text = wa.topText;
+                lastQuestionObjects.transform.GetChild(1).GetComponentInChildren<Text>().text = wa.buttonA;
+                lastQuestionObjects.transform.GetChild(2).GetComponentInChildren<Text>().text = wa.buttonB;
                 yield return new WaitUntil(() => gotIt);
                 lastQuestionObjects.SetActive(false);
-
+                
+                // if correct answer
                 if (lastButtonClicked.Equals(wa.correctAnswer))
                 {
-                    StopAllCoroutines();
-                    mainPanel.SetActive(false);
-
+                    tutoringCanvas.SetActive(false);
+                    // AudioManager.Instance.playSound("correct");
                     /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
                     CheckerManager.Instance.ClickedTheCorrectButton(idOKDictionary[colorToCheck]);
                 }
                 else
                 {
+                    Debug.Log("FALSE ANSWER GIVEN-->");
                     CheckerManager.Instance.ResetTheCubeNumberOfColor(idOKDictionary[colorToCheck]);
                 }
             }
@@ -362,8 +372,8 @@ public class StartupTutorial : MonoBehaviour
             {
                 gotItButton.SetActive(true);
                 // Check if ray or grab is needed
-                ActivateGrabInteractors(wa.activateGrab);
-                ActivateRayInteractors(wa.activateRay);
+                // ActivateGrabInteractors(wa.activateGrab);
+                // ActivateRayInteractors(wa.activateRay);
                 yield return new WaitUntil(() => gotIt);
                 gotItButton.SetActive(false);
                 tutorText.text = string.Empty;
@@ -373,6 +383,14 @@ public class StartupTutorial : MonoBehaviour
             // image.sprite = null;
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
+            
+            // Stop Tutoring
+            if (wa.audioname.Equals("correct"))
+            {
+                StopAllCoroutines();
+                owlIsSpeaking = false;
+                break;
+            }
         }
         // owlIsSpeaking = false;
     }
