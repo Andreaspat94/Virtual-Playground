@@ -178,6 +178,7 @@ public class StartupTutorial : MonoBehaviour
     {
         leftRay.SetActive(activate);
         rightRay.SetActive(activate);
+        Debug.Log("ActivateRayInteractors called--> " + activate);
     }
 
     public void ActivateGrabInteractors(bool activate)
@@ -274,8 +275,7 @@ public class StartupTutorial : MonoBehaviour
         CheckerManager.Instance.CheckIfOK();
     }
     public void Tutoring()
-    {      
-        owlIsSpeaking = true;
+    {     
         List<Wavs> wavList = tutoringWavs[colorToCheck];
         gotItButton = mainPanel.transform.GetChild(0).gameObject;
         StartCoroutine(PlayTutoringSequence(redWavList));
@@ -289,7 +289,6 @@ public class StartupTutorial : MonoBehaviour
     public void ChooseBetween(string buttonName)
     {
         lastButtonClicked = buttonName;
-        Debug.Log("LastButtonClicked "+ lastButtonClicked);
     }
 
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
@@ -386,8 +385,8 @@ public class StartupTutorial : MonoBehaviour
                 //Display text to inform about key press
                 if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionText)
                 {
-                    instructionsCanvas.SetActive(true);
-                    instructionsTextObj.SetActive(true);
+                    // instructionsCanvas.SetActive(true);
+                    // instructionsTextObj.SetActive(true);
                     instructionText.text = wa.keyInstructionText;
                     instructionText.gameObject.SetActive(true);
                 }
@@ -411,24 +410,21 @@ public class StartupTutorial : MonoBehaviour
         // owlIsSpeaking = false;
     }
 
-    public void ExitInstructions()
+    public void StopAllCoroutinesAfterCorrectAnswer()
     {
         StopAllCoroutines();
-        ActivateTalkingBirds(true);
-        instructionsCanvas.SetActive(false);
-        owlIsSpeaking = false;
     }
     /**
     red: 4
     */
-    void FinishTutoring(int id)
+    public void FinishTutoring()
     {
-        
-         CheckerManager.Instance.MakeIsland(id);
-         tutoringCanvas.SetActive(false);
-         GrayOutWhichPanelButton(id);
-         ActivateTalkingBirds(true);
-         owlIsSpeaking = false;
+        tutoringCanvas.SetActive(false);
+        instructionText.text = string.Empty;
+        instructionText.gameObject.SetActive(true);
+        // GrayOutWhichPanelButton(id);
+        ActivateTalkingBirds(true);
+        owlIsSpeaking = false;
     }
 
     void ActivateTalkingBirds(bool activate)
@@ -545,10 +541,14 @@ public class StartupTutorial : MonoBehaviour
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
-                int id = idOKDictionary[colorToCheck] - 1;
-                if (idOK[id])
+                
+                int id = idOKDictionary[colorToCheck];
+                Debug.Log("id-->" + id);
+                if (idOK[id-1])
                 {
-                    FinishTutoring(id);
+                    // Debug.Log("idOK[]--> "+ idOK[id-1]);
+                    FinishTutoring();
+                    CheckerManager.Instance.MakeIsland(id-1);
                     //!!TODO: disable pool cube
                     // DisablePoolCube(4);
                 }

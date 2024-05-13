@@ -84,6 +84,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public bool fadeOut;
     private bool pickedUpCounter = true;
     public bool inSequence;
+    [HideInInspector]
+    public bool readyToExitPresentationMode = false;
+
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
     //When dropcube is colliding with checker it becomes inactive and a prefabStaticCube is created in the respective checker pos
@@ -206,6 +209,12 @@ public class CheckerManager : Singleton<CheckerManager>
         ResetToCubeRepresentation();
     }
 
+    //Finishing tutorial: This is called when info text is presented about pressing 'X' to exit presentation mode
+    public void TurnOnRays(bool ready)
+    {
+        readyToExitPresentationMode = ready;
+    }
+
     /// <summary> 
     /// Call this to enable a carrying cube and set the activeCubeIndex
     /// </summary>
@@ -306,9 +315,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        startupTutorial.ActivateRayInteractors(true);
-        // Debug.Log("Activate from ResetToCubeRepresentation()-- " + true);
-        startupTutorial.ActivateGrabInteractors(true);
+        // startupTutorial.ActivateRayInteractors(true);
+        // Debug.Log("Activate from ResetToCubeRepresentation()--> " + true);
+        // startupTutorial.ActivateGrabInteractors(true);
 
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
@@ -471,9 +480,6 @@ public class CheckerManager : Singleton<CheckerManager>
 
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
-                startupTutorial.ActivateRayInteractors(false);
-                // Debug.Log("Activate from CheckIfOK (2)-- " + false);
-                startupTutorial.ActivateGrabInteractors(false);
             }
             else
             {
@@ -514,10 +520,9 @@ public class CheckerManager : Singleton<CheckerManager>
     
     public void MakeIslandNotInteractable(int id)
     {
-        id--;
         // Make them interactable
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
-        Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
+        // Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
         DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
         foreach(DistanceHandGrabInteractable script in scripts)
         {
@@ -533,7 +538,7 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetTheCubeNumberOfColor(int id)
     {
         //the real color id
-        id--;
+        // id--;
         // 1) hide all cubes of that color 
         EraseCubesOfColor(id);
         // 2) CreateStaticCubes 
@@ -544,7 +549,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         int childCount = colorParent.transform.childCount;
-        // Debug.Log("childCount --> " + childCount);
+        // Debug.Log("EraseCubesOfColor colorParent --> " + colorParent);
         for (int i = 0; i < childCount; i++)
         {
             GameObject childCube = colorParent.transform.GetChild(i).gameObject;
@@ -556,6 +561,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         if (id == 4)
         {
+            // Debug.Log("Create an island of REDS-->");
             CreateStaticCube("RedCube", 5, 15, false);
             CreateStaticCube("RedCube", 5, 16, false);
             CreateStaticCube("RedCube", 5, 17, false);
@@ -900,7 +906,16 @@ public class CheckerManager : Singleton<CheckerManager>
                 ZoomOut();
             }
         }
-
+        
+        // if (OVRInput.GetDown(OVRInput.Button.Three)) 
+        // {
+        //     Debug.Log("canChangeViewMode -->" + canChangeViewMode);
+        //     Debug.Log("isZoomOutViewMode -->" + isZoomOutViewMode);
+        //     Debug.Log("activeCubeIndex -->" + activeCubeIndex);
+        //     Debug.Log("isExitViewModeOn -->" + isExitViewModeOn);
+            // Debug.Log("startupTutorial.owlIsSpeaking -->" + startupTutorial.owlIsSpeaking);
+        // }
+        
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
         //if (Input.GetMouseButtonDown(0) &&
@@ -910,19 +925,26 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             if (!inSequence)
             {
-                //open canvas
-                ui_canvas.SetActive(true);
                 // start confirm answer sequence that leads to presentation mode.
+                
                 inSequence = true;
-
+                owlBird.GetComponent<Collider>().enabled = true;
                 startupTutorial.ConfirmAnswer();
             }
             
+            // this is true when tutorial is correct and message about exit presentation mode is presented
+            // if (readyToExitPresentationMode)
+            // {
+            //     Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
+                // startupTutorial.ActivateRayInteractors(true);
+                // startupTutorial.ActivateGrabInteractors(true);
+            // }
+
             // this section shows the answer
             if (view_mode_ == ViewModes.CUBE_INTERACTION)
-            {
-                // CheckIfOK();
-                owlBird.GetComponent<Collider>().enabled = true;
+            {                
+              
+                    
             }
             else if (view_mode_ == ViewModes.PRESENTATION)
             {
