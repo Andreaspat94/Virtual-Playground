@@ -24,6 +24,7 @@ public class StartupTutorial : MonoBehaviour
         public string buttonB;
         public bool activateGrab;
         public bool activateRay;
+        public bool finishTutoring;
         public string correctAnswer;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
@@ -178,7 +179,6 @@ public class StartupTutorial : MonoBehaviour
     {
         leftRay.SetActive(activate);
         rightRay.SetActive(activate);
-        Debug.Log("ActivateRayInteractors called--> " + activate);
     }
 
     public void ActivateGrabInteractors(bool activate)
@@ -307,7 +307,6 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             // Debug.Log("wa name -->" + wa.audioname);
-             
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -365,20 +364,19 @@ public class StartupTutorial : MonoBehaviour
             if (wa.waitForButtonClick)
             {
                 gotItButton.SetActive(true);
-                // Check if ray or grab is needed
-                // ActivateGrabInteractors(wa.activateGrab);
-                // ActivateRayInteractors(wa.activateRay);
                 yield return new WaitUntil(() => gotIt);
                 gotItButton.SetActive(false);
                 tutorText.text = string.Empty;
             }
 
             mainPanel.SetActive(false);
-            // image.sprite = null;
             //pause a bit
-            yield return new WaitForSeconds(wa.pause);
-            
+            yield return new WaitForSeconds(wa.pause);        
+        
             // Stop Tutoring
+            if (wa.finishTutoring)
+                CheckerManager.Instance.readyToExitPresentationMode = true;
+                
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {

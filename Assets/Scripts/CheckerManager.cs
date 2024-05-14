@@ -210,10 +210,10 @@ public class CheckerManager : Singleton<CheckerManager>
     }
 
     //Finishing tutorial: This is called when info text is presented about pressing 'X' to exit presentation mode
-    public void TurnOnRays(bool ready)
-    {
-        readyToExitPresentationMode = ready;
-    }
+    // public void TurnOnRays(bool ready)
+    // {
+    //     readyToExitPresentationMode = ready;
+    // }
 
     /// <summary> 
     /// Call this to enable a carrying cube and set the activeCubeIndex
@@ -933,12 +933,12 @@ public class CheckerManager : Singleton<CheckerManager>
             }
             
             // this is true when tutorial is correct and message about exit presentation mode is presented
-            // if (readyToExitPresentationMode)
-            // {
-            //     Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-                // startupTutorial.ActivateRayInteractors(true);
-                // startupTutorial.ActivateGrabInteractors(true);
-            // }
+            if (readyToExitPresentationMode)
+            {
+                Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
+                startupTutorial.ActivateRayInteractors(true);
+                startupTutorial.ActivateGrabInteractors(true);
+            }
 
             // this section shows the answer
             if (view_mode_ == ViewModes.CUBE_INTERACTION)
