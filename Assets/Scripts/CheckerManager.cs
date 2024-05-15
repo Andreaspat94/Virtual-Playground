@@ -920,34 +920,32 @@ public class CheckerManager : Singleton<CheckerManager>
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
         //if (Input.GetMouseButtonDown(0) &&
             canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 && !isExitViewModeOn
-            && !startupTutorial.owlIsSpeaking)
+            activeCubeIndex == -1 && !isExitViewModeOn)
         {
             if (!inSequence)
             {
                 // start confirm answer sequence that leads to presentation mode.
-                
                 inSequence = true;
                 owlBird.GetComponent<Collider>().enabled = true;
                 startupTutorial.ConfirmAnswer();
             }
             
             // this is true when tutorial is correct and message about exit presentation mode is presented
-            if (readyToExitPresentationMode)
-            {
-                Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-                startupTutorial.ActivateRayInteractors(true);
-                startupTutorial.ActivateGrabInteractors(true);
-            }
+            // if (inSequence && readyToExitPresentationMode)
+            // {
+            //     Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
+            //     startupTutorial.ActivateRayInteractors(true);
+            //     startupTutorial.ActivateGrabInteractors(true);
+            //     // readyToExitPresentationMode = false;
+            // }
 
-            // this section shows the answer
-            if (view_mode_ == ViewModes.CUBE_INTERACTION)
-            {                
-              
-                    
-            }
-            else if (view_mode_ == ViewModes.PRESENTATION)
+            Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
+            Debug.Log("inSequence--> " + inSequence);
+            
+            if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
+               startupTutorial.ActivateRayInteractors(true);
+               startupTutorial.ActivateGrabInteractors(true);
                ResetToCubeRepresentation();
                AudioManager.Instance.playSound("magic");
                inSequence = false;

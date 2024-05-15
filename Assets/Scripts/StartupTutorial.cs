@@ -375,7 +375,7 @@ public class StartupTutorial : MonoBehaviour
         
             // Stop Tutoring
             if (wa.finishTutoring)
-                CheckerManager.Instance.readyToExitPresentationMode = true;
+                CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
                 
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
@@ -491,6 +491,8 @@ public class StartupTutorial : MonoBehaviour
                 ActivateGrabInteractors(false);
             }
 
+            if (wa.finishTutoring)
+                CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
