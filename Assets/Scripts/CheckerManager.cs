@@ -939,9 +939,9 @@ public class CheckerManager : Singleton<CheckerManager>
             //     // readyToExitPresentationMode = false;
             // }
 
-            Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-            Debug.Log("inSequence--> " + inSequence);
-            
+            // Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
+            // Debug.Log("inSequence--> " + inSequence);
+
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
                startupTutorial.ActivateRayInteractors(true);

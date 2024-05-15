@@ -340,6 +340,7 @@ public class StartupTutorial : MonoBehaviour
             if (owlAnimator)
                 owlAnimator.PauseAnimation();
 
+
             if (wa.chooseBetween)
             {
                 lastQuestionObjects.SetActive(true);
@@ -351,8 +352,10 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(false);
                 
                 // if wrong answer
+                Debug.Log("LAST BUTON CLICKED --> " + lastButtonClicked);
                 if (!lastButtonClicked.Equals(wa.correctAnswer))
                 {
+                    Debug.Log("answer is wrong");
                     tutoringCanvas.SetActive(false);
                     skipCorrectWa = true;
                     /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
@@ -543,7 +546,7 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => gotIt);
                 
                 int id = idOKDictionary[colorToCheck];
-                Debug.Log("id-->" + id);
+                // Debug.Log("id-->" + id);
                 if (idOK[id-1])
                 {
                     // Debug.Log("idOK[]--> "+ idOK[id-1]);
