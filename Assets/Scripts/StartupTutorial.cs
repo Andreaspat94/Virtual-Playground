@@ -303,8 +303,13 @@ public class StartupTutorial : MonoBehaviour
         {            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
-            if (skipCorrectWa)
+
+            if (skipCorrectWa) {
+                Debug.Log("I am inside skipCoorectWa condition -->");
+                skipCorrectWa = false;
                 continue;
+            }
+            
 
             Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
@@ -352,11 +357,10 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(false);
                 
                 // if wrong answer
-                Debug.Log("LAST BUTON CLICKED --> " + lastButtonClicked);
                 if (!lastButtonClicked.Equals(wa.correctAnswer))
                 {
                     Debug.Log("answer is wrong");
-                    tutoringCanvas.SetActive(false);
+                    // tutoringCanvas.SetActive(false);
                     skipCorrectWa = true;
                     /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
                     // CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]);
@@ -409,6 +413,9 @@ public class StartupTutorial : MonoBehaviour
             }
         }
         // owlIsSpeaking = false;
+        Debug.Log("owlIsSpeaking --> " + owlIsSpeaking);
+        Debug.Log("readyToExitPresentationMode --> " + CheckerManager.Instance.readyToExitPresentationMode);
+        Debug.Log("inSequence --> " + CheckerManager.Instance.inSequence);
     }
 
     public void StopAllCoroutinesAfterCorrectAnswer()

@@ -927,6 +927,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 // start confirm answer sequence that leads to presentation mode.
                 inSequence = true;
                 owlBird.GetComponent<Collider>().enabled = true;
+                startupTutorial.ActivateGrabInteractors(false);
                 startupTutorial.ConfirmAnswer();
             }
             
