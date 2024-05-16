@@ -305,13 +305,12 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             if (skipCorrectWa) {
-                Debug.Log("I am inside skipCoorectWa condition -->");
+                // Debug.Log("I am inside skipCoorectWa condition -->");
                 skipCorrectWa = false;
                 continue;
             }
-            
-
-            Debug.Log("wa name -->" + wa.audioname);
+        
+            // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -408,7 +407,8 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("final_no"))
             {
-                CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]);
+                CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
+                Debug.Log("idOKDictionary[colorToCheck]-->" + idOKDictionary[colorToCheck]);
                 owlIsSpeaking = false;
             }
         }

@@ -557,11 +557,12 @@ public class CheckerManager : Singleton<CheckerManager>
                 Destroy(childCube);
         }       
     }
+
     void CreateIsland(int id)
     {
         if (id == 4)
         {
-            // Debug.Log("Create an island of REDS-->");
+            Debug.Log("Create an island of REDS-->");
             CreateStaticCube("RedCube", 5, 15, false);
             CreateStaticCube("RedCube", 5, 16, false);
             CreateStaticCube("RedCube", 5, 17, false);
