@@ -356,14 +356,15 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(false);
                 
                 // if wrong answer
-                if (!lastButtonClicked.Equals(wa.correctAnswer))
+                if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring)
                 {
-                    Debug.Log("answer is wrong");
-                    // tutoringCanvas.SetActive(false);
                     skipCorrectWa = true;
-                    /* This logic erases all cubes of the correct's answer color and replace it with the correct island*/
-                    // CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]);
                 }
+                
+                // if (lastButtonClicked.Equals(wa.correctAnswer) && wa.finishTutoring)
+                // {
+                //     skipCorrectWa = true;
+                // }
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -408,7 +409,6 @@ public class StartupTutorial : MonoBehaviour
             if (wa.audioname.Equals("final_no"))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
-                Debug.Log("idOKDictionary[colorToCheck]-->" + idOKDictionary[colorToCheck]);
                 owlIsSpeaking = false;
             }
         }
@@ -460,7 +460,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            // Debug.Log("PlaySounds-->" + wa.audioname);
+            Debug.Log("PlaySounds-->" + wa.audioname);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 

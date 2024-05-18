@@ -902,7 +902,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 ZoomIn();
             }
-            else if (canChangeViewMode && !startupTutorial.owlIsSpeaking)
+            else if (canChangeViewMode && !inSequence)
             {
                 ZoomOut();
             }
