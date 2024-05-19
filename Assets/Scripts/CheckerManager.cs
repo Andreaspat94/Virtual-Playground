@@ -476,7 +476,6 @@ public class CheckerManager : Singleton<CheckerManager>
                     playGroundObjectsArray[i].playgroundObject.SetActive(true);
 
                 if (talkingBirds) talkingBirds.SetActive(false);
-                //if (owlBird) owlBird.SetActive(false);
 
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
@@ -490,7 +489,6 @@ public class CheckerManager : Singleton<CheckerManager>
                     playGroundObjectsArray[i].playgroundObject.SetActive(false);
 
                 if (talkingBirds) talkingBirds.SetActive(false);
-                //if (owlBird) owlBird.SetActive(false);
                 allOK = false;
             }
         }

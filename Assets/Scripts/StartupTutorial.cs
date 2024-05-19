@@ -57,6 +57,7 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> wayPointList = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
+    public List<Wavs> blueWavList = new List<Wavs>();
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     string colorToCheck;
@@ -460,7 +461,6 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            Debug.Log("PlaySounds-->" + wa.audioname);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
@@ -617,7 +617,6 @@ public class StartupTutorial : MonoBehaviour
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
         owlCollider.enabled = false;
-        //gameObject.SetActive(false);
         
         foreach (GameObject gs in ListToHide)
             gs.SetActive(true);
