@@ -209,12 +209,6 @@ public class CheckerManager : Singleton<CheckerManager>
         ResetToCubeRepresentation();
     }
 
-    //Finishing tutorial: This is called when info text is presented about pressing 'X' to exit presentation mode
-    // public void TurnOnRays(bool ready)
-    // {
-    //     readyToExitPresentationMode = ready;
-    // }
-
     /// <summary> 
     /// Call this to enable a carrying cube and set the activeCubeIndex
     /// </summary>
@@ -506,6 +500,7 @@ public class CheckerManager : Singleton<CheckerManager>
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
     public void MakeIsland(int id)
     {  
+        Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
         // 3) show good object
         CheckIfOK();
@@ -544,7 +539,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         int childCount = colorParent.transform.childCount;
-        // Debug.Log("EraseCubesOfColor colorParent --> " + colorParent);
+        Debug.Log("EraseCubesOfColor colorParent --> " + colorParent);
         for (int i = 0; i < childCount; i++)
         {
             GameObject childCube = colorParent.transform.GetChild(i).gameObject;
@@ -574,6 +569,22 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("RedCube", 8, 16, false);
             CreateStaticCube("RedCube", 8, 17, false);
             CreateStaticCube("RedCube", 8, 18, false);
+        }
+        else if (id == 0)
+        {
+            Debug.Log("Create an island of BLUES-->");
+            CreateStaticCube("BlueCube", 1, 1, false);
+            CreateStaticCube("BlueCube", 1, 2, false);
+            CreateStaticCube("BlueCube", 1, 3, false);
+            CreateStaticCube("BlueCube", 1, 4, false);
+            CreateStaticCube("BlueCube", 1, 5, false);
+            CreateStaticCube("BlueCube", 1, 6, false);
+            CreateStaticCube("BlueCube", 2, 1, false);
+            CreateStaticCube("BlueCube", 2, 2, false);
+            CreateStaticCube("BlueCube", 2, 3, false);
+            CreateStaticCube("BlueCube", 2, 4, false);
+            CreateStaticCube("BlueCube", 2, 5, false);
+            CreateStaticCube("BlueCube", 2, 6, false);
         }
     }
 
@@ -926,18 +937,9 @@ public class CheckerManager : Singleton<CheckerManager>
                 startupTutorial.ActivateGrabInteractors(false);
                 startupTutorial.ConfirmAnswer();
             }
-            
-            // this is true when tutorial is correct and message about exit presentation mode is presented
-            // if (inSequence && readyToExitPresentationMode)
-            // {
-            //     Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-            //     startupTutorial.ActivateRayInteractors(true);
-            //     startupTutorial.ActivateGrabInteractors(true);
-            //     // readyToExitPresentationMode = false;
-            // }
 
             // Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-            // Debug.Log("inSequence--> " + inSequence);
+            Debug.Log("inSequence--> " + inSequence);
 
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
@@ -946,22 +948,19 @@ public class CheckerManager : Singleton<CheckerManager>
                ResetToCubeRepresentation();
                AudioManager.Instance.playSound("magic");
                inSequence = false;
+               readyToExitPresentationMode = false;
             }
         } 
 
         //if we are in presentation mode no interaction
         if (view_mode_ == ViewModes.PRESENTATION || isZoomOutViewMode)
-        {
             return;
-        }
              
         if (activeCubeIndex >= 0 && activeCubeIndex < cubesArray.Length) //If we carry a cube 
         {
             //Sanity check of references
             if (redTile != null && cornerCheckerboard != null && cubePickedUp != null)
-            {
                 CalculateRedTilePosition();
-            }
         } //carry cube section
 	}//Update
 

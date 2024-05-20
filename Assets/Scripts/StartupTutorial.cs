@@ -19,6 +19,7 @@ public class StartupTutorial : MonoBehaviour
         public bool openMainPanel = false;
         public Sprite image;
         public string text;
+        public string blueText;
         public string topText;
         public string buttonA;
         public string buttonB;
@@ -307,7 +308,8 @@ public class StartupTutorial : MonoBehaviour
         ActivateTalkingBirds(false);
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
-        lastQuestionObjects = mainPanel.transform.GetChild(2).gameObject;
+        Text blueText = mainPanel.transform.GetChild(2).GetComponent<Text>();
+        lastQuestionObjects = mainPanel.transform.GetChild(3).gameObject;
         bool skipCorrectWa = false;
         foreach (Wavs wa in wavList)
         {            
@@ -320,7 +322,7 @@ public class StartupTutorial : MonoBehaviour
                 continue;
             }
         
-            Debug.Log("wa name -->" + wa.audioname);
+            // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -329,6 +331,7 @@ public class StartupTutorial : MonoBehaviour
             lastButtonClicked = string.Empty;
             image.sprite = null;
             tutorText.text = string.Empty;
+            blueText.text = string.Empty;
             
             // open main panel
             tutoringCanvas.SetActive(wa.openMainPanel);
@@ -342,6 +345,8 @@ public class StartupTutorial : MonoBehaviour
             
             if (!string.IsNullOrEmpty(wa.text))
                 tutorText.text = wa.text;
+            if (!string.IsNullOrEmpty(wa.blueText))
+                blueText.text = wa.blueText;
 
             //Start owl morph
             if (owlAnimator)
@@ -353,7 +358,6 @@ public class StartupTutorial : MonoBehaviour
             //Stop owl morph
             if (owlAnimator)
                 owlAnimator.PauseAnimation();
-
 
             if (wa.chooseBetween)
             {
@@ -367,14 +371,7 @@ public class StartupTutorial : MonoBehaviour
                 
                 // if wrong answer
                 if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring)
-                {
                     skipCorrectWa = true;
-                }
-                
-                // if (lastButtonClicked.Equals(wa.correctAnswer) && wa.finishTutoring)
-                // {
-                //     skipCorrectWa = true;
-                // }
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -389,8 +386,8 @@ public class StartupTutorial : MonoBehaviour
             mainPanel.SetActive(false);
             //pause a bit
             yield return new WaitForSeconds(wa.pause);        
-        
-            // Stop Tutoring
+
+             // Stop Tutoring
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
                 
@@ -418,6 +415,7 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("final_no") || wa.audioname.Equals("blue5"))
             {
+                Debug.Log("It is blue5 --> ");
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;
             }
@@ -583,9 +581,6 @@ public class StartupTutorial : MonoBehaviour
 
         // IF CHECKIFOK is false, then starts TUTORING
         int temp = idOKDictionary[colorToCheck] - 1;
-        Debug.Log("ColorToCheck --> "+ colorToCheck);
-        Debug.Log("idOKDictionary --> "+ idOKDictionary[colorToCheck]);
-        Debug.Log("HEY --> " + idOK[idOKDictionary[colorToCheck]]);
         if (!idOK[temp])
             Tutoring();
 
