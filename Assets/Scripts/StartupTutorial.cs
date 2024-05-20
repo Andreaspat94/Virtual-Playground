@@ -64,8 +64,6 @@ public class StartupTutorial : MonoBehaviour
     GameObject lastQuestionObjects;
     bool gotIt;
     string lastButtonClicked;
-
-    // public List<TutoringImages> tutoringImages = new List<TutoringImages>();
     public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
     {
         {"blue", 1},
@@ -85,7 +83,8 @@ public class StartupTutorial : MonoBehaviour
         {4, "cube_red_pool_collider_static(Clone)"},
         {5, "cube_grey_pool_collider_static(Clone)"}
     };
-
+    
+    Dictionary<string, List<Wavs>> wavLists;
     [HideInInspector]
     public bool[] idOK = new bool[6] { false, false, false, false, false, false};
 
@@ -142,7 +141,17 @@ public class StartupTutorial : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        tutoringWavs.Add("red",redWavList);
+        wavLists = new Dictionary<string, List<Wavs>> 
+        {
+            {"blue", blueWavList},
+            // {"yellow", 2},
+            // {"brown", 3},
+            // {"green", 4},
+            {"red", redWavList}
+        };
+        // tutoringWavs.Add("red",redWavList);
+        // tutoringWavs.Add("blue", blueWavList);
+        // tutoringWavs.Add("green", greenWavList);
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
         //if not active proceed to play immediately
@@ -277,9 +286,9 @@ public class StartupTutorial : MonoBehaviour
     }
     public void Tutoring()
     {     
-        List<Wavs> wavList = tutoringWavs[colorToCheck];
+        // List<Wavs> wavList = tutoringWavs[colorToCheck];
         gotItButton = mainPanel.transform.GetChild(0).gameObject;
-        StartCoroutine(PlayTutoringSequence(redWavList));
+        StartCoroutine(PlayTutoringSequence(wavLists[colorToCheck]));
     }
 
     public void GotIt()
@@ -311,7 +320,7 @@ public class StartupTutorial : MonoBehaviour
                 continue;
             }
         
-            // Debug.Log("wa name -->" + wa.audioname);
+            Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -407,7 +416,7 @@ public class StartupTutorial : MonoBehaviour
                 break;
             }
 
-            if (wa.audioname.Equals("final_no"))
+            if (wa.audioname.Equals("final_no") || wa.audioname.Equals("blue5"))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;
@@ -553,10 +562,8 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => gotIt);
                 
                 int id = idOKDictionary[colorToCheck];
-                // Debug.Log("id-->" + id);
                 if (idOK[id-1])
                 {
-                    // Debug.Log("idOK[]--> "+ idOK[id-1]);
                     FinishTutoring();
                     CheckerManager.Instance.MakeIsland(id-1);
                     //!!TODO: disable pool cube
@@ -574,7 +581,12 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(wa.pause);
         }
 
-        if (!idOK[idOKDictionary[colorToCheck]] == false)
+        // IF CHECKIFOK is false, then starts TUTORING
+        int temp = idOKDictionary[colorToCheck] - 1;
+        Debug.Log("ColorToCheck --> "+ colorToCheck);
+        Debug.Log("idOKDictionary --> "+ idOKDictionary[colorToCheck]);
+        Debug.Log("HEY --> " + idOK[idOKDictionary[colorToCheck]]);
+        if (!idOK[temp])
             Tutoring();
 
         isPlayingSounds = false;

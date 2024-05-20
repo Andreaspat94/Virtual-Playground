@@ -457,9 +457,6 @@ public class CheckerManager : Singleton<CheckerManager>
         //if no island correct do not swith to Presentation mode 
         view_mode_ = ViewModes.CUBE_INTERACTION;
 
-        // startupTutorial.ActivateRayInteractors(true);
-        // startupTutorial.ActivateGrabInteractors(true);
-
         // Check trough all the colors and switch geometry on/off.
         for (int i = 0; i < playGroundObjectsArray.Length; i++)
         {
