@@ -84,6 +84,14 @@ public class StartupTutorial : MonoBehaviour
         {4, "cube_red_pool_collider_static(Clone)"},
         {5, "cube_grey_pool_collider_static(Clone)"}
     };
+    Dictionary<string, string> correct_audio = new Dictionary<string, string>
+    {
+        {"red", "correct_red"},
+        {"blue", "correct_blue"},
+        {"green", "correct_green"},
+        {"yellow", "correct_yellow"},
+        {"orange", "correct_orange"}
+    };
     
     Dictionary<string, List<Wavs>> wavLists;
     [HideInInspector]
@@ -397,8 +405,6 @@ public class StartupTutorial : MonoBehaviour
                 //Display text to inform about key press
                 if (!string.IsNullOrEmpty(wa.keyInstructionText) && instructionText)
                 {
-                    // instructionsCanvas.SetActive(true);
-                    // instructionsTextObj.SetActive(true);
                     instructionText.text = wa.keyInstructionText;
                     instructionText.gameObject.SetActive(true);
                 }
@@ -415,15 +421,14 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("final_no") || wa.audioname.Equals("blue5"))
             {
-                Debug.Log("It is blue5 --> ");
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;
             }
         }
         // owlIsSpeaking = false;
-        Debug.Log("owlIsSpeaking --> " + owlIsSpeaking);
-        Debug.Log("readyToExitPresentationMode --> " + CheckerManager.Instance.readyToExitPresentationMode);
-        Debug.Log("inSequence --> " + CheckerManager.Instance.inSequence);
+        // Debug.Log("owlIsSpeaking --> " + owlIsSpeaking);
+        // Debug.Log("readyToExitPresentationMode --> " + CheckerManager.Instance.readyToExitPresentationMode);
+        // Debug.Log("inSequence --> " + CheckerManager.Instance.inSequence);
     }
 
     public void StopAllCoroutinesAfterCorrectAnswer()
@@ -472,7 +477,16 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             //Play explanation
-            AudioManager.Instance.playSound(wa.audioname);
+            if (wa.audioname.Equals("correct"))
+            {
+                Debug.Log("Play --> " + correct_audio[colorToCheck]);
+                AudioManager.Instance.playSound(correct_audio[colorToCheck]);
+            }
+            else 
+            {
+                AudioManager.Instance.playSound(wa.audioname);
+            }
+
 
             //Start owl morph
             if (owlAnimator)
