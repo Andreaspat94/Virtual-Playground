@@ -585,6 +585,13 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("BlueCube", 2, 4, false);
             CreateStaticCube("BlueCube", 2, 5, false);
             CreateStaticCube("BlueCube", 2, 6, false);
+        }else if (id == 3)
+        {
+            Debug.Log("Create an island of GREENS-->");
+            CreateStaticCube("GreenCube", 7, 5, false);
+            CreateStaticCube("GreenCube", 7, 5, false);
+            CreateStaticCube("GreenCube", 8, 6, false);
+            CreateStaticCube("GreenCube", 8, 6, false);
         }
     }
 
@@ -939,7 +946,7 @@ public class CheckerManager : Singleton<CheckerManager>
             }
 
             // Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-            Debug.Log("inSequence--> " + inSequence);
+            // Debug.Log("inSequence--> " + inSequence);
 
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {

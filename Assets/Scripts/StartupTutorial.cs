@@ -59,6 +59,7 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
     public List<Wavs> blueWavList = new List<Wavs>();
+    public List<Wavs> greenWavList = new List<Wavs>();
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     string colorToCheck;
@@ -92,7 +93,7 @@ public class StartupTutorial : MonoBehaviour
         {"yellow", "correct_yellow"},
         {"orange", "correct_orange"}
     };
-    
+
     Dictionary<string, List<Wavs>> wavLists;
     [HideInInspector]
     public bool[] idOK = new bool[6] { false, false, false, false, false, false};
@@ -155,12 +156,9 @@ public class StartupTutorial : MonoBehaviour
             {"blue", blueWavList},
             // {"yellow", 2},
             // {"brown", 3},
-            // {"green", 4},
+            {"green", greenWavList},
             {"red", redWavList}
         };
-        // tutoringWavs.Add("red",redWavList);
-        // tutoringWavs.Add("blue", blueWavList);
-        // tutoringWavs.Add("green", greenWavList);
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
         //if not active proceed to play immediately
@@ -314,21 +312,25 @@ public class StartupTutorial : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         ActivateTalkingBirds(false);
+        bool green4CorrectPlayed = false;
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         Text blueText = mainPanel.transform.GetChild(2).GetComponent<Text>();
         lastQuestionObjects = mainPanel.transform.GetChild(3).gameObject;
         bool skipCorrectWa = false;
+        
         foreach (Wavs wa in wavList)
         {            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
             if (skipCorrectWa) {
-                // Debug.Log("I am inside skipCoorectWa condition -->");
+                Debug.Log("I am inside skipCoorectWa condition --> " + wa.audioname);
                 skipCorrectWa = false;
                 continue;
             }
+            if (wa.audioname.Equals("green4_correct"))
+                  green4CorrectPlayed = true;
         
             // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
@@ -378,8 +380,12 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(false);
                 
                 // if wrong answer
-                if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring)
+                if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || green4CorrectPlayed)
+                {
                     skipCorrectWa = true;
+                    Debug.Log("Assert skipCorrewa --> " + wa.audioname);
+                }
+                    
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -479,7 +485,6 @@ public class StartupTutorial : MonoBehaviour
             //Play explanation
             if (wa.audioname.Equals("correct"))
             {
-                Debug.Log("Play --> " + correct_audio[colorToCheck]);
                 AudioManager.Instance.playSound(correct_audio[colorToCheck]);
             }
             else 
