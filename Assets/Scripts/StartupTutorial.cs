@@ -326,12 +326,12 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             if (skipCorrectWa) {
-                Debug.Log("I am inside skipCoorectWa condition --> " + wa.audioname);
+                // Debug.Log("I am inside skipCoorectWa condition --> " + wa.audioname);
                 skipCorrectWa = false;
                 continue;
             }
         
-            Debug.Log("wa name -->" + wa.audioname);
+            // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -385,7 +385,7 @@ public class StartupTutorial : MonoBehaviour
             if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
             {
                 skipCorrectWa = true;
-                Debug.Log("Assert skipCorrewa --> " + wa.audioname);
+                // Debug.Log("Assert skipCorrewa --> " + wa.audioname);
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.

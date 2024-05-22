@@ -144,10 +144,10 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 4, 4, 4, 4, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
-        {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 4, 4, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 0, 0, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 0, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 0, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -393,12 +393,13 @@ public class CheckerManager : Singleton<CheckerManager>
                             // Test are rotate 90 Degrees if normal test does not succeed
                             if (!okNorm)
                                 okRotate = testArea(x, y, colorSizes[whichColor - 1,1], colorSizes[whichColor - 1,0], whichColor, localMatrix);
-                            // if (whichColor == 5)
-                            //     Debug.Log("okNorm--> "  + okNorm + " ...OkRotate--> " + okRotate + "... Color --> " + whichColor);
+                            // if (whichColor == 4)
+                            // Debug.Log("okNorm--> "  + okNorm + " ...OkRotate--> " + okRotate + "... Color --> " + whichColor);
                             if (okNorm || okRotate)
                             {
                                 // Set as thing OK for display
                                 idOK[whichColor - 1] = true;
+                                startupTutorial.idOK[whichColor -1] = true;
 
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
@@ -459,7 +460,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 // update startuptutorial dictionary
                 startupTutorial.idOK[i] = true;
                 startupTutorial.GotIt();
-
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
 
@@ -503,7 +503,12 @@ public class CheckerManager : Singleton<CheckerManager>
         Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
         // 3) show good object
+        Debug.Log("ID is ok 1-->" + startupTutorial.idOK[id]);
         CheckIfOK();
+        Debug.Log("ID is ok 2-->" + startupTutorial.idOK[id]);
+        Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]
+        + startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
+        
         AudioManager.Instance.playSound("magic");
         MakeIslandNotInteractable(id);
     }
@@ -539,7 +544,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         int childCount = colorParent.transform.childCount;
-        Debug.Log("EraseCubesOfColor colorParent --> " + colorParent);
+        // Debug.Log("EraseCubesOfColor colorParent --> " + colorParent);
         for (int i = 0; i < childCount; i++)
         {
             GameObject childCube = colorParent.transform.GetChild(i).gameObject;
@@ -552,7 +557,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         if (id == 4)
         {
-            Debug.Log("Create an island of REDS-->");
+            // Debug.Log("Create an island of REDS-->");
             CreateStaticCube("RedCube", 5, 15, false);
             CreateStaticCube("RedCube", 5, 16, false);
             CreateStaticCube("RedCube", 5, 17, false);
@@ -572,7 +577,7 @@ public class CheckerManager : Singleton<CheckerManager>
         }
         else if (id == 0)
         {
-            Debug.Log("Create an island of BLUES-->");
+            // Debug.Log("Create an island of BLUES-->");
             CreateStaticCube("BlueCube", 1, 1, false);
             CreateStaticCube("BlueCube", 1, 2, false);
             CreateStaticCube("BlueCube", 1, 3, false);
@@ -587,10 +592,10 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("BlueCube", 2, 6, false);
         } else if (id == 3)
         {
-            Debug.Log("Create an island of GREENS-->");
-            CreateStaticCube("GreenCube", 6, 4, false);
-            CreateStaticCube("GreenCube", 6, 4, false);
-            CreateStaticCube("GreenCube", 7, 5, false);
+            // Debug.Log("Create an island of GREENS-->");
+            CreateStaticCube("GreenCube", 8, 4, false);
+            CreateStaticCube("GreenCube", 8, 5, false);
+            CreateStaticCube("GreenCube", 7, 4, false);
             CreateStaticCube("GreenCube", 7, 5, false);
         }
     }
