@@ -26,6 +26,7 @@ public class StartupTutorial : MonoBehaviour
         public bool activateGrab;
         public bool activateRay;
         public bool finishTutoring;
+        public bool skipNextWa;
         public string correctAnswer;
         public OVRInput.Button keyToProceed = OVRInput.Button.None;
         public UnityEvent OnKeyEvent;
@@ -312,7 +313,7 @@ public class StartupTutorial : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         ActivateTalkingBirds(false);
-        bool green4CorrectPlayed = false;
+        
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         Text blueText = mainPanel.transform.GetChild(2).GetComponent<Text>();
@@ -329,10 +330,8 @@ public class StartupTutorial : MonoBehaviour
                 skipCorrectWa = false;
                 continue;
             }
-            if (wa.audioname.Equals("green4_correct"))
-                  green4CorrectPlayed = true;
         
-            // Debug.Log("wa name -->" + wa.audioname);
+            Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -380,12 +379,13 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.SetActive(false);
                 
                 // if wrong answer
-                if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || green4CorrectPlayed)
-                {
-                    skipCorrectWa = true;
-                    Debug.Log("Assert skipCorrewa --> " + wa.audioname);
-                }
-                    
+                // Debug.Log("ANSWER IS  --> " + lastButtonClicked.Equals(wa.correctAnswer));
+                // Debug.Log("SKIP NEXT? --> " + wa.skipNextWa);        
+            }
+            if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
+            {
+                skipCorrectWa = true;
+                Debug.Log("Assert skipCorrewa --> " + wa.audioname);
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -425,7 +425,7 @@ public class StartupTutorial : MonoBehaviour
                 break;
             }
 
-            if (wa.audioname.Equals("final_no") || wa.audioname.Equals("blue5"))
+            if (wa.audioname.StartsWith("final_no") || wa.audioname.Equals("blue5"))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;

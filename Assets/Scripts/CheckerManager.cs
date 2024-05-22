@@ -585,13 +585,13 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("BlueCube", 2, 4, false);
             CreateStaticCube("BlueCube", 2, 5, false);
             CreateStaticCube("BlueCube", 2, 6, false);
-        }else if (id == 3)
+        } else if (id == 3)
         {
             Debug.Log("Create an island of GREENS-->");
+            CreateStaticCube("GreenCube", 6, 4, false);
+            CreateStaticCube("GreenCube", 6, 4, false);
             CreateStaticCube("GreenCube", 7, 5, false);
             CreateStaticCube("GreenCube", 7, 5, false);
-            CreateStaticCube("GreenCube", 8, 6, false);
-            CreateStaticCube("GreenCube", 8, 6, false);
         }
     }
 
