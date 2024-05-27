@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using Oculus.Voice.Demo.LightTraitsDemo;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -144,10 +145,10 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
-        {9, 0, 2, 0, 0, 0, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 0, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 0, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 4, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 0, 0, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -383,6 +384,8 @@ public class CheckerManager : Singleton<CheckerManager>
                     // If this entry has not been checked before skip
                     if (localMatrix[x, y] == 0)
                     {
+                        if (whichColor == 4)
+                            Debug.Log("This color has been tested before --> " + idCheck[whichColor - 1] + "--"+ (whichColor-1));
                         // If this colour has already been tested for
                         if (!idCheck[whichColor - 1])
                         {                          
@@ -393,13 +396,13 @@ public class CheckerManager : Singleton<CheckerManager>
                             // Test are rotate 90 Degrees if normal test does not succeed
                             if (!okNorm)
                                 okRotate = testArea(x, y, colorSizes[whichColor - 1,1], colorSizes[whichColor - 1,0], whichColor, localMatrix);
-                            // if (whichColor == 4)
-                            // Debug.Log("okNorm--> "  + okNorm + " ...OkRotate--> " + okRotate + "... Color --> " + whichColor);
+                            if (whichColor == 4)
+                                Debug.Log("okNorm--> "  + okNorm + " ...OkRotate--> " + okRotate + "... Color --> " + whichColor);
                             if (okNorm || okRotate)
                             {
                                 // Set as thing OK for display
+                                Debug.Log("iOdK set to true --> " + (whichColor-1));
                                 idOK[whichColor - 1] = true;
-                                startupTutorial.idOK[whichColor -1] = true;
 
                                 // Position things into place
                                 // Compute center postion in Grid Quad.
@@ -437,6 +440,11 @@ public class CheckerManager : Singleton<CheckerManager>
                         else
                         {
                             //This color is not ready we have processed it before there must be multiple islands
+                            
+                            // Debug.Log("HAS BEEN TESTED -->" + idCheck[whichColor - 1]);
+                            // Debug.Log("HAS BEEN TESTED id -->" + (whichColor - 1));
+
+                            // if comment this out, yellow object will appear with 5 cubes
                             idOK[whichColor - 1] = false;
                         }
                     }
@@ -459,6 +467,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 // update startuptutorial dictionary
                 startupTutorial.idOK[i] = true;
+                Debug.Log("idOK[i] " + i + "--> " + idOK[i]);
                 startupTutorial.GotIt();
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
@@ -497,17 +506,27 @@ public class CheckerManager : Singleton<CheckerManager>
 
     }
     
+    // public void ActivatePlaygroundObject(int id)
+    // {
+    //     if (playGroundObjectsArray[id].multiCubeRepresentation != null)
+    //         playGroundObjectsArray[id].multiCubeRepresentation.SetActive(false);
+
+    //     if (playGroundObjectsArray[id].playgroundObject != null)
+    //         playGroundObjectsArray[id].playgroundObject.SetActive(true);
+
+    //     if (talkingBirds) talkingBirds.SetActive(false);
+    //     view_mode_ = ViewModes.PRESENTATION;
+    // }
+
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
     public void MakeIsland(int id)
     {  
         Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
         // 3) show good object
-        Debug.Log("ID is ok 1-->" + startupTutorial.idOK[id]);
+        
         CheckIfOK();
-        Debug.Log("ID is ok 2-->" + startupTutorial.idOK[id]);
-        Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]
-        + startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
+        Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
         
         AudioManager.Instance.playSound("magic");
         MakeIslandNotInteractable(id);
@@ -593,8 +612,8 @@ public class CheckerManager : Singleton<CheckerManager>
         } else if (id == 3)
         {
             // Debug.Log("Create an island of GREENS-->");
-            CreateStaticCube("GreenCube", 8, 4, false);
-            CreateStaticCube("GreenCube", 8, 5, false);
+            CreateStaticCube("GreenCube", 6, 4, false);
+            CreateStaticCube("GreenCube", 6, 5, false);
             CreateStaticCube("GreenCube", 7, 4, false);
             CreateStaticCube("GreenCube", 7, 5, false);
         }
