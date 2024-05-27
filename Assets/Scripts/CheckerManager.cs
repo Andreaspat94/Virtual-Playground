@@ -384,8 +384,8 @@ public class CheckerManager : Singleton<CheckerManager>
                     // If this entry has not been checked before skip
                     if (localMatrix[x, y] == 0)
                     {
-                        if (whichColor == 4)
-                            Debug.Log("This color has been tested before --> " + idCheck[whichColor - 1] + "--"+ (whichColor-1));
+                        // if (whichColor == 4)
+                            // Debug.Log("This color has been tested before --> " + idCheck[whichColor - 1] + "--"+ (whichColor-1));
                         // If this colour has already been tested for
                         if (!idCheck[whichColor - 1])
                         {                          
@@ -432,7 +432,12 @@ public class CheckerManager : Singleton<CheckerManager>
                                         break;
                                     }
                                 }
-                            } //okNorm || okRotate
+                            }
+                            else
+                            {  
+                                startupTutorial.idOK[whichColor-1] = false;
+                                idOK[whichColor-1] = false;
+                            }//okNorm || okRotate
 
                             //we already processed an island of this color
                             idCheck[whichColor - 1] = true;

@@ -582,9 +582,9 @@ public class StartupTutorial : MonoBehaviour
                 if (idOK[id-1])
                 {
                     FinishTutoring();
-                    // AudioManager.Instance.playSound("magic");
+                    AudioManager.Instance.playSound("magic");
                     // CheckerManager.Instance.ActivatePlaygroundObject(id-1);
-                    CheckerManager.Instance.MakeIsland(id-1);
+                    // CheckerManager.Instance.MakeIsland(id-1);
                     //!!TODO: disable pool cube
                     // DisablePoolCube(4);
                 }
