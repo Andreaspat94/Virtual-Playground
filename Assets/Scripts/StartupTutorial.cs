@@ -332,7 +332,7 @@ public class StartupTutorial : MonoBehaviour
                 continue;
             }
         
-            // Debug.Log("wa name -->" + wa.audioname);
+            Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
