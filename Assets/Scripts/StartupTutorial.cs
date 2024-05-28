@@ -292,6 +292,7 @@ public class StartupTutorial : MonoBehaviour
         // checkIfOk() - that sets the bool 'colorIsOk'
         CheckerManager.Instance.CheckIfOK();
     }
+    
     public void Tutoring()
     {     
         // List<Wavs> wavList = tutoringWavs[colorToCheck];
