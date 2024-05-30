@@ -146,7 +146,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 0, 4, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
         {9, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 0, 0, 0, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
@@ -616,8 +616,8 @@ public class CheckerManager : Singleton<CheckerManager>
         } else if (id == 3)
         {
             // Debug.Log("Create an island of GREENS-->");
-            CreateStaticCube("GreenCube", 6, 4, false);
-            CreateStaticCube("GreenCube", 6, 5, false);
+            CreateStaticCube("GreenCube", 8, 4, false);
+            CreateStaticCube("GreenCube", 8, 5, false);
             CreateStaticCube("GreenCube", 7, 4, false);
             CreateStaticCube("GreenCube", 7, 5, false);
         } else if (id == 1)
@@ -625,7 +625,13 @@ public class CheckerManager : Singleton<CheckerManager>
             Debug.Log("Create an island of YELLOWS-->");
             CreateStaticCube("YellowCube", 6, 2, false);
             CreateStaticCube("YellowCube", 7, 2, false);
-            
+        } else if (id == 2)
+        {
+            Debug.Log("Create an island of ORANGES-->");
+            CreateStaticCube("OrangeCube", 4, 6, false);
+            CreateStaticCube("OrangeCube", 4, 5, false);
+            CreateStaticCube("OrangeCube", 5, 6, false);
+            CreateStaticCube("OrangeCube", 5, 5, false);
         }
     }
 

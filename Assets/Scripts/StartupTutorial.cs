@@ -394,7 +394,7 @@ public class StartupTutorial : MonoBehaviour
             if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
             {
                 skipCorrectWa = true;
-                // Debug.Log("Assert skipCorrewa --> " + wa.audioname);
+                Debug.Log("Assert skipCorrewa --> " + wa.audioname);
             }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
