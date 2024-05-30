@@ -20,6 +20,7 @@ public class StartupTutorial : MonoBehaviour
         public Sprite image;
         public string text;
         public string blueText;
+        public string yellowText;
         public string topText;
         public string buttonA;
         public string buttonB;
@@ -61,6 +62,8 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> redWavList = new List<Wavs>();
     public List<Wavs> blueWavList = new List<Wavs>();
     public List<Wavs> greenWavList = new List<Wavs>();
+    public List<Wavs> yellowWavList = new List<Wavs>();
+    public List<Wavs> orangeWavList = new List<Wavs>();
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     string colorToCheck;
@@ -71,7 +74,7 @@ public class StartupTutorial : MonoBehaviour
     {
         {"blue", 1},
         {"yellow", 2},
-        {"brown", 3},
+        {"orange", 3},
         {"green", 4},
         {"red", 5},
         {"grey", 6}
@@ -155,8 +158,8 @@ public class StartupTutorial : MonoBehaviour
         wavLists = new Dictionary<string, List<Wavs>> 
         {
             {"blue", blueWavList},
-            // {"yellow", 2},
-            // {"brown", 3},
+            {"yellow", yellowWavList},
+            {"orange", orangeWavList},
             {"green", greenWavList},
             {"red", redWavList}
         };
@@ -318,7 +321,8 @@ public class StartupTutorial : MonoBehaviour
         Image image = mainPanel.GetComponent<Image>();
         Text tutorText = mainPanel.transform.GetChild(1).GetComponent<Text>();
         Text blueText = mainPanel.transform.GetChild(2).GetComponent<Text>();
-        lastQuestionObjects = mainPanel.transform.GetChild(3).gameObject;
+        Text yellowText = mainPanel.transform.GetChild(3).GetComponent<Text>();
+        lastQuestionObjects = mainPanel.transform.GetChild(4).gameObject;
         bool skipCorrectWa = false;
         
         foreach (Wavs wa in wavList)
@@ -332,7 +336,7 @@ public class StartupTutorial : MonoBehaviour
                 continue;
             }
         
-            Debug.Log("wa name -->" + wa.audioname);
+            // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
@@ -342,13 +346,15 @@ public class StartupTutorial : MonoBehaviour
             image.sprite = null;
             tutorText.text = string.Empty;
             blueText.text = string.Empty;
+            yellowText.text = string.Empty;
             
             // open main panel
             tutoringCanvas.SetActive(wa.openMainPanel);
             mainPanel.SetActive(wa.openMainPanel);
             
             //Play explanation
-            AudioManager.Instance.playSound(wa.audioname);
+            if (!wa.audioname.StartsWith("noaudio"))
+                AudioManager.Instance.playSound(wa.audioname);
             
             if (wa.image != null)
                 image.sprite = wa.image;
@@ -357,16 +363,18 @@ public class StartupTutorial : MonoBehaviour
                 tutorText.text = wa.text;
             if (!string.IsNullOrEmpty(wa.blueText))
                 blueText.text = wa.blueText;
+            if (!string.IsNullOrEmpty(wa.yellowText))
+                yellowText.text = wa.yellowText;
 
             //Start owl morph
-            if (owlAnimator)
+            if (owlAnimator && !wa.audioname.StartsWith("noaudio"))
                 owlAnimator.PlayAnimation();
 
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
             //Stop owl morph
-            if (owlAnimator)
+            if (owlAnimator && !wa.audioname.StartsWith("noaudio"))
                 owlAnimator.PauseAnimation();
 
             if (wa.chooseBetween)

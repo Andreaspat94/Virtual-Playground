@@ -510,12 +510,12 @@ public class CheckerManager : Singleton<CheckerManager>
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
     public void MakeIsland(int id)
     {  
-        // Debug.Log("MakeIsland called --> " + id);
+        Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
         // 3) show good object
         
         CheckIfOK();
-        // Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
+        Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
         
         AudioManager.Instance.playSound("magic");
         MakeIslandNotInteractable(id);
@@ -620,6 +620,12 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("GreenCube", 6, 5, false);
             CreateStaticCube("GreenCube", 7, 4, false);
             CreateStaticCube("GreenCube", 7, 5, false);
+        } else if (id == 1)
+        {
+            Debug.Log("Create an island of YELLOWS-->");
+            CreateStaticCube("YellowCube", 6, 2, false);
+            CreateStaticCube("YellowCube", 7, 2, false);
+            
         }
     }
 
