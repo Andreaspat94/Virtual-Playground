@@ -386,11 +386,9 @@ public class StartupTutorial : MonoBehaviour
                 lastQuestionObjects.transform.GetChild(2).GetComponentInChildren<Text>().text = wa.buttonB;
                 yield return new WaitUntil(() => gotIt);
                 lastQuestionObjects.SetActive(false);
-                
-                // if wrong answer
-                // Debug.Log("ANSWER IS  --> " + lastButtonClicked.Equals(wa.correctAnswer));
-                // Debug.Log("SKIP NEXT? --> " + wa.skipNextWa);        
+                      
             }
+            // if wrong answer
             if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
             {
                 skipCorrectWa = true;
