@@ -474,6 +474,7 @@ public class StartupTutorial : MonoBehaviour
     IEnumerator PlaySounds()
     {
         gotIt = false;
+        bool skipCorrectWa = false;
         List<Wavs> wavList = new List<Wavs>();
         if (isTutorial)
         {
@@ -486,9 +487,15 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
+            Debug.Log("Audioname --> " + wa.audioname + " skip? " + skipCorrectWa);
+
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
-
+            if (skipCorrectWa)
+            {
+                skipCorrectWa = false;
+                continue;
+            }
             //Play explanation
             if (wa.audioname.Equals("correct"))
             {
@@ -584,23 +591,30 @@ public class StartupTutorial : MonoBehaviour
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
-                
                 int id = idOKDictionary[colorToCheck];
-                if (idOK[id-1])
+                bool badNeighbors = CheckerManager.Instance.badNeighboors;
+                AudioManager.Instance.playSound("magic");
+                Debug.Log("ID[]-->" + idOK[0] + idOK[1]+ idOK[2]+ idOK[3]+ idOK[4]+ idOK[5]);
+                if (badNeighbors)
+                {
+                    //&& !wa.audioname.Equals("correct")
+                    FinishTutoring();
+                    skipCorrectWa = true;
+                }
+                else if (idOK[id-1])
                 {
                     FinishTutoring();
-                    AudioManager.Instance.playSound("magic");
-                    // CheckerManager.Instance.ActivatePlaygroundObject(id-1);
-                    // CheckerManager.Instance.MakeIsland(id-1);
+                    // AudioManager.Instance.playSound("magic");
                     //!!TODO: disable pool cube
                     // DisablePoolCube(4);
                 }
                 else
                 {
-                    AudioManager.Instance.playSound("magic");
+                    // AudioManager.Instance.playSound("magic");
                     tutoringCanvas.SetActive(false);
                     break;
                 }
+                
             }
 
             //pause a bit

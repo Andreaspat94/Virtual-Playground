@@ -4,8 +4,6 @@ using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
-using Oculus.Voice.Demo.LightTraitsDemo;
-using System;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -88,6 +86,7 @@ public class CheckerManager : Singleton<CheckerManager>
     public bool inSequence;
     [HideInInspector]
     public bool readyToExitPresentationMode = false;
+    public bool badNeighboors;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -146,7 +145,7 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 3, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
         {9, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 0, 0, 0, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
@@ -358,7 +357,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
         // Is OK
         bool[] idOK = new bool[6] { false, false, false, false, false, false };
-        
+        badNeighboors = false;
         // How each type of cube should be aligned in matrix
         int[,] colorSizes = new int[6, 2]
                  {
@@ -466,7 +465,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 // update startuptutorial dictionary
                 startupTutorial.idOK[i] = true;
-                Debug.Log("idOK[i] " + i + "--> " + idOK[i]);
+                // Debug.Log("idOK[i] " + i + "--> " + idOK[i]);
                 // startupTutorial.GotIt();
                 if (playGroundObjectsArray[i].multiCubeRepresentation != null)
                     playGroundObjectsArray[i].multiCubeRepresentation.SetActive(false);
@@ -638,6 +637,7 @@ public class CheckerManager : Singleton<CheckerManager>
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
     {   
+        bool localBadNeighboors = false;
         int areax = x + sizex;
         int areay = y + sizey;
 
@@ -654,16 +654,24 @@ public class CheckerManager : Singleton<CheckerManager>
             for (int jx = x; jx < areax; jx++)
             {
                 localMatrix[jx, iy] = 1;   
-                //If this field has a different ID or if not a color cube or has bad neighbours Not OK
-                if ((checkkerArray[jx, iy] != ID) || (ID > 6) || adjacentCheck(jx,iy, ID))
+                localBadNeighboors = adjacentCheck(jx,iy, ID); 
+                if (!badNeighboors && localBadNeighboors)
                 {
-                    // if (ID == 4)
-                    // {
-                        // Debug.Log("(checkkerArray[jx, iy] --> "+ checkkerArray[jx, iy]);
-                        // Debug.Log("jx + iy --> "+ jx + " -" + iy);
-                    // }
+                    badNeighboors = true;
+                    Debug.Log("It has a bad neighbor -->" + badNeighboors);
+                }
+                
+                
+                //If this field has a different ID or if not a color cube or has bad neighbours Not OK
+                if ((checkkerArray[jx, iy] != ID) || (ID > 6) || localBadNeighboors)
+                {
                     return false;
                 }
+                
+                // This is to prevent: 
+                // 1) place cubes in final_no of different colors on top of each other
+                // 2) inform in any case of bad neighbors with audio 
+                
             }
         }
         return true;
