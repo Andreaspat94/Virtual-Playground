@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class StartupTutorial : MonoBehaviour
 {
+    [SerializeField]
+    GameObject cubeHierarchy;
     [Serializable]
     public class Wavs
     {
@@ -78,6 +80,15 @@ public class StartupTutorial : MonoBehaviour
         {"green", 4},
         {"red", 5},
         {"grey", 6}
+    };
+    Dictionary<int, int> properColorCount = new Dictionary<int, int> 
+    {
+        {1, 12},
+        {2, 2},
+        {3, 4},
+        {4, 4},
+        {5, 16},
+        {6, 12}
     };
 
     Dictionary<int, string> poolDictionary = new Dictionary<int, string>
@@ -487,7 +498,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            Debug.Log("Audioname --> " + wa.audioname + " skip? " + skipCorrectWa);
+            // Debug.Log("Audioname --> " + wa.audioname + " skip? " + skipCorrectWa);
 
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -591,26 +602,33 @@ public class StartupTutorial : MonoBehaviour
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
+
                 int id = idOKDictionary[colorToCheck];
-                bool badNeighbors = CheckerManager.Instance.badNeighboors;
+                bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
+                // Debug.Log(badNeighbors + " for id --> " + (id));
+
                 AudioManager.Instance.playSound("magic");
-                Debug.Log("ID[]-->" + idOK[0] + idOK[1]+ idOK[2]+ idOK[3]+ idOK[4]+ idOK[5]);
-                if (badNeighbors)
+                // Debug.Log("bad_neighbours[]-->" + CheckerManager.Instance.bad_neighbors_color[0] + CheckerManager.Instance.bad_neighbors_color[1]+ CheckerManager.Instance.bad_neighbors_color[2]+ CheckerManager.Instance.bad_neighbors_color[3]+ CheckerManager.Instance.bad_neighbors_color[4]+ CheckerManager.Instance.bad_neighbors_color[5]);
+                // Debug.Log("ID[]-->" + idOK[0] + idOK[1]+ idOK[2]+ idOK[3]+ idOK[4]+ idOK[5]);
+                
+                //Count how many cubes of that color are in board
+                GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
+                int childCount = colorParent.transform.childCount;
+                if (badNeighbors && (properColorCount[id] == childCount))
                 {
                     //&& !wa.audioname.Equals("correct")
+                    Debug.Log("entered bad neighmor --> proeprcolor: " +properColorCount[id] + " ... childcount: "+ childCount);
                     FinishTutoring();
                     skipCorrectWa = true;
                 }
                 else if (idOK[id-1])
                 {
                     FinishTutoring();
-                    // AudioManager.Instance.playSound("magic");
                     //!!TODO: disable pool cube
                     // DisablePoolCube(4);
                 }
                 else
                 {
-                    // AudioManager.Instance.playSound("magic");
                     tutoringCanvas.SetActive(false);
                     break;
                 }

@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
+using System.Collections.Generic;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -86,7 +87,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public bool inSequence;
     [HideInInspector]
     public bool readyToExitPresentationMode = false;
-    public bool badNeighboors;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -130,6 +130,15 @@ public class CheckerManager : Singleton<CheckerManager>
     [HideInInspector]
     public OneGrabFreeTransformer pickedCubeTransformer;
 
+    public Dictionary<int, bool> bad_neighbors_color = new Dictionary<int, bool>
+    {
+        {1, false},
+        {2, false},
+        {3, false},
+        {4, false},
+        {5, false},
+        {6, true}
+    };
     private CubeNameID idOfCube;
     private GameObject cubePickedUp;
     private int adjacencyError = -1;
@@ -144,11 +153,11 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
         {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 0, 3, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
-        {9, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 0, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
+        {9, 0, 2, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 0, 0, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
         {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 0, 0, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -357,7 +366,11 @@ public class CheckerManager : Singleton<CheckerManager>
 
         // Is OK
         bool[] idOK = new bool[6] { false, false, false, false, false, false };
-        badNeighboors = false;
+        for(int i=0; i < bad_neighbors_color.Count-1; i++)
+        {
+            bad_neighbors_color[i] = false;
+        }
+        
         // How each type of cube should be aligned in matrix
         int[,] colorSizes = new int[6, 2]
                  {
@@ -637,15 +650,10 @@ public class CheckerManager : Singleton<CheckerManager>
     //Test continuity of a specific color objects
     bool testArea(int x, int y, int sizex, int sizey, int ID, int[,] localMatrix )
     {   
-        bool localBadNeighboors = false;
+        bool localBadNeighbors = false;
         int areax = x + sizex;
         int areay = y + sizey;
 
-        // if (ID == 4)
-        // {
-            // Debug.Log("x --> "+ x);
-            // Debug.Log("y --> "+ y);
-        // }
         if (((x + sizex) > YDim) || ((y + sizey) > XDim))
             return false;
 
@@ -654,16 +662,16 @@ public class CheckerManager : Singleton<CheckerManager>
             for (int jx = x; jx < areax; jx++)
             {
                 localMatrix[jx, iy] = 1;   
-                localBadNeighboors = adjacentCheck(jx,iy, ID); 
-                if (!badNeighboors && localBadNeighboors)
+                localBadNeighbors = adjacentCheck(jx,iy, ID); 
+                // Debug.Log("testArea: --> "+ localBadNeighbors + "...ID: "+ ID);
+                if (!bad_neighbors_color[ID] && localBadNeighbors)
                 {
-                    badNeighboors = true;
-                    Debug.Log("It has a bad neighbor -->" + badNeighboors);
+                    bad_neighbors_color[ID] = true;
+                    Debug.Log("It has a bad neighbor -->" + bad_neighbors_color[ID] + "...Color " + ID);
                 }
                 
-                
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
-                if ((checkkerArray[jx, iy] != ID) || (ID > 6) || localBadNeighboors)
+                if ((checkkerArray[jx, iy] != ID) || (ID > 6) || localBadNeighbors)
                 {
                     return false;
                 }
