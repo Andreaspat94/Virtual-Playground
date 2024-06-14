@@ -150,14 +150,14 @@ public class CheckerManager : Singleton<CheckerManager>
     //array x is Z (unity), array y is X Unity
     public int[,] checkkerArray = new int[YDim, XDim] {
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   8,  8, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-        {9, 0, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
-        {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
+        {9, 1, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
+        {9, 1, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 2, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
-        {9, 0, 2, 0, 0, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 0, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 5, 5, 5, 5, 9},
+        {9, 0, 0, 0, 0, 0, 0, 7, 7,   7,  7, 7, 7, 0, 0, 5, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 5, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 0, 0,   7,  7, 0, 0, 0, 0, 5, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -508,6 +508,7 @@ public class CheckerManager : Singleton<CheckerManager>
         
         if (allOK)
         {
+            startupTutorial.allOK = true;
             if (talkingBirds)
                 talkingBirds.SetActive(false);
 
@@ -551,11 +552,6 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             script.enabled = false;
         }
-
-        //pool cube as well
-        // GameObject[] pool = GameObject.FindWithTag("Pool");
-        // foreach (GameObject cube in pool)
-        // poolCube.GetComponentInChildren<Grabbable>().enabled = false;
     }
 
     public void ResetTheCubeNumberOfColor(int id)
@@ -591,7 +587,6 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 if (checkkerArray[x, y] == id)
                     checkkerArray[x, y] = 0;
-                
             }
         }
     }
@@ -687,7 +682,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 // This is to prevent: 
                 // 1) place cubes in final_no of different colors on top of each other
                 // 2) inform in any case of bad neighbors with audio 
-                
+               
             }
         }
         return true;
@@ -792,6 +787,7 @@ public class CheckerManager : Singleton<CheckerManager>
         // This section is for pool cubes
         if (cubePickedUp.layer == poolCubeLayerInteger)
         {
+            Debug.Log("Pool cube picked...");
             PickUpFromPool();
         }
     }
@@ -855,7 +851,6 @@ public class CheckerManager : Singleton<CheckerManager>
             canChangeViewMode = false;
             string name = cubesArray[activeCubeIndex].name;
             StartCoroutine(CreateCubeForForbiddenDrop(name, delayTime));
-            // CreateStaticCube(cubesArray[activeCubeIndex].name, X, Y, false);
         }
         
         if(adjacencyError == 10 || checkkerArray[x,y] == 10)

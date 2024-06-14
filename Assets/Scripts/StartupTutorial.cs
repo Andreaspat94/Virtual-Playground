@@ -135,6 +135,7 @@ public class StartupTutorial : MonoBehaviour
     GameObject mainPanel;
     GameObject gotItButton;
     GameObject whichColorPanel;
+    public bool allOK;
     [HideInInspector]
     public bool isTutorial;
     bool isPlayingSounds;
@@ -603,6 +604,13 @@ public class StartupTutorial : MonoBehaviour
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
 
+                // Game finishes. Invoke game event and play last audio
+                if (allOK)
+                {
+                    tutoringCanvas.SetActive(false);
+                    break;
+                }
+                
                 int id = idOKDictionary[colorToCheck];
                 bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
                 // Debug.Log(badNeighbors + " for id --> " + (id));
