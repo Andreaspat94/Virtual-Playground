@@ -503,21 +503,29 @@ public class CheckerManager : Singleton<CheckerManager>
                 allOK = false;
             }
         }
-
+        
+        startupTutorial.GotIt();
+        
         if (allOK)
         {
             if (talkingBirds)
                 talkingBirds.SetActive(false);
 
             if (GameWonEvent != null)
+            {
                 GameWonEvent.Invoke();
-
+                StartCoroutine(PlayLastAudio());        
+            }
             playGroundFinished = true;
         }
-        
-        startupTutorial.GotIt();
     }
-  
+    
+    IEnumerator PlayLastAudio()
+    {
+        yield return new WaitForSeconds(5.5f);
+        //!!TODO change it to correct audio
+        AudioManager.Instance.playSound("wrong_buzz");
+    }
 
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
     public void MakeIsland(int id)
