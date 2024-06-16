@@ -4,33 +4,48 @@ using UnityEngine;
 
 public class RaycastLine : MonoBehaviour
 {
-    int rayLength = 20;
+    public int rayLength = 20;
     public Material lineMaterial;
-    public float delay = 0.1f;
+    public float lineWidth = 0.01f;
+
+    private LineRenderer lineRenderer;
 
     void Start()
     {
-       
+        // Initialize the LineRenderer
+        lineRenderer = gameObject.AddComponent<LineRenderer>();
+        lineRenderer.material = lineMaterial;
+        lineRenderer.startWidth = lineWidth;
+        lineRenderer.endWidth = lineWidth;
+        lineRenderer.positionCount = 2;
+
+        // Optionally, set other properties of the LineRenderer
+        lineRenderer.useWorldSpace = true;
     }
 
     void Update()
     {
+        UpdateRay();
+    }
+
+    private void UpdateRay()
+    {
         RaycastHit hit;
+        Vector3 startPosition = transform.position;
+        Vector3 endPosition;
 
-        if (Physics.Raycast(transform.position, transform.forward, out hit, rayLength * 10))
+        // Perform the raycast
+        if (Physics.Raycast(startPosition, transform.forward, out hit, rayLength))
         {
-            GameObject myLine = new GameObject();
-            myLine.transform.position = transform.position;
-            myLine.AddComponent<LineRenderer>();
-
-            LineRenderer lr = myLine.GetComponent<LineRenderer>();
-            lr.material = lineMaterial;
-
-            lr.startWidth = 0.01f;
-            lr.endWidth = 0.01f;
-            lr.SetPosition(0, transform.position);
-            lr.SetPosition(1, hit.point);
-            GameObject.Destroy(myLine,delay);
+            endPosition = hit.point;
         }
+        else
+        {
+            endPosition = startPosition + transform.forward * rayLength;
+        }
+
+        // Update the LineRenderer positions
+        lineRenderer.SetPosition(0, startPosition);
+        lineRenderer.SetPosition(1, endPosition);
     }
 }
