@@ -525,7 +525,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         yield return new WaitForSeconds(5.5f);
         //!!TODO change it to correct audio
-        AudioManager.Instance.playSound("wrong_buzz");
+        AudioManager.Instance.playSound("finish");
     }
 
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
