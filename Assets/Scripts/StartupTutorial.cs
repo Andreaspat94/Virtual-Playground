@@ -197,14 +197,14 @@ public class StartupTutorial : MonoBehaviour
             leftRay = player.transform.Find(pathToLeftRay).gameObject;
             rightRay = player.transform.Find(pathToRightRay).gameObject;
 
-            leftRay.SetActive(false);
-            rightRay.SetActive(false);
+            leftRay.SetActive(true);
+            rightRay.SetActive(true);
 
             leftHandGrab = player.transform.Find(pathToLeftHandGrab).gameObject;
             rightHandGrab = player.transform.Find(pathToRightHandGrab).gameObject;
 
-            leftHandGrab.SetActive(false);
-            rightHandGrab.SetActive(false);
+            leftHandGrab.SetActive(true);
+            rightHandGrab.SetActive(true);
         }
     }
     
@@ -343,7 +343,6 @@ public class StartupTutorial : MonoBehaviour
                 continue;
 
             if (skipCorrectWa) {
-                // Debug.Log("I am inside skipCoorectWa condition --> " + wa.audioname);
                 skipCorrectWa = false;
                 continue;
             }
@@ -402,10 +401,7 @@ public class StartupTutorial : MonoBehaviour
             }
             // if wrong answer
             if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
-            {
                 skipCorrectWa = true;
-                Debug.Log("Assert skipCorrewa --> " + wa.audioname);
-            }
 
             // wait until 'got it' button clicked. single button appears on the panel now.
             if (wa.waitForButtonClick)
@@ -450,10 +446,6 @@ public class StartupTutorial : MonoBehaviour
                 owlIsSpeaking = false;
             }
         }
-        // owlIsSpeaking = false;
-        // Debug.Log("owlIsSpeaking --> " + owlIsSpeaking);
-        // Debug.Log("readyToExitPresentationMode --> " + CheckerManager.Instance.readyToExitPresentationMode);
-        // Debug.Log("inSequence --> " + CheckerManager.Instance.inSequence);
     }
 
     public void StopAllCoroutinesAfterCorrectAnswer()
@@ -499,7 +491,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            // Debug.Log("Audioname --> " + wa.audioname + " skip? " + skipCorrectWa);
+            Debug.Log("Audioname --> " + wa.audioname);
 
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -625,7 +617,7 @@ public class StartupTutorial : MonoBehaviour
                 if (badNeighbors && (properColorCount[id] == childCount))
                 {
                     //&& !wa.audioname.Equals("correct")
-                    Debug.Log("entered bad neighmor --> proeprcolor: " +properColorCount[id] + " ... childcount: "+ childCount);
+                    // Debug.Log("entered bad neighmor --> proeprcolor: " +properColorCount[id] + " ... childcount: "+ childCount);
                     FinishTutoring();
                     skipCorrectWa = true;
                 }
@@ -648,14 +640,20 @@ public class StartupTutorial : MonoBehaviour
         }
 
         // IF CHECKIFOK is false, then starts TUTORING
-        int temp = idOKDictionary[colorToCheck] - 1;
-        if (!idOK[temp])
-            Tutoring();
-
+    
         isPlayingSounds = false;
         //Activate the game manager
         if (isTutorial)
+        {
             StartGame();
+        }
+        else
+        {
+            int temp = idOKDictionary[colorToCheck] - 1;
+            if (!idOK[temp])
+                Tutoring();
+        }
+        
     }
 
     void GrayOutWhichPanelButton(int id)
@@ -672,10 +670,7 @@ public class StartupTutorial : MonoBehaviour
     {
         GameObject pool = CheckerManager.Instance.objectPool;
         string objName = string.Concat("/", poolDictionary[id]); 
-        Debug.Log("OBJ name --> " + objName);
         GameObject poolCube = pool.transform.Find(objName).gameObject;
-        Debug.Log("FOUND POOL CUBE --> " + poolCube);
-        // poolCube.GetComponentInChildren<Grabbable>().enabled = false;
     }
 
     public void ReleaseEventTutorial()

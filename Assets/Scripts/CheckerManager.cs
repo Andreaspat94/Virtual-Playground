@@ -150,14 +150,14 @@ public class CheckerManager : Singleton<CheckerManager>
     //array x is Z (unity), array y is X Unity
     public int[,] checkkerArray = new int[YDim, XDim] {
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   8,  8, 9, 9, 9, 9, 9, 9, 9, 9, 9},
-        {9, 1, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
-        {9, 1, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
+        {9, 0, 1, 1, 1, 1, 1, 0, 7,   7,  7, 7, 0, 0, 6, 6, 6, 6, 0, 9},
+        {9, 0, 1, 1, 1, 1, 1, 7, 7,   7,  7, 7, 7, 0, 6, 6, 6, 6, 0, 8},
         {9, 0, 0, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 6, 6, 6, 6, 0, 8},
-        {9, 0, 0, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
-        {9, 0, 0, 0, 3, 3, 0, 7, 10, 10, 10, 10,7, 0, 0, 5, 5, 5, 5, 9},
-        {9, 0, 0, 0, 0, 0, 0, 7, 7,   7,  7, 7, 7, 0, 0, 5, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 5, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 0, 0, 0,   7,  7, 0, 0, 0, 0, 5, 5, 5, 5, 9},
+        {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
+        {9, 0, 2, 4, 4, 4, 4, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
+        {9, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 4, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 4, 4, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -319,10 +319,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        // startupTutorial.ActivateRayInteractors(true);
-        // Debug.Log("Activate from ResetToCubeRepresentation()--> " + true);
-        // startupTutorial.ActivateGrabInteractors(true);
-
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
 
@@ -990,21 +986,20 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         }
         
-        // if (OVRInput.GetDown(OVRInput.Button.Three)) 
-        // {
-        //     Debug.Log("canChangeViewMode -->" + canChangeViewMode);
-        //     Debug.Log("isZoomOutViewMode -->" + isZoomOutViewMode);
-        //     Debug.Log("activeCubeIndex -->" + activeCubeIndex);
-        //     Debug.Log("isExitViewModeOn -->" + isExitViewModeOn);
-            // Debug.Log("startupTutorial.owlIsSpeaking -->" + startupTutorial.owlIsSpeaking);
-        // }
-        
+        if (OVRInput.GetDown(OVRInput.Button.Three)) 
+        {
+            Debug.Log("WAKE UPPP --> " + startupTutorial.isTutorial);
+            return;
+        }
+
         //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
-        //if (Input.GetMouseButtonDown(0) &&
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)
         {
+            Debug.Log(" --> " + startupTutorial.isTutorial);
+            if (startupTutorial.isTutorial)
+                return;
             if (!inSequence)
             {
                 // start confirm answer sequence that leads to presentation mode.
@@ -1013,10 +1008,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 startupTutorial.ActivateGrabInteractors(false);
                 startupTutorial.ConfirmAnswer();
             }
-
-            // Debug.Log("readyToExitPresentationMode--> " + readyToExitPresentationMode);
-            // Debug.Log("inSequence--> " + inSequence);
-
+        
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
                startupTutorial.ActivateRayInteractors(true);
@@ -1026,8 +1018,9 @@ public class CheckerManager : Singleton<CheckerManager>
                inSequence = false;
                readyToExitPresentationMode = false;
             }
+            
         } 
-
+        
         //if we are in presentation mode no interaction
         if (view_mode_ == ViewModes.PRESENTATION || isZoomOutViewMode)
             return;
