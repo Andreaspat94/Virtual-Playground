@@ -662,11 +662,9 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                 localMatrix[jx, iy] = 1;   
                 localBadNeighbors = adjacentCheck(jx,iy, ID); 
-                // Debug.Log("testArea: --> "+ localBadNeighbors + "...ID: "+ ID);
                 if (!bad_neighbors_color[ID] && localBadNeighbors)
                 {
                     bad_neighbors_color[ID] = true;
-                    Debug.Log("It has a bad neighbor -->" + bad_neighbors_color[ID] + "...Color " + ID);
                 }
                 
                 //If this field has a different ID or if not a color cube or has bad neighbours Not OK
@@ -988,16 +986,18 @@ public class CheckerManager : Singleton<CheckerManager>
         
         if (OVRInput.GetDown(OVRInput.Button.Three)) 
         {
-            Debug.Log("WAKE UPPP --> " + startupTutorial.isTutorial);
-            return;
+        //     Debug.Log("WAKE UPPP --> " + startupTutorial.isTutorial);
+        //     return;
+        // }
+            Debug.Log("canChangeViewMode --> " + canChangeViewMode);
+            Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
+            Debug.Log("activeCubeIndex --> " + activeCubeIndex);
+            Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
         }
-
-        //We can only change to presentation mode when not carrying a cube and there is no dropper active
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)
         {
-            Debug.Log(" --> " + startupTutorial.isTutorial);
             if (startupTutorial.isTutorial)
                 return;
             if (!inSequence)

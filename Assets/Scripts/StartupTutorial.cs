@@ -478,6 +478,7 @@ public class StartupTutorial : MonoBehaviour
     IEnumerator PlaySounds()
     {
         gotIt = false;
+        Image image = mainPanel.GetComponent<Image>();
         bool skipCorrectWa = false;
         List<Wavs> wavList = new List<Wavs>();
         if (isTutorial)
@@ -492,6 +493,15 @@ public class StartupTutorial : MonoBehaviour
         foreach (Wavs wa in wavList)
         {
             Debug.Log("Audioname --> " + wa.audioname);
+
+            ActivateGrabInteractors(wa.activateGrab);
+            ActivateRayInteractors(wa.activateRay);
+            // open main panel
+            image.sprite = null;
+            tutoringCanvas.SetActive(wa.openMainPanel);
+            mainPanel.SetActive(wa.openMainPanel);
+            if (wa.image != null)
+               image.sprite = wa.image;
 
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -524,26 +534,30 @@ public class StartupTutorial : MonoBehaviour
             {
                 instructionText.text = wa.instructionText;
                 instructionText.gameObject.SetActive(true);
-                if (wa.audioname.Equals("owl5_2"))
-                    ActivateGrabInteractors(true);
+                // if (wa.audioname.Equals("owl5_2"))
+                //     ActivateGrabInteractors(true);
             }
 
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
-            //Stop wol morph
+            //Stop owl morph
             if (owlAnimator)
             {
                 ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
                 owlIsSpeaking = false;
             }    
-            
+
             if (wa.audioname.Equals("owl5_2"))
             {
+                mainPanel.SetActive(false);
+                tutoringCanvas.SetActive(false);
+
                 yield return new WaitUntil(() => cubeReleasedTutorial);
                 ActivateGrabInteractors(false);
-            }
+            }  
+
 
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
