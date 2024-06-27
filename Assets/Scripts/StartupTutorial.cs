@@ -503,6 +503,11 @@ public class StartupTutorial : MonoBehaviour
             if (wa.image != null)
                image.sprite = wa.image;
 
+            float rectScaleX = 1;
+            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6"))
+                rectScaleX = 0.5f;
+            RecalibrateMainPanel(rectScaleX);
+            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
             if (skipCorrectWa)
@@ -557,6 +562,12 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => cubeReleasedTutorial);
                 ActivateGrabInteractors(false);
             }  
+
+            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6"))
+            {
+                mainPanel.SetActive(false);
+                tutoringCanvas.SetActive(false);
+            }
 
 
             if (wa.finishTutoring)
@@ -658,7 +669,8 @@ public class StartupTutorial : MonoBehaviour
         //Activate the game manager
         if (isTutorial)
         {
-            RecalibrateMainPanel(795, 465);
+            Debug.Log("-- Ready to recalibrate --");
+            RecalibrateMainPanel(1);
             StartGame();
         }
         else
@@ -670,10 +682,15 @@ public class StartupTutorial : MonoBehaviour
         
     }
 
-    void RecalibrateMainPanel(float x, float y)
+    void RecalibrateMainPanel(float x)
     {
-        mainPanel.GetComponent<RectTransform>().rect.width = x;
-        mainPanel.GetComponent<RectTransform>().rect.height = y;
+        RectTransform rect = mainPanel.GetComponent<RectTransform>();
+        var scale = rect.localScale;
+        scale.x = x;
+        rect.localScale = scale;
+        // rt.sizeDelta = new Vector2(100, 100);
+        // mainPanel.GetComponent<RectTransform>() = new Vector3(0.5f,1,1);
+        // mainPanel.GetComponent<RectTransform>().rect.height = y;
     }
 
     public void ReleaseEventTutorial()
