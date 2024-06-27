@@ -986,14 +986,12 @@ public class CheckerManager : Singleton<CheckerManager>
         
         if (OVRInput.GetDown(OVRInput.Button.Three)) 
         {
-        //     Debug.Log("WAKE UPPP --> " + startupTutorial.isTutorial);
-        //     return;
-        // }
-            Debug.Log("canChangeViewMode --> " + canChangeViewMode);
-            Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
-            Debug.Log("activeCubeIndex --> " + activeCubeIndex);
-            Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
+            // Debug.Log("canChangeViewMode --> " + canChangeViewMode);
+            // Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
+            // Debug.Log("activeCubeIndex --> " + activeCubeIndex);
+            // Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
         }
+        
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)

@@ -654,11 +654,11 @@ public class StartupTutorial : MonoBehaviour
         }
 
         // IF CHECKIFOK is false, then starts TUTORING
-    
         isPlayingSounds = false;
         //Activate the game manager
         if (isTutorial)
         {
+            RecalibrateMainPanel(795, 465);
             StartGame();
         }
         else
@@ -670,21 +670,10 @@ public class StartupTutorial : MonoBehaviour
         
     }
 
-    void GrayOutWhichPanelButton(int id)
+    void RecalibrateMainPanel(float x, float y)
     {
-        GameObject panelButton = whichColorPanel.transform.GetChild(id).gameObject;
-        Button buttonComponent = panelButton.GetComponent<Button>();
-        buttonComponent.interactable = false;
-        ColorBlock cb = buttonComponent.colors;
-        cb.normalColor = Color.gray;
-        buttonComponent.colors = cb;
-    }
-
-    void DisablePoolCube(int id)
-    {
-        GameObject pool = CheckerManager.Instance.objectPool;
-        string objName = string.Concat("/", poolDictionary[id]); 
-        GameObject poolCube = pool.transform.Find(objName).gameObject;
+        mainPanel.GetComponent<RectTransform>().rect.width = x;
+        mainPanel.GetComponent<RectTransform>().rect.height = y;
     }
 
     public void ReleaseEventTutorial()
