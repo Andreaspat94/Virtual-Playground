@@ -111,7 +111,7 @@ public class StartupTutorial : MonoBehaviour
 
     Dictionary<string, List<Wavs>> wavLists;
     [HideInInspector]
-    public bool[] idOK = new bool[6] { false, false, false, false, false, false};
+    public bool[] idOK = new bool[6] {false, false, false, false, false, false};
 
     [Header ("Things to Hide at startup")]
     public GameObject[] ListToHide;
@@ -145,6 +145,7 @@ public class StartupTutorial : MonoBehaviour
     //Mask set to "InteractionGeneralObject" layer mask and designete general interaction objects like the birds
     //They issue events when pointed at and clicked upon
     public LayerMask interactionObjectsMask;
+    public String activeScene;
 
     void Awake()
     {
@@ -167,6 +168,7 @@ public class StartupTutorial : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        activeScene = SceneManager.GetActiveScene().name;
         wavLists = new Dictionary<string, List<Wavs>> 
         {
             {"blue", blueWavList},
@@ -289,12 +291,12 @@ public class StartupTutorial : MonoBehaviour
         owlCollider.enabled = true;
         displayText = "Do you want to check your answer?\nLet's ask the Owl!";
         StartCoroutine(AskTheOwl());
-        string currentScene = SceneManager.GetActiveScene().name;
-        if (currentScene.Equals("Passive"))
+        if (activeScene.Equals("Passive"))
         {
             yield return new WaitUntil(() => !isPlayingSounds);
             // put it inside CheckIfOk()
             AudioManager.Instance.playSound("magic");
+            CheckerManager.Instance.readyToExitPresentationMode = true;
         }
     }
 
@@ -460,7 +462,6 @@ public class StartupTutorial : MonoBehaviour
         tutoringCanvas.SetActive(false);
         instructionText.text = string.Empty;
         instructionText.gameObject.SetActive(true);
-        // GrayOutWhichPanelButton(id);
         ActivateTalkingBirds(true);
         owlIsSpeaking = false;
     }
@@ -525,7 +526,6 @@ public class StartupTutorial : MonoBehaviour
                 AudioManager.Instance.playSound(wa.audioname);
             }
 
-
             //Start owl morph
             if (owlAnimator)
             {
@@ -539,8 +539,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 instructionText.text = wa.instructionText;
                 instructionText.gameObject.SetActive(true);
-                // if (wa.audioname.Equals("owl5_2"))
-                //     ActivateGrabInteractors(true);
             }
 
             //Wait duration of sound
@@ -616,7 +614,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 tutoringCanvas.SetActive(true);
                 whichColorPanel.SetActive(true);
-                // precaution
                 mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
                 yield return new WaitUntil(() => gotIt);
@@ -630,27 +627,20 @@ public class StartupTutorial : MonoBehaviour
                 
                 int id = idOKDictionary[colorToCheck];
                 bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
-                // Debug.Log(badNeighbors + " for id --> " + (id));
 
                 AudioManager.Instance.playSound("magic");
-                // Debug.Log("bad_neighbours[]-->" + CheckerManager.Instance.bad_neighbors_color[0] + CheckerManager.Instance.bad_neighbors_color[1]+ CheckerManager.Instance.bad_neighbors_color[2]+ CheckerManager.Instance.bad_neighbors_color[3]+ CheckerManager.Instance.bad_neighbors_color[4]+ CheckerManager.Instance.bad_neighbors_color[5]);
-                // Debug.Log("ID[]-->" + idOK[0] + idOK[1]+ idOK[2]+ idOK[3]+ idOK[4]+ idOK[5]);
                 
                 //Count how many cubes of that color are in board
                 GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
                 int childCount = colorParent.transform.childCount;
                 if (badNeighbors && (properColorCount[id] == childCount))
                 {
-                    //&& !wa.audioname.Equals("correct")
-                    // Debug.Log("entered bad neighmor --> proeprcolor: " +properColorCount[id] + " ... childcount: "+ childCount);
                     FinishTutoring();
                     skipCorrectWa = true;
                 }
                 else if (idOK[id-1])
                 {
                     FinishTutoring();
-                    //!!TODO: disable pool cube
-                    // DisablePoolCube(4);
                 }
                 else
                 {
@@ -669,17 +659,15 @@ public class StartupTutorial : MonoBehaviour
         //Activate the game manager
         if (isTutorial)
         {
-            Debug.Log("-- Ready to recalibrate --");
             RecalibrateMainPanel(1);
             StartGame();
         }
-        else
+        else if (activeScene.Equals("Active"))
         {
             int temp = idOKDictionary[colorToCheck] - 1;
             if (!idOK[temp])
                 Tutoring();
         }
-        
     }
 
     void RecalibrateMainPanel(float x)
@@ -688,9 +676,6 @@ public class StartupTutorial : MonoBehaviour
         var scale = rect.localScale;
         scale.x = x;
         rect.localScale = scale;
-        // rt.sizeDelta = new Vector2(100, 100);
-        // mainPanel.GetComponent<RectTransform>() = new Vector3(0.5f,1,1);
-        // mainPanel.GetComponent<RectTransform>().rect.height = y;
     }
 
     public void ReleaseEventTutorial()

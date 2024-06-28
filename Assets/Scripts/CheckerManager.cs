@@ -5,6 +5,7 @@ using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
 using System.Collections.Generic;
+using System;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -781,7 +782,6 @@ public class CheckerManager : Singleton<CheckerManager>
         // This section is for pool cubes
         if (cubePickedUp.layer == poolCubeLayerInteger)
         {
-            Debug.Log("Pool cube picked...");
             PickUpFromPool();
         }
     }
@@ -984,13 +984,13 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.Three)) 
-        {
-            // Debug.Log("canChangeViewMode --> " + canChangeViewMode);
-            // Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
-            // Debug.Log("activeCubeIndex --> " + activeCubeIndex);
-            // Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
-        }
+        // if (OVRInput.GetDown(OVRInput.Button.Three)) 
+        // {
+        //     Debug.Log("canChangeViewMode --> " + canChangeViewMode);
+        //     Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
+        //     Debug.Log("activeCubeIndex --> " + activeCubeIndex);
+        //     Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
+        // }
         
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
@@ -1007,6 +1007,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 startupTutorial.ConfirmAnswer();
             }
         
+            // this block is for active game scene only
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
                startupTutorial.ActivateRayInteractors(true);
@@ -1016,7 +1017,6 @@ public class CheckerManager : Singleton<CheckerManager>
                inSequence = false;
                readyToExitPresentationMode = false;
             }
-            
         } 
         
         //if we are in presentation mode no interaction
