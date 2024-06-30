@@ -218,6 +218,7 @@ public class StartupTutorial : MonoBehaviour
 
     public void ActivateGrabInteractors(bool activate)
     {
+        Debug.Log("Heys this is called-->");
         leftHandGrab.SetActive(activate);
         rightHandGrab.SetActive(activate);
     }
@@ -565,6 +566,12 @@ public class StartupTutorial : MonoBehaviour
             {
                 mainPanel.SetActive(false);
                 tutoringCanvas.SetActive(false);
+            }
+
+            if (wa.audioname.Equals("check1"))
+            {
+                ActivateGrabInteractors(true);
+                ActivateRayInteractors(true);
             }
 
 

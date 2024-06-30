@@ -937,6 +937,10 @@ public class CheckerManager : Singleton<CheckerManager>
        movementScript.enabled = true;
        startupTutorial.ActivateGrabInteractors(true);
     }
+    public void ReadyToExitPresentationMode()
+    {
+        readyToExitPresentationMode = true;
+    }
 
     public void GoToEscapeUI()
     {
@@ -984,13 +988,14 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         }
         
-        // if (OVRInput.GetDown(OVRInput.Button.Three)) 
-        // {
+        if (OVRInput.GetDown(OVRInput.Button.Three)) 
+        {
         //     Debug.Log("canChangeViewMode --> " + canChangeViewMode);
         //     Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
         //     Debug.Log("activeCubeIndex --> " + activeCubeIndex);
         //     Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
-        // }
+               Debug.Log("inSequence --> " + inSequence);
+        }
         
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
@@ -1000,6 +1005,7 @@ public class CheckerManager : Singleton<CheckerManager>
                 return;
             if (!inSequence)
             {
+                Debug.Log("First block-->");
                 // start confirm answer sequence that leads to presentation mode.
                 inSequence = true;
                 owlBird.GetComponent<Collider>().enabled = true;
@@ -1010,6 +1016,7 @@ public class CheckerManager : Singleton<CheckerManager>
             // this block is for active game scene only
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
+                Debug.Log("Second block-->");
                startupTutorial.ActivateRayInteractors(true);
                startupTutorial.ActivateGrabInteractors(true);
                ResetToCubeRepresentation();
