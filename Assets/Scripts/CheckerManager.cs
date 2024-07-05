@@ -947,6 +947,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //if not fade out has started..
         if (!fadeOut)
         {
+            startupTutorial.ActivateRayInteractors(true);
             startupTutorial.ActivateGrabInteractors(false);
             helpPanel.SetActive(true);
             isExitViewModeOn = true;
@@ -960,7 +961,7 @@ public class CheckerManager : Singleton<CheckerManager>
         if (!isActive)
             return;
         //ON esc show ui to select to go to menu
-        if (OVRInput.GetDown(OVRInput.Button.Start))
+        if (OVRInput.GetDown(OVRInput.Button.Four) && !startupTutorial.isTutorial)
         {
             if (helpPanel && !isExitViewModeOn)
             {
@@ -994,7 +995,7 @@ public class CheckerManager : Singleton<CheckerManager>
         //     Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
         //     Debug.Log("activeCubeIndex --> " + activeCubeIndex);
         //     Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
-               Debug.Log("inSequence --> " + inSequence);
+            //    Debug.Log("inSequence --> " + inSequence);
         }
         
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
