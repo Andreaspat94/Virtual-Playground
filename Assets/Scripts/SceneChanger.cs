@@ -12,7 +12,7 @@ public class SceneChanger : MonoBehaviour
     private string currentSceneName;
     private bool objectsFoundInScene1;
     private bool objectsFoundInMenu;
-    private string scene1Name = "Scene1";
+    // private string scene1Name = "Pass";
     private string menuScene = "Menu";
     private GameObject playerInMenu;
     private GameObject menu;
@@ -21,7 +21,7 @@ public class SceneChanger : MonoBehaviour
     {
         currentSceneName = SceneManager.GetActiveScene().name;
 
-        if (currentSceneName == scene1Name && !objectsFoundInScene1)
+        if ((currentSceneName == "Passive" || currentSceneName == "Active") && !objectsFoundInScene1)
         {
             checkerManager = GameObject.Find("CheckerManager");
             checkerScript = checkerManager.GetComponent<CheckerManager>();
@@ -37,7 +37,7 @@ public class SceneChanger : MonoBehaviour
 
     public void FadeToLevel (string name)
     {
-        if (currentSceneName == scene1Name)
+        if (currentSceneName == "Passive" || currentSceneName == "Active")
         {
             checkerScript.fadeOut = true;
         }
@@ -49,7 +49,7 @@ public class SceneChanger : MonoBehaviour
     public void OnFadeComplete()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneToLoad);
-        if (currentSceneName == scene1Name)
+        if (currentSceneName == "Passive" || currentSceneName == "Active")
         {
             checkerScript.fadeOut = false;
         } 
