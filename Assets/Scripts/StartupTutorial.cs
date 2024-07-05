@@ -506,7 +506,7 @@ public class StartupTutorial : MonoBehaviour
                image.sprite = wa.image;
 
             float rectScaleX = 1;
-            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6"))
+            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
                 rectScaleX = 0.5f;
             RecalibrateMainPanel(rectScaleX);
             
@@ -562,7 +562,7 @@ public class StartupTutorial : MonoBehaviour
                 ActivateGrabInteractors(false);
             }  
 
-            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6"))
+            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
             {
                 mainPanel.SetActive(false);
                 tutoringCanvas.SetActive(false);
