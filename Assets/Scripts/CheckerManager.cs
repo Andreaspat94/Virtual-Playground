@@ -5,7 +5,6 @@ using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
 using System.Collections.Generic;
-using System;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
