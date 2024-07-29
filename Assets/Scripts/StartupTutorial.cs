@@ -443,7 +443,7 @@ public class StartupTutorial : MonoBehaviour
                 break;
             }
 
-            if (wa.audioname.StartsWith("final_no") || wa.audioname.Equals("blue5"))
+            if (wa.audioname.StartsWith("final_no"))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;
