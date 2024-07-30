@@ -5,6 +5,7 @@ using System.Collections;
 using Oculus.Interaction;
 using Oculus.Interaction.HandGrab;
 using System.Collections.Generic;
+using System;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -934,8 +935,16 @@ public class CheckerManager : Singleton<CheckerManager>
        helpPanel.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
-       startupTutorial.ActivateGrabInteractors(true);
+       StartCoroutine(ActivateGrabWithDelay());
+       
     }
+
+    IEnumerator ActivateGrabWithDelay()
+    {
+        yield return new WaitForSeconds(0.8f);
+        startupTutorial.ActivateGrabInteractors(true);
+    }
+
     public void ReadyToExitPresentationMode()
     {
         readyToExitPresentationMode = true;
