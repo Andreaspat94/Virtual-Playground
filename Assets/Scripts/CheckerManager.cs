@@ -1007,7 +1007,6 @@ public class CheckerManager : Singleton<CheckerManager>
         //     Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
             //    Debug.Log("inSequence --> " + inSequence);
         }
-        
         if (OVRInput.GetDown(OVRInput.Button.Three) && 
             canChangeViewMode && !isZoomOutViewMode &&
             activeCubeIndex == -1 && !isExitViewModeOn)

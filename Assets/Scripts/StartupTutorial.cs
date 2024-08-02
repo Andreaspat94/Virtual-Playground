@@ -218,6 +218,7 @@ public class StartupTutorial : MonoBehaviour
 
     public void ActivateGrabInteractors(bool activate)
     {
+        Debug.Log("CALLED: " + activate);
         leftHandGrab.SetActive(activate);
         rightHandGrab.SetActive(activate);
     }
@@ -611,8 +612,11 @@ public class StartupTutorial : MonoBehaviour
                 instructionText.gameObject.SetActive(false);
             
             // Check if ray or grab is needed
-            ActivateGrabInteractors(wa.activateGrab);
-            ActivateRayInteractors(wa.activateRay);
+            if (!wa.finishTutoring)
+            {
+                ActivateGrabInteractors(wa.activateGrab);
+                ActivateRayInteractors(wa.activateRay);
+            }
                 
             // show "which color" panel
             if (wa.audioname.Equals("which"))
