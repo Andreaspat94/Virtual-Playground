@@ -157,8 +157,8 @@ public class CheckerManager : Singleton<CheckerManager>
         {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 0, 0, 0, 9},
         {9, 0, 2, 0, 0, 0, 0, 7, 10, 10, 10, 10,7, 0, 0, 0, 5, 5, 5, 9},
         {9, 0, 2, 0, 0, 0, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 4, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
-        {8, 0, 2, 0, 4, 4, 4, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 7, 7,   7,  7, 7, 7, 0, 0, 0, 5, 5, 5, 9},
+        {8, 0, 2, 0, 4, 4, 0, 0, 0,   7,  7, 0, 0, 0, 0, 0, 5, 5, 5, 9},
         {9, 9, 9, 9, 9, 9, 9, 9, 9,   7,  7, 9, 9, 9, 9, 9, 9, 9, 9, 9}};
 
     //Returns the int id for a cube name for the checkkerArray
@@ -935,8 +935,10 @@ public class CheckerManager : Singleton<CheckerManager>
        helpPanel.SetActive(false);
        isExitViewModeOn = false;
        movementScript.enabled = true;
-       StartCoroutine(ActivateGrabWithDelay());
-       
+       if (view_mode_ != ViewModes.PRESENTATION && !startupTutorial.owlIsSpeaking)
+       {
+            StartCoroutine(ActivateGrabWithDelay());
+       }
     }
 
     IEnumerator ActivateGrabWithDelay()
@@ -1014,7 +1016,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 return;
             if (!inSequence)
             {
-                Debug.Log("First block-->");
                 // start confirm answer sequence that leads to presentation mode.
                 inSequence = true;
                 owlBird.GetComponent<Collider>().enabled = true;
@@ -1025,7 +1026,6 @@ public class CheckerManager : Singleton<CheckerManager>
             // this block is for active game scene only
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
-                Debug.Log("Second block-->");
                startupTutorial.ActivateRayInteractors(true);
                startupTutorial.ActivateGrabInteractors(true);
                ResetToCubeRepresentation();

@@ -218,7 +218,6 @@ public class StartupTutorial : MonoBehaviour
 
     public void ActivateGrabInteractors(bool activate)
     {
-        Debug.Log("Heys this is called-->");
         leftHandGrab.SetActive(activate);
         rightHandGrab.SetActive(activate);
     }
@@ -226,6 +225,7 @@ public class StartupTutorial : MonoBehaviour
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
     {
+        owlIsSpeaking = true;
         GetComponent<Collider>().enabled = false;
         owlAnimator.GetComponent<Collider>().enabled = false;
 
@@ -245,6 +245,7 @@ public class StartupTutorial : MonoBehaviour
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
+            tutoringCanvas.SetActive(false);
             StartGame();            
         }
     }
@@ -455,9 +456,7 @@ public class StartupTutorial : MonoBehaviour
     {
         StopAllCoroutines();
     }
-    /**
-    red: 4
-    */
+
     public void FinishTutoring()
     {
         tutoringCanvas.SetActive(false);
@@ -494,8 +493,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            Debug.Log("Audioname --> " + wa.audioname);
-
+            // Debug.Log("Audioname --> " + wa.audioname);
             ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
             // open main panel
@@ -532,7 +530,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
-                owlIsSpeaking = true;
+                // owlIsSpeaking = true;
             }
                 
             //Display a info text if there is one
@@ -550,7 +548,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
-                owlIsSpeaking = false;
+                // owlIsSpeaking = false;
             }    
 
             if (wa.audioname.Equals("owl5_2"))
