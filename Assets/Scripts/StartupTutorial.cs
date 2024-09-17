@@ -53,12 +53,6 @@ public class StartupTutorial : MonoBehaviour
     private GameObject rightRay;
     private String pathToLeftRay = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/HandRayInteractorLeft";
     private String pathToRightRay = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/HandRayInteractorRight";
-
-    private GameObject leftHandGrab;
-    private GameObject rightHandGrab;
-    private String pathToLeftHandGrab = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorLeft";
-    private String pathToRightHandGrab = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/DistanceHandGrabInteractorRight";
-
     public List<Wavs> wayPointList = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
@@ -201,12 +195,6 @@ public class StartupTutorial : MonoBehaviour
 
             leftRay.SetActive(true);
             rightRay.SetActive(true);
-
-            leftHandGrab = player.transform.Find(pathToLeftHandGrab).gameObject;
-            rightHandGrab = player.transform.Find(pathToRightHandGrab).gameObject;
-
-            leftHandGrab.SetActive(true);
-            rightHandGrab.SetActive(true);
         }
     }
     
@@ -218,9 +206,9 @@ public class StartupTutorial : MonoBehaviour
 
     public void ActivateGrabInteractors(bool activate)
     {
-        Debug.Log("CALLED: " + activate);
-        leftHandGrab.SetActive(activate);
-        rightHandGrab.SetActive(activate);
+        // Debug.Log("CALLED: " + activate);
+        // leftHandGrab.SetActive(activate);
+        // rightHandGrab.SetActive(activate);
     }
 
     //This is called afer clicking on the owl, it starts the Tutorial sequence

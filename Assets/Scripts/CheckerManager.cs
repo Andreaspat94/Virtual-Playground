@@ -3,7 +3,6 @@ using HoloToolkit.Unity;
 using UnityEngine.Events;
 using System.Collections;
 using Oculus.Interaction;
-using Oculus.Interaction.HandGrab;
 using System.Collections.Generic;
 using System;
 
@@ -544,11 +543,11 @@ public class CheckerManager : Singleton<CheckerManager>
         // Make them interactable
         GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
         // Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
-        DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
-        foreach(DistanceHandGrabInteractable script in scripts)
-        {
-            script.enabled = false;
-        }
+        // DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
+        // foreach(DistanceHandGrabInteractable script in scripts)
+        // {
+        //     script.enabled = false;
+        // }
     }
 
     public void ResetTheCubeNumberOfColor(int id)
