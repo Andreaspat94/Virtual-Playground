@@ -868,10 +868,10 @@ public class CheckerManager : Singleton<CheckerManager>
 
     IEnumerator LetTimeForCubeToDrop()
     {
-        startupTutorial.ActivateGrabInteractors(false);
+        startupTutorial.ActivateRayInteractors(false);
         yield return new WaitForSeconds(1.5f);
         //activate hand grabs
-        startupTutorial.ActivateGrabInteractors(true);
+        startupTutorial.ActivateRayInteractors(true);
     }
 
     IEnumerator CreateCubeForForbiddenDrop(string name, float timeToWait)
@@ -887,7 +887,6 @@ public class CheckerManager : Singleton<CheckerManager>
         rb.useGravity = true;
         if (view_mode_ == ViewModes.CUBE_INTERACTION)
         {
-            startupTutorial.ActivateGrabInteractors(true);
             startupTutorial.ActivateRayInteractors(true);
         }
     
@@ -913,7 +912,6 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         //disable player movement
         movementScript.enabled = false; 
-        startupTutorial.ActivateGrabInteractors(false);
         startupTutorial.ActivateRayInteractors(false);
 
         rb.useGravity = false;
@@ -936,15 +934,15 @@ public class CheckerManager : Singleton<CheckerManager>
        movementScript.enabled = true;
        if (view_mode_ != ViewModes.PRESENTATION && !startupTutorial.owlIsSpeaking)
        {
-            StartCoroutine(ActivateGrabWithDelay());
+            // StartCoroutine(ActivateRayWithDelay());
        }
     }
 
-    IEnumerator ActivateGrabWithDelay()
-    {
-        yield return new WaitForSeconds(0.8f);
-        startupTutorial.ActivateGrabInteractors(true);
-    }
+    // IEnumerator ActivateRayWithDelay()
+    // {
+    //     yield return new WaitForSeconds(0.8f);
+    //     startupTutorial.ActivateRayInteractors(true);
+    // }
 
     public void ReadyToExitPresentationMode()
     {
@@ -957,7 +955,6 @@ public class CheckerManager : Singleton<CheckerManager>
         if (!fadeOut)
         {
             startupTutorial.ActivateRayInteractors(true);
-            startupTutorial.ActivateGrabInteractors(false);
             helpPanel.SetActive(true);
             isExitViewModeOn = true;
             movementScript.enabled = false;
@@ -1017,7 +1014,6 @@ public class CheckerManager : Singleton<CheckerManager>
                 // start confirm answer sequence that leads to presentation mode.
                 inSequence = true;
                 owlBird.GetComponent<Collider>().enabled = true;
-                startupTutorial.ActivateGrabInteractors(false);
                 startupTutorial.ConfirmAnswer();
             }
         
@@ -1025,7 +1021,6 @@ public class CheckerManager : Singleton<CheckerManager>
             if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
             {
                startupTutorial.ActivateRayInteractors(true);
-               startupTutorial.ActivateGrabInteractors(true);
                ResetToCubeRepresentation();
                AudioManager.Instance.playSound("magic");
                inSequence = false;

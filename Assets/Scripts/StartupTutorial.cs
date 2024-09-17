@@ -222,7 +222,6 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(false);        
 
         ActivateRayInteractors(false);
-        ActivateGrabInteractors(false);
         StartCoroutine(PlaySounds());
     }
 	
@@ -342,7 +341,6 @@ public class StartupTutorial : MonoBehaviour
         
             // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
-            ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
 
             gotIt = false;
@@ -483,7 +481,6 @@ public class StartupTutorial : MonoBehaviour
         foreach (Wavs wa in wavList)
         {
             // Debug.Log("Audioname --> " + wa.audioname);
-            ActivateGrabInteractors(wa.activateGrab);
             ActivateRayInteractors(wa.activateRay);
             // open main panel
             image.sprite = null;
@@ -546,7 +543,6 @@ public class StartupTutorial : MonoBehaviour
                 tutoringCanvas.SetActive(false);
 
                 yield return new WaitUntil(() => cubeReleasedTutorial);
-                ActivateGrabInteractors(false);
             }  
 
             if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
@@ -557,7 +553,6 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("check1"))
             {
-                ActivateGrabInteractors(true);
                 ActivateRayInteractors(true);
             }
 
@@ -602,7 +597,6 @@ public class StartupTutorial : MonoBehaviour
             // Check if ray or grab is needed
             if (!wa.finishTutoring)
             {
-                ActivateGrabInteractors(wa.activateGrab);
                 ActivateRayInteractors(wa.activateRay);
             }
                 
@@ -684,7 +678,6 @@ public class StartupTutorial : MonoBehaviour
     {
         ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
-        ActivateGrabInteractors(true);
         isActive = false;
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
