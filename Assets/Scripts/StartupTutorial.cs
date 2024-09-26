@@ -49,10 +49,10 @@ public class StartupTutorial : MonoBehaviour
         public UnityEvent OnEvent;
     }
     private GameObject player;
+    [SerializeField]
     private GameObject leftRay;
+    [SerializeField]
     private GameObject rightRay;
-    private String pathToLeftRay = "OVRInteraction/OVRControllerHands/LeftControllerHand/ControllerHandInteractors/HandRayInteractorLeft";
-    private String pathToRightRay = "OVRInteraction/OVRControllerHands/RightControllerHand/ControllerHandInteractors/HandRayInteractorRight";
     public List<Wavs> wayPointList = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
@@ -190,9 +190,6 @@ public class StartupTutorial : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            leftRay = player.transform.Find(pathToLeftRay).gameObject;
-            rightRay = player.transform.Find(pathToRightRay).gameObject;
-
             leftRay.SetActive(true);
             rightRay.SetActive(true);
         }
