@@ -19,6 +19,7 @@ public class StartupTutorial : MonoBehaviour
         public bool waitForButtonClick = false;
         public bool chooseBetween = false;
         public bool openMainPanel = false;
+        public string startAnimation;
         public Sprite image;
         public string text;
         public string blueText;
@@ -62,6 +63,8 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> orangeWavList = new List<Wavs>();
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
+    public List<GameObject> controllerButtons = new List<GameObject>();
+    public Dictionary<string, GameObject> buttonDictionary;
     string colorToCheck;
     GameObject lastQuestionObjects;
     bool gotIt;
@@ -116,6 +119,8 @@ public class StartupTutorial : MonoBehaviour
     public bool isActive = true;
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
+    public Animator leftTouchAnimator;
+    public Animator rightTouchAnimator;
     string displayText;
     Collider owlCollider;
     [SerializeField]
@@ -163,6 +168,17 @@ public class StartupTutorial : MonoBehaviour
     void Start()
     {
         activeScene = SceneManager.GetActiveScene().name;
+
+        buttonDictionary = new Dictionary<string, GameObject> 
+        {
+            {"A", controllerButtons[0]},
+            {"B", controllerButtons[1]},
+            {"triggerRight", controllerButtons[2]},
+            {"X", controllerButtons[3]},
+            {"Y", controllerButtons[4]},
+            {"triggerLeft", controllerButtons[5]}
+        };
+
         wavLists = new Dictionary<string, List<Wavs>> 
         {
             {"blue", blueWavList},
@@ -460,6 +476,7 @@ public class StartupTutorial : MonoBehaviour
         }
     }
 
+    // TUTORIAL SEQUENCE
     IEnumerator PlaySounds()
     {
         gotIt = false;
@@ -477,19 +494,19 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            // Debug.Log("Audioname --> " + wa.audioname);
+            Debug.Log("Audioname --> " + wa.audioname);
             ActivateRayInteractors(wa.activateRay);
             // open main panel
-            image.sprite = null;
-            tutoringCanvas.SetActive(wa.openMainPanel);
-            mainPanel.SetActive(wa.openMainPanel);
-            if (wa.image != null)
-               image.sprite = wa.image;
+            // image.sprite = null;
+            // tutoringCanvas.SetActive(wa.openMainPanel);
+            // mainPanel.SetActive(wa.openMainPanel); //owl3
+            // if (wa.image != null)
+            //    image.sprite = wa.image;
 
-            float rectScaleX = 1;
-            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
-                rectScaleX = 0.5f;
-            RecalibrateMainPanel(rectScaleX);
+            // float rectScaleX = 1;
+            // if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
+                // rectScaleX = 0.5f;
+            // RecalibrateMainPanel(rectScaleX);
             
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -514,6 +531,12 @@ public class StartupTutorial : MonoBehaviour
                 ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
                 // owlIsSpeaking = true;
+            }
+
+            if (buttonDictionary.ContainsKey(wa.startAnimation))
+            {
+                GameObject animateButton = buttonDictionary[wa.startAnimation];
+                animateButton.SetActive(true);
             }
                 
             //Display a info text if there is one
