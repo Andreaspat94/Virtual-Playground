@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Oculus.Interaction.Demo;
 
 public class StartupTutorial : MonoBehaviour
 {
@@ -173,10 +174,10 @@ public class StartupTutorial : MonoBehaviour
         {
             {"A", controllerButtons[0]},
             {"B", controllerButtons[1]},
-            {"triggerRight", controllerButtons[2]},
+            {"TriggerRight", controllerButtons[2]},
             {"X", controllerButtons[3]},
             {"Y", controllerButtons[4]},
-            {"triggerLeft", controllerButtons[5]}
+            {"TriggerLeft", controllerButtons[5]}
         };
 
         wavLists = new Dictionary<string, List<Wavs>> 
@@ -537,6 +538,9 @@ public class StartupTutorial : MonoBehaviour
             {
                 GameObject animateButton = buttonDictionary[wa.startAnimation];
                 animateButton.SetActive(true);
+                Debug.Log("X exists--> " + buttonDictionary.ContainsKey(wa.startAnimation));
+                rightTouchAnimator.SetTrigger(wa.startAnimation);
+                leftTouchAnimator.SetTrigger(wa.startAnimation);
             }
                 
             //Display a info text if there is one
@@ -565,11 +569,11 @@ public class StartupTutorial : MonoBehaviour
                 yield return new WaitUntil(() => cubeReleasedTutorial);
             }  
 
-            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
-            {
-                mainPanel.SetActive(false);
-                tutoringCanvas.SetActive(false);
-            }
+            // if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
+            // {
+            //     mainPanel.SetActive(false);
+            //     tutoringCanvas.SetActive(false);
+            // }
 
             if (wa.audioname.Equals("check1"))
             {
@@ -596,6 +600,13 @@ public class StartupTutorial : MonoBehaviour
                 //Issue event that key was pressed
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
+                
+                if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
+                {
+                    buttonDictionary[wa.startAnimation].SetActive(false);
+                    rightTouchAnimator.SetTrigger("stop");
+                    leftTouchAnimator.SetTrigger("stop");
+                }
             }
 
             //Wait for second keypress
