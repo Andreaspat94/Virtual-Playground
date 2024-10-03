@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using Oculus.Interaction.Demo;
 
 public class StartupTutorial : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class StartupTutorial : MonoBehaviour
         public bool waitForButtonClick = false;
         public bool chooseBetween = false;
         public bool openMainPanel = false;
-        public string startAnimation;
+        public string[] startAnimation;
         public Sprite image;
         public string text;
         public string blueText;
@@ -534,14 +533,17 @@ public class StartupTutorial : MonoBehaviour
                 // owlIsSpeaking = true;
             }
 
-            if (buttonDictionary.ContainsKey(wa.startAnimation))
+            foreach (string anim in wa.startAnimation)
             {
-                GameObject animateButton = buttonDictionary[wa.startAnimation];
-                animateButton.SetActive(true);
-                Debug.Log("X exists--> " + buttonDictionary.ContainsKey(wa.startAnimation));
-                rightTouchAnimator.SetTrigger(wa.startAnimation);
-                leftTouchAnimator.SetTrigger(wa.startAnimation);
+                if (buttonDictionary.ContainsKey(anim))
+                {
+                    GameObject animateButton = buttonDictionary[anim];
+                    animateButton.SetActive(true);
+                    rightTouchAnimator.SetTrigger(anim);
+                    leftTouchAnimator.SetTrigger(anim);
+                }
             }
+            
                 
             //Display a info text if there is one
             if (!string.IsNullOrEmpty(wa.instructionText) && instructionText)
@@ -601,9 +603,12 @@ public class StartupTutorial : MonoBehaviour
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
                 
-                if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
+                if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl5") || wa.audioname.Equals("owl6"))
                 {
-                    buttonDictionary[wa.startAnimation].SetActive(false);
+                    foreach (string anim in wa.startAnimation)
+                    {
+                        buttonDictionary[wa.startAnimation[0]].SetActive(false);
+                    }
                     rightTouchAnimator.SetTrigger("stop");
                     leftTouchAnimator.SetTrigger("stop");
                 }
