@@ -533,16 +533,36 @@ public class StartupTutorial : MonoBehaviour
                 // owlIsSpeaking = true;
             }
 
-            foreach (string anim in wa.startAnimation)
+            if (wa.startAnimation.Length != 0)
             {
+                string anim = wa.startAnimation[0];
                 if (buttonDictionary.ContainsKey(anim))
                 {
+                    Debug.Log("____anim --> " + anim);
                     GameObject animateButton = buttonDictionary[anim];
                     animateButton.SetActive(true);
-                    rightTouchAnimator.SetTrigger(anim);
-                    leftTouchAnimator.SetTrigger(anim);
+                    if (anim.Equals("X"))
+                    {
+                        leftTouchAnimator.SetTrigger(anim);
+                    }
+                    else if (anim.Equals("Y"))
+                    {
+                        rightTouchAnimator.SetTrigger(anim);
+                    }
+                    else if (anim.Equals("A"))
+                    {
+                        rightTouchAnimator.SetTrigger(anim);
+                    }
+                    else if (buttonDictionary.ContainsKey(wa.startAnimation[1]))
+                    {
+                        leftTouchAnimator.SetTrigger(anim);
+                        buttonDictionary[wa.startAnimation[1]].SetActive(true);
+                        rightTouchAnimator.SetTrigger(wa.startAnimation[1]);
+                        
+                    }
                 }
             }
+            
             
                 
             //Display a info text if there is one
@@ -563,14 +583,15 @@ public class StartupTutorial : MonoBehaviour
                 // owlIsSpeaking = false;
             }    
 
-            if (wa.audioname.Equals("owl5_2"))
+            if (wa.audioname.Equals("owl5_b"))
             {
-                mainPanel.SetActive(false);
-                tutoringCanvas.SetActive(false);
-
+                // mainPanel.SetActive(false);
+                // tutoringCanvas.SetActive(false);
+                instructionText.text = wa.keyInstructionText;
+                instructionText.gameObject.SetActive(true);
                 yield return new WaitUntil(() => cubeReleasedTutorial);
             }  
-
+        
             // if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
             // {
             //     mainPanel.SetActive(false);
@@ -603,16 +624,21 @@ public class StartupTutorial : MonoBehaviour
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
                 
-                if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl5") || wa.audioname.Equals("owl6"))
+            }
+            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl5_b") || wa.audioname.Equals("owl6"))
                 {
-                    foreach (string anim in wa.startAnimation)
+                    Debug.Log("Hey its --> " + wa.audioname);
+                    buttonDictionary[wa.startAnimation[0]].SetActive(false);
+                    Debug.Log("0 --> " + buttonDictionary[wa.startAnimation[0]]);
+                    if (wa.startAnimation.Length > 1)
                     {
-                        buttonDictionary[wa.startAnimation[0]].SetActive(false);
+                        buttonDictionary[wa.startAnimation[1]].SetActive(false);
+                        Debug.Log("1 --> " + buttonDictionary[wa.startAnimation[1]]);
                     }
+
                     rightTouchAnimator.SetTrigger("stop");
                     leftTouchAnimator.SetTrigger("stop");
                 }
-            }
 
             //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
