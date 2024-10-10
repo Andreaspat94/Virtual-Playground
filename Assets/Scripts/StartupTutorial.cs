@@ -133,8 +133,8 @@ public class StartupTutorial : MonoBehaviour
     public bool isActive = true;
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
-    public Animator leftTouchAnimator;
-    public Animator rightTouchAnimator;
+    public Animator leftBuildingAnimator;
+    public Animator rightBuildingAnimator;
     string displayText;
     Collider owlCollider;
     [SerializeField]
@@ -577,27 +577,15 @@ public class StartupTutorial : MonoBehaviour
                 // owlIsSpeaking = true;
             }
 
-            if (wa.startAnimation.Length != 0)
+            string anim = wa.startAnimation[0];
+            if (buttonDictionary.ContainsKey(anim))
             {
-                string anim = wa.startAnimation[0];
-                if (buttonDictionary.ContainsKey(anim))
+                GameObject animateButton = buttonDictionary[anim];
+                animateButton.SetActive(true);
+                if (anim.Equals("signs"))
                 {
-                    GameObject animateButton = buttonDictionary[anim];
-                    animateButton.SetActive(true);
-                    if (anim.Equals("X"))
-                    {
-                        leftTouchAnimator.SetTrigger(anim);
-                    }
-                    else if (anim.Equals("Y") || anim.Equals("A"))
-                    {
-                        rightTouchAnimator.SetTrigger(anim);
-                    }
-                    else if (buttonDictionary.ContainsKey(wa.startAnimation[1]))
-                    {
-                        buttonDictionary[wa.startAnimation[1]].SetActive(true);
-                        leftTouchAnimator.SetTrigger(anim);
-                        rightTouchAnimator.SetTrigger(wa.startAnimation[1]);
-                    }
+                    leftBuildingAnimator.SetTrigger(anim);
+                    rightBuildingAnimator.SetTrigger(anim);
                 }
             }
             
@@ -663,19 +651,17 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
                 
             }
-            if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl5_b") || wa.audioname.Equals("owl6"))
+            if (wa.audioname.Equals("owl11"))
                 {
-                    Debug.Log("Hey its --> " + wa.audioname);
-                    buttonDictionary[wa.startAnimation[0]].SetActive(false);
-                    Debug.Log("0 --> " + buttonDictionary[wa.startAnimation[0]]);
-                    if (wa.startAnimation.Length > 1)
-                    {
-                        buttonDictionary[wa.startAnimation[1]].SetActive(false);
-                        Debug.Log("1 --> " + buttonDictionary[wa.startAnimation[1]]);
-                    }
+                    // buttonDictionary[wa.startAnimation[0]].SetActive(false);
+                    // if (wa.startAnimation.Length > 1)
+                    // {
+                    //     buttonDictionary[wa.startAnimation[1]].SetActive(false);
+                    // }
 
-                    rightTouchAnimator.SetTrigger("stop");
-                    leftTouchAnimator.SetTrigger("stop");
+                    // rightTouchAnimator.SetTrigger("stop");
+                    leftBuildingAnimator.SetTrigger("stop");
+                    rightBuildingAnimator.SetTrigger("stop");
                 }
 
             //Wait for second keypress
