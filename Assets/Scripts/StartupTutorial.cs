@@ -51,6 +51,19 @@ public class StartupTutorial : MonoBehaviour
     }
     private GameObject player;
     [SerializeField]
+    GameObject leftController;
+    [SerializeField]
+    GameObject rightController;
+    [SerializeField]
+    GameObject[] leftControllerText;
+
+    [SerializeField]
+    GameObject[] rightControllerText;   
+    [SerializeField]
+    GameObject[] particleSystems;
+    Transform cameraTransform;
+    public float lookThreshold = 83f;
+    [SerializeField]
     private GameObject leftRay;
     [SerializeField]
     private GameObject rightRay;
@@ -69,6 +82,7 @@ public class StartupTutorial : MonoBehaviour
     GameObject lastQuestionObjects;
     bool gotIt;
     string lastButtonClicked;
+    
     public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
     {
         {"blue", 1},
@@ -168,15 +182,14 @@ public class StartupTutorial : MonoBehaviour
     void Start()
     {
         activeScene = SceneManager.GetActiveScene().name;
-
+        cameraTransform = Camera.main.transform;
+        
         buttonDictionary = new Dictionary<string, GameObject> 
         {
             {"A", controllerButtons[0]},
-            {"B", controllerButtons[1]},
-            {"TriggerRight", controllerButtons[2]},
-            {"X", controllerButtons[3]},
-            {"Y", controllerButtons[4]},
-            {"TriggerLeft", controllerButtons[5]}
+            {"TriggerRight", controllerButtons[1]},
+            {"X", controllerButtons[2]},
+            {"TriggerLeft", controllerButtons[3]}
         };
 
         wavLists = new Dictionary<string, List<Wavs>> 
@@ -241,16 +254,47 @@ public class StartupTutorial : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        if (!isTutorial)
+        {
+            CheckIfLookingAtController(leftController, leftControllerText);
+            CheckIfLookingAtController(rightController, rightControllerText);
+        }
+        
+
         //Press 'Y' to skip intro
         if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
             tutoringCanvas.SetActive(false);
+            foreach (GameObject obj in particleSystems)
+            {
+                Debug.Log("PArticle --> " + obj.name);
+                obj.SetActive(false);
+            }
             StartGame();            
         }
     }
-    
+
+    void CheckIfLookingAtController(GameObject controller, GameObject[] controllerText)
+    {
+        Vector3 directionToController = (controller.transform.position - cameraTransform.position).normalized;
+        Vector3 playerLookDirection = cameraTransform.forward;
+
+        float angle = Vector3.Angle(directionToController, playerLookDirection);
+        foreach (GameObject text in controllerText)
+        {
+            if (angle < lookThreshold)
+            {  
+                text.SetActive(true);
+            }
+            else
+            {
+                text.SetActive(false);
+            }
+        }
+        
+    }
     //Show instruction text to aske the owl and fade out
     IEnumerator AskTheOwl()
     {
@@ -538,7 +582,6 @@ public class StartupTutorial : MonoBehaviour
                 string anim = wa.startAnimation[0];
                 if (buttonDictionary.ContainsKey(anim))
                 {
-                    Debug.Log("____anim --> " + anim);
                     GameObject animateButton = buttonDictionary[anim];
                     animateButton.SetActive(true);
                     if (anim.Equals("X"))
@@ -547,7 +590,6 @@ public class StartupTutorial : MonoBehaviour
                     }
                     else if (anim.Equals("Y") || anim.Equals("A"))
                     {
-                        Debug.Log("--> I will set A animation");
                         rightTouchAnimator.SetTrigger(anim);
                     }
                     else if (buttonDictionary.ContainsKey(wa.startAnimation[1]))
@@ -555,7 +597,6 @@ public class StartupTutorial : MonoBehaviour
                         buttonDictionary[wa.startAnimation[1]].SetActive(true);
                         leftTouchAnimator.SetTrigger(anim);
                         rightTouchAnimator.SetTrigger(wa.startAnimation[1]);
-                        Debug.Log("--> I will set Right trigger animation");
                     }
                 }
             }
@@ -703,7 +744,10 @@ public class StartupTutorial : MonoBehaviour
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
-
+        foreach (GameObject obj in particleSystems)
+        {
+            obj.SetActive(false);
+        }
         // IF CHECKIFOK is false, then starts TUTORING
         isPlayingSounds = false;
         //Activate the game manager
