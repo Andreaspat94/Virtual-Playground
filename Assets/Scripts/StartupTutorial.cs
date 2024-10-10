@@ -545,20 +545,17 @@ public class StartupTutorial : MonoBehaviour
                     {
                         leftTouchAnimator.SetTrigger(anim);
                     }
-                    else if (anim.Equals("Y"))
+                    else if (anim.Equals("Y") || anim.Equals("A"))
                     {
-                        rightTouchAnimator.SetTrigger(anim);
-                    }
-                    else if (anim.Equals("A"))
-                    {
+                        Debug.Log("--> I will set A animation");
                         rightTouchAnimator.SetTrigger(anim);
                     }
                     else if (buttonDictionary.ContainsKey(wa.startAnimation[1]))
                     {
-                        leftTouchAnimator.SetTrigger(anim);
                         buttonDictionary[wa.startAnimation[1]].SetActive(true);
+                        leftTouchAnimator.SetTrigger(anim);
                         rightTouchAnimator.SetTrigger(wa.startAnimation[1]);
-                        
+                        Debug.Log("--> I will set Right trigger animation");
                     }
                 }
             }
