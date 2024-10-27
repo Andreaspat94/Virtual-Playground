@@ -133,8 +133,6 @@ public class StartupTutorial : MonoBehaviour
     public bool isActive = true;
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
-    public Animator leftBuildingAnimator;
-    public Animator rightBuildingAnimator;
     string displayText;
     Collider owlCollider;
     [SerializeField]
@@ -271,7 +269,6 @@ public class StartupTutorial : MonoBehaviour
             tutoringCanvas.SetActive(false);
             foreach (GameObject obj in particleSystems)
             {
-                Debug.Log("PArticle --> " + obj.name);
                 obj.SetActive(false);
             }
             StartGame();            
@@ -542,17 +539,6 @@ public class StartupTutorial : MonoBehaviour
         {
             Debug.Log("Audioname --> " + wa.audioname);
             ActivateRayInteractors(wa.activateRay);
-            // open main panel
-            // image.sprite = null;
-            // tutoringCanvas.SetActive(wa.openMainPanel);
-            // mainPanel.SetActive(wa.openMainPanel); //owl3
-            // if (wa.image != null)
-            //    image.sprite = wa.image;
-
-            // float rectScaleX = 1;
-            // if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
-                // rectScaleX = 0.5f;
-            // RecalibrateMainPanel(rectScaleX);
             
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -579,17 +565,20 @@ public class StartupTutorial : MonoBehaviour
                 // owlIsSpeaking = true;
             }
 
-            string anim = wa.startAnimation[0];
-            if (buttonDictionary.ContainsKey(anim))
+            GameObject animateButton = null;
+            if (wa.startAnimation.Length != 0)
             {
-                GameObject animateButton = buttonDictionary[anim];
-                animateButton.SetActive(true);
-                if (anim.Equals("signs"))
+                for (int i=0; i < wa.startAnimation.Length; i++)
                 {
-                    leftBuildingAnimator.SetTrigger(anim);
-                    rightBuildingAnimator.SetTrigger(anim);
+                    string anim = wa.startAnimation[i];
+                    if (buttonDictionary.ContainsKey(anim))
+                    {
+                        animateButton = buttonDictionary[anim];
+                        animateButton.SetActive(true);
+                    }
                 }
             }
+           
             
             
                 
@@ -619,12 +608,6 @@ public class StartupTutorial : MonoBehaviour
                 instructionText.gameObject.SetActive(true);
                 yield return new WaitUntil(() => cubeReleasedTutorial);
             }  
-        
-            // if (wa.audioname.Equals("owl3") || wa.audioname.Equals("owl6") || wa.audioname.Equals("owl10"))
-            // {
-            //     mainPanel.SetActive(false);
-            //     tutoringCanvas.SetActive(false);
-            // }
 
             if (wa.audioname.Equals("check1"))
             {
@@ -652,19 +635,28 @@ public class StartupTutorial : MonoBehaviour
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
                 
+                // if (animateButton)
+                //     animateButton.SetActive(false);
             }
-            if (wa.audioname.Equals("owl11"))
-                {
-                    // buttonDictionary[wa.startAnimation[0]].SetActive(false);
-                    // if (wa.startAnimation.Length > 1)
-                    // {
-                    //     buttonDictionary[wa.startAnimation[1]].SetActive(false);
-                    // }
 
-                    // rightTouchAnimator.SetTrigger("stop");
-                    leftBuildingAnimator.SetTrigger("stop");
-                    rightBuildingAnimator.SetTrigger("stop");
+            if (wa.startAnimation.Length != 0)
+            {
+                // buttonDictionary[wa.startAnimation[0]].SetActive(false);
+                // if (wa.startAnimation.Length > 1)
+                // {
+                //     buttonDictionary[wa.startAnimation[1]].SetActive(false);
+                // }
+
+                for (int i=0; i < wa.startAnimation.Length; i++)
+                {
+                    string anim = wa.startAnimation[i];
+                    if (buttonDictionary.ContainsKey(anim))
+                    {
+                        animateButton = buttonDictionary[anim];
+                        animateButton.SetActive(false);
+                    }
                 }
+            }
 
             //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
