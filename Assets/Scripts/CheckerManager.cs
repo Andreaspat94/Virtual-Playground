@@ -5,6 +5,7 @@ using System.Collections;
 using Oculus.Interaction;
 using System.Collections.Generic;
 using System;
+using TMPro;
 
 public class CheckerManager : Singleton<CheckerManager>
 {
@@ -24,7 +25,7 @@ public class CheckerManager : Singleton<CheckerManager>
     bool canChangeViewMode = true; //To  prevent  switch when cube drops through physics
 
     //To show how many cubes are placed
-    public TextMesh[] totalCoveredTilesTextsUI;
+    public TextMeshProUGUI[] totalCoveredTilesTextsUI;
 
     [Header("Reticle to show when in cube interaction mode")]
     public GameObject ui_canvas = null;
@@ -747,7 +748,7 @@ public class CheckerManager : Singleton<CheckerManager>
     public void countCoveredBlocksUI()
     {
         //Count total tile that are covered and update UI
-        foreach (TextMesh tx in totalCoveredTilesTextsUI)
+        foreach (TextMeshProUGUI tx in totalCoveredTilesTextsUI)
         {
             string totalCoveredTilesStr = CountTotalCoveredTilesInCheckkerArray();
             if (tx)
