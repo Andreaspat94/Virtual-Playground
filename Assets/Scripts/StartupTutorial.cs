@@ -187,7 +187,8 @@ public class StartupTutorial : MonoBehaviour
             {"A", controllerButtons[0]},
             {"TriggerRight", controllerButtons[1]},
             {"X", controllerButtons[2]},
-            {"TriggerLeft", controllerButtons[3]}
+            {"TriggerLeft", controllerButtons[3]},
+            {"Y", controllerButtons[4]}
         };
 
         wavLists = new Dictionary<string, List<Wavs>> 
@@ -628,19 +629,10 @@ public class StartupTutorial : MonoBehaviour
                 //Issue event that key was pressed
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
-                
-                // if (animateButton)
-                //     animateButton.SetActive(false);
             }
 
             if (wa.startAnimation.Length != 0)
             {
-                // buttonDictionary[wa.startAnimation[0]].SetActive(false);
-                // if (wa.startAnimation.Length > 1)
-                // {
-                //     buttonDictionary[wa.startAnimation[1]].SetActive(false);
-                // }
-
                 for (int i=0; i < wa.startAnimation.Length; i++)
                 {
                     string anim = wa.startAnimation[i];
