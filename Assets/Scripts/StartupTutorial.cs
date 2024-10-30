@@ -187,9 +187,7 @@ public class StartupTutorial : MonoBehaviour
             {"A", controllerButtons[0]},
             {"TriggerRight", controllerButtons[1]},
             {"X", controllerButtons[2]},
-            {"TriggerLeft", controllerButtons[3]},
-            {"SignLeft", controllerButtons[4]},
-            {"SignRight", controllerButtons[5]}
+            {"TriggerLeft", controllerButtons[3]}
         };
 
         wavLists = new Dictionary<string, List<Wavs>> 
