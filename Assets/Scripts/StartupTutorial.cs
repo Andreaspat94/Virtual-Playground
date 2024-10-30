@@ -576,9 +576,6 @@ public class StartupTutorial : MonoBehaviour
                     }
                 }
             }
-           
-            
-            
                 
             //Display a info text if there is one
             if (!string.IsNullOrEmpty(wa.instructionText) && instructionText)
@@ -595,13 +592,12 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
+                Debug.Log("--> STOP OWL ANIMATOR");
                 // owlIsSpeaking = false;
             }    
 
             if (wa.audioname.Equals("owl5_b"))
             {
-                // mainPanel.SetActive(false);
-                // tutoringCanvas.SetActive(false);
                 instructionText.text = wa.keyInstructionText;
                 instructionText.gameObject.SetActive(true);
                 yield return new WaitUntil(() => cubeReleasedTutorial);
