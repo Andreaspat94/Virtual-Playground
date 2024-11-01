@@ -229,19 +229,12 @@ public class StartupTutorial : MonoBehaviour
         rightRay.SetActive(activate);
     }
 
-    public void ActivateGrabInteractors(bool activate)
-    {
-        // Debug.Log("CALLED: " + activate);
-        // leftHandGrab.SetActive(activate);
-        // rightHandGrab.SetActive(activate);
-    }
-
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
     {
         owlIsSpeaking = true;
         GetComponent<Collider>().enabled = false;
-        owlAnimator.GetComponent<Collider>().enabled = false;
+        owlCollider.enabled = false;
 
         //Finds Owl_ModelSwitcher object and turns off red shader in order to solve a bug: the shader turns on and off while the owl is talking.
         owlOutline.SetActive(false);        
@@ -259,9 +252,8 @@ public class StartupTutorial : MonoBehaviour
             CheckIfLookingAtController(rightController, rightControllerText);
         }
         
-
-        //Press 'Y' to skip intro
-        if (OVRInput.GetDown(OVRInput.Button.Four) && isTutorial)
+        //Press 'Y' to skip intro & other tutorials.
+        if (OVRInput.GetDown(OVRInput.Button.Four))
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
@@ -270,7 +262,8 @@ public class StartupTutorial : MonoBehaviour
             {
                 obj.SetActive(false);
             }
-            StartGame();            
+            if (isTutorial)
+                StartGame();            
         }
     }
 
@@ -394,7 +387,6 @@ public class StartupTutorial : MonoBehaviour
                 continue;
             }
         
-            // Debug.Log("wa name -->" + wa.audioname);
             // Check if ray or grab is needed
             ActivateRayInteractors(wa.activateRay);
 
@@ -524,6 +516,7 @@ public class StartupTutorial : MonoBehaviour
         gotIt = false;
         Image image = mainPanel.GetComponent<Image>();
         bool skipCorrectWa = false;
+        string lastCubeGrabbed;
         List<Wavs> wavList = new List<Wavs>();
         if (isTutorial)
         {
@@ -532,6 +525,7 @@ public class StartupTutorial : MonoBehaviour
         else
         {
             wavList = confirmAudioList;
+            lastCubeGrabbed = CheckerManager.lastCubeGrabbed;
         }
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
@@ -593,8 +587,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(true);
                 owlAnimator.PauseAnimation();
-                Debug.Log("--> STOP OWL ANIMATOR");
-                // owlIsSpeaking = false;
             }    
 
             if (wa.audioname.Equals("owl5_b"))

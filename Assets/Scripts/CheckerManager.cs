@@ -12,7 +12,7 @@ public class CheckerManager : Singleton<CheckerManager>
     // List of object that are OK
     [SerializeField]
     GameObject cubeHierarchy;
-
+    public string lastCubeGrabbed;
     [Header("Info needed to switch into cube interaction mode")]
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
@@ -766,6 +766,9 @@ public class CheckerManager : Singleton<CheckerManager>
         idOfCube = cubePickedUp.GetComponentInChildren<CubeNameID>();
         if (idOfCube != null && idOfCube.cubeID != "GreyCube")
         {
+            // store cube color.
+            lastCubeGrabbed = idOfCube.cubeID;
+
            //Issue a EventLost event on current Interaction Object
            IssueInterationEvents(null); 
 
