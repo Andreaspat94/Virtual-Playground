@@ -378,6 +378,8 @@ public class CheckerManager : Singleton<CheckerManager>
 			       {4, 4}, // red-swings
                    {3, 4}, // grey-sandpit
 			     };
+
+        AudioManager.Instance.playSound("magic");
    
         //Color values available Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
         //Traverse all checkker array
@@ -530,8 +532,8 @@ public class CheckerManager : Singleton<CheckerManager>
     {  
         // Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
-        // 3) show good object
         
+        // 3) show good object
         CheckIfOK();
         // Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
         
@@ -768,7 +770,6 @@ public class CheckerManager : Singleton<CheckerManager>
         {
             // store cube color.
             lastCubeGrabbed = idOfCube.cubeID;
-
            //Issue a EventLost event on current Interaction Object
            IssueInterationEvents(null); 
 

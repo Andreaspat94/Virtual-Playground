@@ -85,12 +85,12 @@ public class StartupTutorial : MonoBehaviour
     
     public Dictionary<string, int> idOKDictionary = new Dictionary<string, int> 
     {
-        {"blue", 1},
-        {"yellow", 2},
-        {"orange", 3},
-        {"green", 4},
-        {"red", 5},
-        {"grey", 6}
+        {"Blue", 1},
+        {"Yellow", 2},
+        {"Orange", 3},
+        {"Green", 4},
+        {"Red", 5},
+        {"Grey", 6}
     };
     Dictionary<int, int> properColorCount = new Dictionary<int, int> 
     {
@@ -113,11 +113,11 @@ public class StartupTutorial : MonoBehaviour
     };
     Dictionary<string, string> correct_audio = new Dictionary<string, string>
     {
-        {"red", "correct_red"},
-        {"blue", "correct_blue"},
-        {"green", "correct_green"},
-        {"yellow", "correct_yellow"},
-        {"orange", "correct_orange"}
+        {"Red", "correct_red"},
+        {"Blue", "correct_blue"},
+        {"Green", "correct_green"},
+        {"Yellow", "correct_yellow"},
+        {"Orange", "correct_orange"}
     };
 
     Dictionary<string, List<Wavs>> wavLists;
@@ -193,11 +193,11 @@ public class StartupTutorial : MonoBehaviour
 
         wavLists = new Dictionary<string, List<Wavs>> 
         {
-            {"blue", blueWavList},
-            {"yellow", yellowWavList},
-            {"orange", orangeWavList},
-            {"green", greenWavList},
-            {"red", redWavList}
+            {"Blue", blueWavList},
+            {"Yellow", yellowWavList},
+            {"Orange", orangeWavList},
+            {"Green", greenWavList},
+            {"Red", redWavList}
         };
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
@@ -516,6 +516,7 @@ public class StartupTutorial : MonoBehaviour
         gotIt = false;
         Image image = mainPanel.GetComponent<Image>();
         bool skipCorrectWa = false;
+        bool skipBadNeighbors = false;
         string lastCubeGrabbed;
         List<Wavs> wavList = new List<Wavs>();
         if (isTutorial)
@@ -524,9 +525,47 @@ public class StartupTutorial : MonoBehaviour
         }
         else
         {
+            // First interaction with owl.
             wavList = confirmAudioList;
-            lastCubeGrabbed = CheckerManager.lastCubeGrabbed;
+            lastCubeGrabbed = CheckerManager.Instance.lastCubeGrabbed;
+            colorToCheck = lastCubeGrabbed.Remove(lastCubeGrabbed.Length-4);
+            CheckerManager.Instance.CheckIfOK();
+            // wait until CheckIfOk finishes.
+            yield return new WaitForSeconds(1.5f);
+            yield return new WaitUntil(() => gotIt);
+            if (allOK)
+                yield break;
+            
+            int id = idOKDictionary[colorToCheck];
+            bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
+
+            // AudioManager.Instance.playSound("magic");
+            GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
+            int childCount = colorParent.transform.childCount;
+            if (!(properColorCount[id] == childCount))
+            {
+                FinishTutoring();
+                skipCorrectWa = true;
+                Debug.Log("--> inside 1st");
+            }
+            else if (badNeighbors)
+            {
+                FinishTutoring();
+                skipCorrectWa = true;
+                skipBadNeighbors = true;
+                Debug.Log("--> inside 2nd");
+            }
+            else if (idOK[id-1])
+            {
+                FinishTutoring();
+            }
+            else
+            {
+                tutoringCanvas.SetActive(false);
+                //break;
+            } 
         }
+        
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
@@ -545,6 +584,10 @@ public class StartupTutorial : MonoBehaviour
             {
                 AudioManager.Instance.playSound(correct_audio[colorToCheck]);
             }
+            else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
+            {
+                continue;
+            }
             else 
             {
                 AudioManager.Instance.playSound(wa.audioname);
@@ -555,7 +598,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateTalkingBirds(false);
                 owlAnimator.PlayAnimation();
-                // owlIsSpeaking = true;
             }
 
             GameObject animateButton = null;
@@ -659,45 +701,44 @@ public class StartupTutorial : MonoBehaviour
             }
                 
             // show "which color" panel
-            if (wa.audioname.Equals("which"))
-            {
-                tutoringCanvas.SetActive(true);
-                whichColorPanel.SetActive(true);
-                mainPanel.SetActive(false);
+            // if (wa.audioname.Equals("which"))
+            // {
+                // tutoringCanvas.SetActive(true);
+                // whichColorPanel.SetActive(true);
+                // mainPanel.SetActive(false);
                 // wait until CheckIfOk finishes.
-                yield return new WaitUntil(() => gotIt);
+                // yield return new WaitUntil(() => gotIt);
 
                 // Game finishes. Invoke game event and play last audio
-                if (allOK)
-                {
-                    tutoringCanvas.SetActive(false);
-                    break;
-                }
+                // if (allOK)
+                // {
+                //     tutoringCanvas.SetActive(false);
+                //     break;
+                // }
                 
-                int id = idOKDictionary[colorToCheck];
-                bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
+                // int id = idOKDictionary[colorToCheck];
+                // bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
 
-                AudioManager.Instance.playSound("magic");
+                // AudioManager.Instance.playSound("magic");
                 
                 //Count how many cubes of that color are in board
-                GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
-                int childCount = colorParent.transform.childCount;
-                if (badNeighbors && (properColorCount[id] == childCount))
-                {
-                    FinishTutoring();
-                    skipCorrectWa = true;
-                }
-                else if (idOK[id-1])
-                {
-                    FinishTutoring();
-                }
-                else
-                {
-                    tutoringCanvas.SetActive(false);
-                    break;
-                }
-                
-            }
+                // GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
+                // int childCount = colorParent.transform.childCount;
+                // if (badNeighbors && (properColorCount[id] == childCount))
+                // {
+                //     FinishTutoring();
+                //     skipCorrectWa = true;
+                // }
+                // else if (idOK[id-1])
+                // {
+                //     FinishTutoring();
+                // }
+                // else
+                // {
+                //     tutoringCanvas.SetActive(false);
+                //     break;
+                // }  
+            // }
 
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
