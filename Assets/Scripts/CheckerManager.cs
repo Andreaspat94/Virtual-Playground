@@ -537,20 +537,7 @@ public class CheckerManager : Singleton<CheckerManager>
         CheckIfOK();
         // Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
         
-        AudioManager.Instance.playSound("magic");
-        MakeIslandNotInteractable(id);
-    }
-    
-    public void MakeIslandNotInteractable(int id)
-    {
-        // Make them interactable
-        GameObject colorParent = cubeHierarchy.transform.GetChild(id).gameObject;
-        // Debug.Log("ColorParent --> " + colorParent.name + "with id--> "+ id);
-        // DistanceHandGrabInteractable[] scripts = colorParent.GetComponentsInChildren<DistanceHandGrabInteractable>();
-        // foreach(DistanceHandGrabInteractable script in scripts)
-        // {
-        //     script.enabled = false;
-        // }
+        // AudioManager.Instance.playSound("magic");
     }
 
     public void ResetTheCubeNumberOfColor(int id)
@@ -972,13 +959,13 @@ public class CheckerManager : Singleton<CheckerManager>
         if (!isActive)
             return;
         //ON esc show ui to select to go to menu
-        if (OVRInput.GetDown(OVRInput.Button.Four) && !startupTutorial.isTutorial)
-        {
-            if (helpPanel && !isExitViewModeOn)
-            {
-                GoToEscapeUI();
-            }
-        }
+        // if (OVRInput.GetDown(OVRInput.Button.Four) && !startupTutorial.isTutorial)
+        // {
+        //     if (helpPanel && !isExitViewModeOn)
+        //     {
+        //         GoToEscapeUI();
+        //     }
+        // }
 
         if (playGroundFinished)
             return;
@@ -1027,7 +1014,7 @@ public class CheckerManager : Singleton<CheckerManager>
             {
                startupTutorial.ActivateRayInteractors(true);
                ResetToCubeRepresentation();
-               AudioManager.Instance.playSound("magic");
+            //    AudioManager.Instance.playSound("magic");
                inSequence = false;
                readyToExitPresentationMode = false;
             }

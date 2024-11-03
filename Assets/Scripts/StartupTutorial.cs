@@ -27,7 +27,6 @@ public class StartupTutorial : MonoBehaviour
         public string topText;
         public string buttonA;
         public string buttonB;
-        public bool activateGrab;
         public bool activateRay;
         public bool finishTutoring;
         public bool skipNextWa;
@@ -451,6 +450,15 @@ public class StartupTutorial : MonoBehaviour
             }
 
             mainPanel.SetActive(false);
+
+            if (wa.audioname.StartsWith("final_no") ||
+                (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
+            {
+                CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
+                owlIsSpeaking = false;
+                FinishTutoring();
+                yield break;
+            }
             //pause a bit
             yield return new WaitForSeconds(wa.pause);        
 
@@ -478,11 +486,6 @@ public class StartupTutorial : MonoBehaviour
                 break;
             }
 
-            if (wa.audioname.StartsWith("final_no"))
-            {
-                CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
-                owlIsSpeaking = false;
-            }
         }
     }
 
@@ -531,7 +534,7 @@ public class StartupTutorial : MonoBehaviour
             colorToCheck = lastCubeGrabbed.Remove(lastCubeGrabbed.Length-4);
             CheckerManager.Instance.CheckIfOK();
             // wait until CheckIfOk finishes.
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(1f);
             yield return new WaitUntil(() => gotIt);
             if (allOK)
                 yield break;
@@ -546,14 +549,12 @@ public class StartupTutorial : MonoBehaviour
             {
                 FinishTutoring();
                 skipCorrectWa = true;
-                Debug.Log("--> inside 1st");
             }
             else if (badNeighbors)
             {
                 FinishTutoring();
                 skipCorrectWa = true;
                 skipBadNeighbors = true;
-                Debug.Log("--> inside 2nd");
             }
             else if (idOK[id-1])
             {
@@ -609,6 +610,7 @@ public class StartupTutorial : MonoBehaviour
                     if (buttonDictionary.ContainsKey(anim))
                     {
                         animateButton = buttonDictionary[anim];
+                        Debug.Log("animateButton --> " + animateButton);
                         animateButton.SetActive(true);
                     }
                 }
