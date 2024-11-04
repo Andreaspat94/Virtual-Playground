@@ -364,6 +364,7 @@ public class StartupTutorial : MonoBehaviour
         lastButtonClicked = buttonName;
     }
 
+    // This is ACTIVE SCENE FEEDBACK sequence
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
         yield return new WaitForSeconds(2f);
@@ -437,7 +438,7 @@ public class StartupTutorial : MonoBehaviour
                       
             }
             // if wrong answer
-            if (!lastButtonClicked.Equals(wa.correctAnswer) || wa.finishTutoring || wa.skipNextWa)
+            if ((!lastButtonClicked.Equals(wa.correctAnswer) && (!wa.audioname.Equals("general1")) )|| wa.finishTutoring || wa.skipNextWa)
                 skipCorrectWa = true;
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -451,14 +452,15 @@ public class StartupTutorial : MonoBehaviour
 
             mainPanel.SetActive(false);
 
-            if (wa.audioname.StartsWith("final_no") ||
-                (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
+            if (wa.audioname.StartsWith("final_no")
+                || (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 owlIsSpeaking = false;
                 FinishTutoring();
                 yield break;
             }
+
             //pause a bit
             yield return new WaitForSeconds(wa.pause);        
 
@@ -485,7 +487,6 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
                 break;
             }
-
         }
     }
 
@@ -512,7 +513,7 @@ public class StartupTutorial : MonoBehaviour
             collider.enabled = activate;
         }
     }
-
+   
     // TUTORIAL SEQUENCE
     IEnumerator PlaySounds()
     {
@@ -528,17 +529,16 @@ public class StartupTutorial : MonoBehaviour
         }
         else
         {
-            // First interaction with owl.
             wavList = confirmAudioList;
+            
+            //checkIfOK
             lastCubeGrabbed = CheckerManager.Instance.lastCubeGrabbed;
             colorToCheck = lastCubeGrabbed.Remove(lastCubeGrabbed.Length-4);
             CheckerManager.Instance.CheckIfOK();
-            // wait until CheckIfOk finishes.
             yield return new WaitForSeconds(1f);
-            yield return new WaitUntil(() => gotIt);
-            if (allOK)
+             if (allOK)
                 yield break;
-            
+            // Debug.Log("--> Here  " + gotIt);
             int id = idOKDictionary[colorToCheck];
             bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
 
@@ -564,7 +564,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 tutoringCanvas.SetActive(false);
                 //break;
-            } 
+            }
         }
         
         //for each entry in the text, each entry if a text file
@@ -572,12 +572,12 @@ public class StartupTutorial : MonoBehaviour
         {
             Debug.Log("Audioname --> " + wa.audioname);
             ActivateRayInteractors(wa.activateRay);
-            
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
             if (skipCorrectWa)
             {
                 skipCorrectWa = false;
+                Debug.Log("skip correct -->");
                 continue;
             }
             //Play explanation
@@ -587,6 +587,7 @@ public class StartupTutorial : MonoBehaviour
             }
             else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
+                Debug.Log("skip bad_neighbors -->");
                 continue;
             }
             else 
@@ -701,7 +702,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateRayInteractors(wa.activateRay);
             }
-                
             // show "which color" panel
             // if (wa.audioname.Equals("which"))
             // {
