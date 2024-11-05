@@ -331,7 +331,6 @@ public class CheckerManager : Singleton<CheckerManager>
             if (pg.playgroundObject != null)
                 pg.playgroundObject.SetActive(false);
         }
-        AudioManager.Instance.playSound("magic");
     }
 
     //Count how many tiles are covered with colored cubes
@@ -531,14 +530,22 @@ public class CheckerManager : Singleton<CheckerManager>
     // This logic erases all cubes of the correct's answer color and replace it with the correct island
     public void MakeIsland(int id)
     {  
-        // Debug.Log("MakeIsland called --> " + id);
         ResetTheCubeNumberOfColor(id);
-        
-        // 3) show good object
         CheckIfOK();
-        // Debug.Log("ID[]-->" + startupTutorial.idOK[0] + startupTutorial.idOK[1]+ startupTutorial.idOK[2]+ startupTutorial.idOK[3]+ startupTutorial.idOK[4]+ startupTutorial.idOK[5]);
-        
-        // AudioManager.Instance.playSound("magic");
+    }
+
+    void MakeAllCubesInteractable(bool areInteractable)
+    {
+        RayInteractable[] scripts = FindObjectsOfType<RayInteractable>();
+        Debug.Log("InteractionCube length--> " + scripts.Length);
+        foreach(RayInteractable scr in scripts)
+        {
+            if (scr.gameObject.name.StartsWith("HandGrabInter"))
+            {
+                scr.GetComponent<RayInteractable>().enabled = areInteractable;
+            }
+            
+        }
     }
 
     public void ResetTheCubeNumberOfColor(int id)
@@ -952,7 +959,7 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         // if (startupTutorial.isTutorial)
         //     return;
-        Debug.Log("inSequence --> " + inSequence + " || readyTOexitPresentationMode --> " + readyToExitPresentationMode);
+        Debug.Log("inSequence --> " + inSequence + " || readyToExitPresentationMode --> " + readyToExitPresentationMode);
         if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
         {
             // start confirm answer sequence that leads to presentation mode.
@@ -960,6 +967,7 @@ public class CheckerManager : Singleton<CheckerManager>
             // owlBird.GetComponent<Collider>().enabled = true;
             // startupTutorial.ConfirmAnswer();
             startupTutorial.StartPlayingTheSounds();
+            MakeAllCubesInteractable(false);
         }
     
         // this block is for active game scene only
@@ -970,6 +978,8 @@ public class CheckerManager : Singleton<CheckerManager>
             startupTutorial.ResetTheOwl();
             inSequence = false;
             readyToExitPresentationMode = false;
+            AudioManager.Instance.playSound("magic");
+            MakeAllCubesInteractable(true);
         }
     }
 
@@ -978,14 +988,6 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         if (!isActive)
             return;
-        //ON esc show ui to select to go to menu
-        // if (OVRInput.GetDown(OVRInput.Button.Four) && !startupTutorial.isTutorial)
-        // {
-        //     if (helpPanel && !isExitViewModeOn)
-        //     {
-        //         GoToEscapeUI();
-        //     }
-        // }
 
         if (playGroundFinished)
             return;
