@@ -331,6 +331,7 @@ public class CheckerManager : Singleton<CheckerManager>
             if (pg.playgroundObject != null)
                 pg.playgroundObject.SetActive(false);
         }
+        AudioManager.Instance.playSound("magic");
     }
 
     //Count how many tiles are covered with colored cubes
@@ -930,12 +931,6 @@ public class CheckerManager : Singleton<CheckerManager>
        }
     }
 
-    // IEnumerator ActivateRayWithDelay()
-    // {
-    //     yield return new WaitForSeconds(0.8f);
-    //     startupTutorial.ActivateRayInteractors(true);
-    // }
-
     public void ReadyToExitPresentationMode()
     {
         readyToExitPresentationMode = true;
@@ -950,6 +945,31 @@ public class CheckerManager : Singleton<CheckerManager>
             helpPanel.SetActive(true);
             isExitViewModeOn = true;
             movementScript.enabled = false;
+        }
+    }
+
+    public void AskTheOwl()
+    {
+        // if (startupTutorial.isTutorial)
+        //     return;
+        Debug.Log("inSequence --> " + inSequence + " || readyTOexitPresentationMode --> " + readyToExitPresentationMode);
+        if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
+        {
+            // start confirm answer sequence that leads to presentation mode.
+            inSequence = true;
+            // owlBird.GetComponent<Collider>().enabled = true;
+            // startupTutorial.ConfirmAnswer();
+            startupTutorial.StartPlayingTheSounds();
+        }
+    
+        // this block is for active game scene only
+        if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
+        {
+            startupTutorial.ActivateRayInteractors(true);
+            ResetToCubeRepresentation();
+            startupTutorial.ResetTheOwl();
+            inSequence = false;
+            readyToExitPresentationMode = false;
         }
     }
 
@@ -987,38 +1007,12 @@ public class CheckerManager : Singleton<CheckerManager>
             }
         }
         
-        if (OVRInput.GetDown(OVRInput.Button.Three)) 
-        {
-        //     Debug.Log("canChangeViewMode --> " + canChangeViewMode);
-        //     Debug.Log("isZoomOutViewMode --> " + isZoomOutViewMode);
-        //     Debug.Log("activeCubeIndex --> " + activeCubeIndex);
-        //     Debug.Log("isExitViewModeOn --> " + isExitViewModeOn);
-            //    Debug.Log("inSequence --> " + inSequence);
-        }
-        if (OVRInput.GetDown(OVRInput.Button.Three) && 
-            canChangeViewMode && !isZoomOutViewMode &&
-            activeCubeIndex == -1 && !isExitViewModeOn)
-        {
-            if (startupTutorial.isTutorial)
-                return;
-            if (!inSequence)
-            {
-                // start confirm answer sequence that leads to presentation mode.
-                inSequence = true;
-                owlBird.GetComponent<Collider>().enabled = true;
-                startupTutorial.ConfirmAnswer();
-            }
-        
-            // this block is for active game scene only
-            if (view_mode_ == ViewModes.PRESENTATION && readyToExitPresentationMode)
-            {
-               startupTutorial.ActivateRayInteractors(true);
-               ResetToCubeRepresentation();
-            //    AudioManager.Instance.playSound("magic");
-               inSequence = false;
-               readyToExitPresentationMode = false;
-            }
-        } 
+        // Enable owl collider if possible.
+        // if (canChangeViewMode && !isZoomOutViewMode &&
+        //     activeCubeIndex == -1 && !isExitViewModeOn )
+        // {
+        //    startupTutorial.owlCollider.enabled = true;
+        // } 
         
         //if we are in presentation mode no interaction
         if (view_mode_ == ViewModes.PRESENTATION || isZoomOutViewMode)

@@ -133,7 +133,7 @@ public class StartupTutorial : MonoBehaviour
     public Text instructionText = null;
     public ModelSwitcher owlAnimator = null;
     string displayText;
-    Collider owlCollider;
+    public Collider owlCollider;
     [SerializeField]
     GameObject owlOutline;
     [SerializeField]
@@ -307,7 +307,7 @@ public class StartupTutorial : MonoBehaviour
         yield return null;
     }
 
-    void ResetTheOwl()
+    public void ResetTheOwl()
     {
         GetComponent<Collider>().enabled = true;
         owlAnimator.GetComponent<Collider>().enabled = true;
@@ -316,26 +316,26 @@ public class StartupTutorial : MonoBehaviour
 
     // Here the confirmation sequence for given answer starts 
     // [1] -- This method is called when 'X' touch controller button is pressed.
-    public void ConfirmAnswer()
-    {
-        isPlayingSounds = true;
-        StartCoroutine(StartConfirmSequence());
-    }
+    // public void ConfirmAnswer()
+    // {
+    //     isPlayingSounds = true;
+    //     StartCoroutine(StartConfirmSequence());
+    // }
 
-    IEnumerator StartConfirmSequence()
-    {
-        GetComponent<Collider>().enabled = true;
-        owlCollider.enabled = true;
-        displayText = "Do you want to check your answer?\nLet's ask the Owl!";
-        StartCoroutine(AskTheOwl());
-        if (activeScene.Equals("Passive"))
-        {
-            yield return new WaitUntil(() => !isPlayingSounds);
-            // put it inside CheckIfOk()
-            AudioManager.Instance.playSound("magic");
-            CheckerManager.Instance.readyToExitPresentationMode = true;
-        }
-    }
+    // IEnumerator StartConfirmSequence()
+    // {
+    //     GetComponent<Collider>().enabled = true;
+    //     owlCollider.enabled = true;
+    //     // displayText = "Do you want to check your answer?\nLet's ask the Owl!";
+    //     StartCoroutine(AskTheOwl());
+    //     if (activeScene.Equals("Passive"))
+    //     {
+    //         yield return new WaitUntil(() => !isPlayingSounds);
+    //         // put it inside CheckIfOk()
+    //         // AudioManager.Instance.playSound("magic");
+    //         CheckerManager.Instance.readyToExitPresentationMode = true;
+    //     }
+    // }
 
     //Color values available:
     // Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
@@ -456,6 +456,7 @@ public class StartupTutorial : MonoBehaviour
                 || (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
+                CheckerManager.Instance.readyToExitPresentationMode = true;
                 owlIsSpeaking = false;
                 FinishTutoring();
                 yield break;
@@ -502,6 +503,9 @@ public class StartupTutorial : MonoBehaviour
         instructionText.gameObject.SetActive(true);
         ActivateTalkingBirds(true);
         owlIsSpeaking = false;
+        owlCollider.enabled = true;
+        GetComponent<Collider>().enabled = true;
+        CheckerManager.Instance.inSequence = false;
     }
 
     void ActivateTalkingBirds(bool activate)
@@ -577,7 +581,6 @@ public class StartupTutorial : MonoBehaviour
             if (skipCorrectWa)
             {
                 skipCorrectWa = false;
-                Debug.Log("skip correct -->");
                 continue;
             }
             //Play explanation
@@ -587,7 +590,6 @@ public class StartupTutorial : MonoBehaviour
             }
             else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
-                Debug.Log("skip bad_neighbors -->");
                 continue;
             }
             else 
@@ -611,7 +613,6 @@ public class StartupTutorial : MonoBehaviour
                     if (buttonDictionary.ContainsKey(anim))
                     {
                         animateButton = buttonDictionary[anim];
-                        Debug.Log("animateButton --> " + animateButton);
                         animateButton.SetActive(true);
                     }
                 }
@@ -702,46 +703,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateRayInteractors(wa.activateRay);
             }
-            // show "which color" panel
-            // if (wa.audioname.Equals("which"))
-            // {
-                // tutoringCanvas.SetActive(true);
-                // whichColorPanel.SetActive(true);
-                // mainPanel.SetActive(false);
-                // wait until CheckIfOk finishes.
-                // yield return new WaitUntil(() => gotIt);
-
-                // Game finishes. Invoke game event and play last audio
-                // if (allOK)
-                // {
-                //     tutoringCanvas.SetActive(false);
-                //     break;
-                // }
-                
-                // int id = idOKDictionary[colorToCheck];
-                // bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
-
-                // AudioManager.Instance.playSound("magic");
-                
-                //Count how many cubes of that color are in board
-                // GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
-                // int childCount = colorParent.transform.childCount;
-                // if (badNeighbors && (properColorCount[id] == childCount))
-                // {
-                //     FinishTutoring();
-                //     skipCorrectWa = true;
-                // }
-                // else if (idOK[id-1])
-                // {
-                //     FinishTutoring();
-                // }
-                // else
-                // {
-                //     tutoringCanvas.SetActive(false);
-                //     break;
-                // }  
-            // }
-
+           
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
@@ -780,12 +742,13 @@ public class StartupTutorial : MonoBehaviour
 
     void StartGame()
     {
+        CheckerManager.Instance.inSequence = false;
         ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
         isActive = false;
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
-        owlCollider.enabled = false;
+        owlCollider.enabled = true;
         
         foreach (GameObject gs in ListToHide)
             gs.SetActive(true);
