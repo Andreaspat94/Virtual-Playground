@@ -549,11 +549,9 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(1f);
             if (allOK)
                 yield break;
-            // Debug.Log("--> Here  " + gotIt);
             int id = idOKDictionary[colorToCheck];
             bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
 
-            // AudioManager.Instance.playSound("magic");
             GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
             int childCount = colorParent.transform.childCount;
             if (!(properColorCount[id] == childCount))
@@ -656,7 +654,6 @@ public class StartupTutorial : MonoBehaviour
                 ActivateRayInteractors(true);
             }
 
-
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
             //Wait until key is pressed
@@ -712,7 +709,13 @@ public class StartupTutorial : MonoBehaviour
             {
                 ActivateRayInteractors(wa.activateRay);
             }
-           
+            
+            if (wa.audioname.StartsWith("bad_neighbors"))
+            {
+                FinishTutoring();
+                yield break;
+            }
+            
             //pause a bit
             yield return new WaitForSeconds(wa.pause);
         }
