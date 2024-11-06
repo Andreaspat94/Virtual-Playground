@@ -537,7 +537,6 @@ public class CheckerManager : Singleton<CheckerManager>
     void MakeAllCubesInteractable(bool areInteractable)
     {
         RayInteractable[] scripts = FindObjectsOfType<RayInteractable>();
-        Debug.Log("InteractionCube length--> " + scripts.Length);
         foreach(RayInteractable scr in scripts)
         {
             if (scr.gameObject.name.StartsWith("HandGrabInter"))
@@ -957,8 +956,8 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void AskTheOwl()
     {
-        // if (startupTutorial.isTutorial)
-        //     return;
+        if (lastCubeGrabbed == null)
+            return;
         Debug.Log("inSequence --> " + inSequence + " || readyToExitPresentationMode --> " + readyToExitPresentationMode);
         if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
         {

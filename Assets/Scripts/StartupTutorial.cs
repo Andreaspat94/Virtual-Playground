@@ -376,9 +376,11 @@ public class StartupTutorial : MonoBehaviour
         Text yellowText = mainPanel.transform.GetChild(3).GetComponent<Text>();
         lastQuestionObjects = mainPanel.transform.GetChild(4).gameObject;
         bool skipCorrectWa = false;
+        bool skipBadNeighbors = false;
         
         foreach (Wavs wa in wavList)
-        {            
+        {    
+            Debug.Log("Audioname (feedback) --> " + wa.audioname);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
@@ -438,7 +440,7 @@ public class StartupTutorial : MonoBehaviour
                       
             }
             // if wrong answer
-            if ((!lastButtonClicked.Equals(wa.correctAnswer) && (!wa.audioname.Equals("general1")) )|| wa.finishTutoring || wa.skipNextWa)
+            if ((!lastButtonClicked.Equals(wa.correctAnswer))|| wa.finishTutoring || wa.skipNextWa)
                 skipCorrectWa = true;
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -452,8 +454,8 @@ public class StartupTutorial : MonoBehaviour
 
             mainPanel.SetActive(false);
 
-            if (wa.audioname.StartsWith("final_no")
-                || (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
+            if (wa.audioname.StartsWith("final_no"))
+                // || (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 CheckerManager.Instance.readyToExitPresentationMode = true;
@@ -581,6 +583,7 @@ public class StartupTutorial : MonoBehaviour
             if (skipCorrectWa)
             {
                 skipCorrectWa = false;
+                Debug.Log("skip correct --> ");
                 continue;
             }
             //Play explanation
@@ -590,6 +593,7 @@ public class StartupTutorial : MonoBehaviour
             }
             else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
+                Debug.Log("skip bad_neighbors --> ");
                 continue;
             }
             else 
