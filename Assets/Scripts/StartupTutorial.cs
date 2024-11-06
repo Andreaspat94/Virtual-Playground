@@ -469,7 +469,12 @@ public class StartupTutorial : MonoBehaviour
 
              // Stop Tutoring
             if (wa.finishTutoring)
+            {
+                Debug.Log("finish tutoring --> ");
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
+                FinishTutoring();
+                yield break;
+            }
                 
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
@@ -542,7 +547,7 @@ public class StartupTutorial : MonoBehaviour
             colorToCheck = lastCubeGrabbed.Remove(lastCubeGrabbed.Length-4);
             CheckerManager.Instance.CheckIfOK();
             yield return new WaitForSeconds(1f);
-             if (allOK)
+            if (allOK)
                 yield break;
             // Debug.Log("--> Here  " + gotIt);
             int id = idOKDictionary[colorToCheck];
