@@ -12,7 +12,7 @@ public class CheckerManager : Singleton<CheckerManager>
     // List of object that are OK
     [SerializeField]
     GameObject cubeHierarchy;
-    public string lastCubeGrabbed;
+    public string lastCubeGrabbed = "";
     [Header("Info needed to switch into cube interaction mode")]
     public GameObject staticObjects = null;
     public Transform vantagePoint = null;
@@ -956,8 +956,12 @@ public class CheckerManager : Singleton<CheckerManager>
 
     public void AskTheOwl()
     {
-        if (lastCubeGrabbed == null)
+        if (lastCubeGrabbed.Equals("") && !startupTutorial.isTutorial)
+        {
+            Debug.Log("IS null -->");
             return;
+        }
+            
         Debug.Log("inSequence --> " + inSequence + " || readyToExitPresentationMode --> " + readyToExitPresentationMode);
         if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
         {

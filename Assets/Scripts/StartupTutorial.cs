@@ -314,29 +314,6 @@ public class StartupTutorial : MonoBehaviour
         owlOutline.SetActive(true);
     }
 
-    // Here the confirmation sequence for given answer starts 
-    // [1] -- This method is called when 'X' touch controller button is pressed.
-    // public void ConfirmAnswer()
-    // {
-    //     isPlayingSounds = true;
-    //     StartCoroutine(StartConfirmSequence());
-    // }
-
-    // IEnumerator StartConfirmSequence()
-    // {
-    //     GetComponent<Collider>().enabled = true;
-    //     owlCollider.enabled = true;
-    //     // displayText = "Do you want to check your answer?\nLet's ask the Owl!";
-    //     StartCoroutine(AskTheOwl());
-    //     if (activeScene.Equals("Passive"))
-    //     {
-    //         yield return new WaitUntil(() => !isPlayingSounds);
-    //         // put it inside CheckIfOk()
-    //         // AudioManager.Instance.playSound("magic");
-    //         CheckerManager.Instance.readyToExitPresentationMode = true;
-    //     }
-    // }
-
     //Color values available:
     // Slide:1, MonkeyBars:2, CrawlTunnel:3, RoundAbout:4, Swings:5, SandPit:6
     public void SelectColorFromPanel(string color)
