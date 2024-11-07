@@ -26,6 +26,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
     //To show how many cubes are placed
     public TextMeshProUGUI[] totalCoveredTilesTextsUI;
+    public TextMeshProUGUI constructionModeOnOff;
 
     [Header("Reticle to show when in cube interaction mode")]
     public GameObject ui_canvas = null;
@@ -320,6 +321,7 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
+        constructionModeOnOff.text = "on";
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
 
@@ -489,6 +491,7 @@ public class CheckerManager : Singleton<CheckerManager>
 
                 //There is at least one cube island ok goto presentation mode
                 view_mode_ = ViewModes.PRESENTATION;
+                constructionModeOnOff.text = "off";
             }
             else
             {
@@ -957,18 +960,12 @@ public class CheckerManager : Singleton<CheckerManager>
     public void AskTheOwl()
     {
         if (lastCubeGrabbed.Equals("") && !startupTutorial.isTutorial)
-        {
-            Debug.Log("IS null -->");
             return;
-        }
-            
-        Debug.Log("inSequence --> " + inSequence + " || readyToExitPresentationMode --> " + readyToExitPresentationMode);
+                    
         if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
         {
             // start confirm answer sequence that leads to presentation mode.
             inSequence = true;
-            // owlBird.GetComponent<Collider>().enabled = true;
-            // startupTutorial.ConfirmAnswer();
             startupTutorial.StartPlayingTheSounds();
             MakeAllCubesInteractable(false);
         }
