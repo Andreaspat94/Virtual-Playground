@@ -67,6 +67,7 @@ public class StartupTutorial : MonoBehaviour
     [SerializeField]
     private GameObject rightRay;
     public List<Wavs> wayPointList = new List<Wavs>();
+    public GameObject[] listWithObjectsForTutorial;
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
     public List<Wavs> blueWavList = new List<Wavs>();
@@ -185,9 +186,8 @@ public class StartupTutorial : MonoBehaviour
         {
             {"A", controllerButtons[0]},
             {"TriggerRight", controllerButtons[1]},
-            {"X", controllerButtons[2]},
-            {"TriggerLeft", controllerButtons[3]},
-            {"Y", controllerButtons[4]}
+            {"TriggerLeft", controllerButtons[2]},
+            {"Y", controllerButtons[3]}
         };
 
         wavLists = new Dictionary<string, List<Wavs>> 
@@ -562,7 +562,7 @@ public class StartupTutorial : MonoBehaviour
             if (skipCorrectWa)
             {
                 skipCorrectWa = false;
-                Debug.Log("skip correct --> ");
+                // Debug.Log("skip correct --> ");
                 continue;
             }
             //Play explanation
@@ -572,7 +572,7 @@ public class StartupTutorial : MonoBehaviour
             }
             else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
-                Debug.Log("skip bad_neighbors --> ");
+                // Debug.Log("skip bad_neighbors --> ");
                 continue;
             }
             else 
@@ -622,16 +622,25 @@ public class StartupTutorial : MonoBehaviour
             {
                 instructionText.text = wa.keyInstructionText;
                 instructionText.gameObject.SetActive(true);
+                CheckerManager.Instance.MakeAllCubesInteractable(true);
                 yield return new WaitUntil(() => cubeReleasedTutorial);
-            }  
-
-            if (wa.audioname.Equals("check1"))
+            }
+            
+            if (wa.audioname.Equals("owl1"))
+                CheckerManager.Instance.tutorialClickOwl = false;
+            
+            if (wa.audioname.Equals("owl3"))
             {
-                ActivateRayInteractors(true);
+                instructionText.text = wa.keyInstructionText;
+                instructionText.gameObject.SetActive(true);
+                owlCollider.enabled = true;
+                CheckerManager.Instance.timeToChangeModeForTutorial = true;
+                yield return new WaitUntil(() => CheckerManager.Instance.tutorialClickOwl);
             }
 
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
+            
             //Wait until key is pressed
             if (wa.keyToProceed != OVRInput.Button.None)
             {
@@ -715,6 +724,20 @@ public class StartupTutorial : MonoBehaviour
         }
     }
 
+    // TUTORIAL - switch to construction mode
+    public void ListWithObjectsForTutorial()
+    {
+        listWithObjectsForTutorial[0].SetActive(true);
+        listWithObjectsForTutorial[1].SetActive(false);
+        listWithObjectsForTutorial[2].SetActive(true);
+        listWithObjectsForTutorial[3].SetActive(true);
+        CheckerManager.Instance.countCoveredBlocksUI();
+        CheckerManager.Instance.constructionModeOnOff.text = "on";
+        owlCollider.enabled = false;
+        AudioManager.Instance.playSound("magic");
+        CheckerManager.Instance.MakeAllCubesInteractable(false);
+    }
+ 
     void RecalibrateMainPanel(float x)
     {
         RectTransform rect = mainPanel.GetComponent<RectTransform>();
@@ -749,7 +772,6 @@ public class StartupTutorial : MonoBehaviour
             owlAnimator.Reset();
 
         CheckerManager.Instance.countCoveredBlocksUI();
-
         instructionText.gameObject.SetActive(false);
         CanvasGroup gr = instructionText.GetComponent<CanvasGroup>();
         gr.alpha = 1;

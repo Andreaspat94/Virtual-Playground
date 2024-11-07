@@ -89,6 +89,9 @@ public class CheckerManager : Singleton<CheckerManager>
     public bool inSequence;
     [HideInInspector]
     public bool readyToExitPresentationMode = false;
+    [HideInInspector]
+    public bool tutorialClickOwl = false;
+    public bool timeToChangeModeForTutorial = false;
 
     //In general when a cube is grabed the carycube representation is active (is under Camera).
     //Then when droped carycube becomes inactive and dropcube is activated.
@@ -537,7 +540,7 @@ public class CheckerManager : Singleton<CheckerManager>
         CheckIfOK();
     }
 
-    void MakeAllCubesInteractable(bool areInteractable)
+    public void MakeAllCubesInteractable(bool areInteractable)
     {
         RayInteractable[] scripts = FindObjectsOfType<RayInteractable>();
         foreach(RayInteractable scr in scripts)
@@ -961,7 +964,13 @@ public class CheckerManager : Singleton<CheckerManager>
     {
         if (lastCubeGrabbed.Equals("") && !startupTutorial.isTutorial)
             return;
-                    
+        
+        if (startupTutorial.isTutorial && timeToChangeModeForTutorial)
+        {
+            tutorialClickOwl = true;
+            startupTutorial.ListWithObjectsForTutorial();
+        }
+            
         if (!inSequence && view_mode_ == ViewModes.CUBE_INTERACTION)
         {
             // start confirm answer sequence that leads to presentation mode.
