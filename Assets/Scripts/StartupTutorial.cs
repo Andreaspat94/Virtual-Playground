@@ -760,7 +760,7 @@ public class StartupTutorial : MonoBehaviour
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
         owlCollider.enabled = true;
-        CheckerManager.Instance.constructionModeOnOff.text = "on";
+        // CheckerManager.Instance.constructionModeOnOff.text = "on";
         
         foreach (GameObject gs in ListToHide)
             gs.SetActive(true);

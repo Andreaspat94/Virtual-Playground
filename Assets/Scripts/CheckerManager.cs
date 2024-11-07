@@ -324,7 +324,6 @@ public class CheckerManager : Singleton<CheckerManager>
     public void ResetToCubeRepresentation()
     {
         view_mode_ = ViewModes.CUBE_INTERACTION;
-        constructionModeOnOff.text = "on";
         if (talkingBirds) talkingBirds.SetActive(true);
         if (owlBird) owlBird.SetActive(true);
 
@@ -336,6 +335,8 @@ public class CheckerManager : Singleton<CheckerManager>
             if (pg.playgroundObject != null)
                 pg.playgroundObject.SetActive(false);
         }
+        if (timeToChangeModeForTutorial)
+            constructionModeOnOff.text = "on";
     }
 
     //Count how many tiles are covered with colored cubes
