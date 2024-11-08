@@ -622,7 +622,7 @@ public class StartupTutorial : MonoBehaviour
             {
                 instructionText.text = wa.keyInstructionText;
                 instructionText.gameObject.SetActive(true);
-                CheckerManager.Instance.MakeAllCubesInteractable(true);
+                CheckerManager.Instance.MakeAllCubesInteractable(true, "onlyPool");
                 yield return new WaitUntil(() => cubeReleasedTutorial);
             }
             
@@ -637,6 +637,9 @@ public class StartupTutorial : MonoBehaviour
                 CheckerManager.Instance.timeToChangeModeForTutorial = true;
                 yield return new WaitUntil(() => CheckerManager.Instance.tutorialClickOwl);
             }
+
+            if (wa.audioname.Equals("owl4"))
+                CheckerManager.Instance.MakeAllCubesInteractable(false, "all");    
 
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
@@ -735,7 +738,7 @@ public class StartupTutorial : MonoBehaviour
         CheckerManager.Instance.constructionModeOnOff.text = "on";
         owlCollider.enabled = false;
         AudioManager.Instance.playSound("magic");
-        CheckerManager.Instance.MakeAllCubesInteractable(false);
+        CheckerManager.Instance.MakeAllCubesInteractable(false, "onlyPool");
     }
  
     void RecalibrateMainPanel(float x)

@@ -541,16 +541,22 @@ public class CheckerManager : Singleton<CheckerManager>
         CheckIfOK();
     }
 
-    public void MakeAllCubesInteractable(bool areInteractable)
+    public void MakeAllCubesInteractable(bool areInteractable, string whichCubes)
     {
         RayInteractable[] scripts = FindObjectsOfType<RayInteractable>();
         foreach(RayInteractable scr in scripts)
         {
             if (scr.gameObject.name.StartsWith("HandGrabInter"))
             {
-                scr.GetComponent<RayInteractable>().enabled = areInteractable;
+                if (!whichCubes.Equals("onlyPool"))
+                {
+                    scr.GetComponent<RayInteractable>().enabled = areInteractable;
+                }
+                else if (scr.transform.parent.tag.Equals("PoolCube"))
+                {
+                    scr.GetComponent<RayInteractable>().enabled = areInteractable;
+                }   
             }
-            
         }
     }
 
@@ -977,7 +983,7 @@ public class CheckerManager : Singleton<CheckerManager>
             // start confirm answer sequence that leads to presentation mode.
             inSequence = true;
             startupTutorial.StartPlayingTheSounds();
-            MakeAllCubesInteractable(false);
+            MakeAllCubesInteractable(false, "all");
         }
     
         // this block is for active game scene only
@@ -989,7 +995,7 @@ public class CheckerManager : Singleton<CheckerManager>
             inSequence = false;
             readyToExitPresentationMode = false;
             AudioManager.Instance.playSound("magic");
-            MakeAllCubesInteractable(true);
+            MakeAllCubesInteractable(true, "all");
         }
     }
 
