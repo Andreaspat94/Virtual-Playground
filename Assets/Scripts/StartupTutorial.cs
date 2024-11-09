@@ -39,15 +39,6 @@ public class StartupTutorial : MonoBehaviour
         public string instructionText = null;
     }
 
-    [Serializable]
-    public class Wavs2
-    {
-        public string audioname;
-        public float duration = 0;
-        public float pause = 0;
-        public Button[] colorButtons;
-        public UnityEvent OnEvent;
-    }
     private GameObject player;
     [SerializeField]
     GameObject leftController;
@@ -199,7 +190,7 @@ public class StartupTutorial : MonoBehaviour
             {"Red", redWavList}
         };
         whichColorPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
-        mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(1).gameObject;
+        mainPanel = tutoringCanvas.transform.GetChild(0).GetChild(0).gameObject;
         //if not active proceed to play immediately
         if (isActive)
         {
@@ -380,6 +371,7 @@ public class StartupTutorial : MonoBehaviour
             tutoringCanvas.SetActive(wa.openMainPanel);
             mainPanel.SetActive(wa.openMainPanel);
             
+            ActivateAnimation(wa.startAnimation, true);
             //Play explanation
             if (!wa.audioname.StartsWith("noaudio"))
                 AudioManager.Instance.playSound(wa.audioname);
@@ -441,13 +433,14 @@ public class StartupTutorial : MonoBehaviour
                 yield break;
             }
 
+            ActivateAnimation(wa.startAnimation, false);
+            
             //pause a bit
             yield return new WaitForSeconds(wa.pause);        
 
              // Stop Tutoring
             if (wa.finishTutoring)
             {
-                Debug.Log("finish tutoring --> ");
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
                 FinishTutoring();
                 yield break;
@@ -471,6 +464,20 @@ public class StartupTutorial : MonoBehaviour
                 if (wa.OnKeyEvent != null)
                     wa.OnKeyEvent.Invoke();
                 break;
+            }
+        }
+    }
+
+    void ActivateAnimation(string[] animationArray, bool hasAnimations) 
+    {
+        if (animationArray.Length != 0)
+        {
+            for (int i=0; i < animationArray.Length; i++)
+            {
+                string anim = animationArray[i];
+                Debug.Log("buttonDictionary.ContainsKey --> " + buttonDictionary.ContainsKey(anim));
+                if (buttonDictionary.ContainsKey(anim))
+                    buttonDictionary[anim].SetActive(hasAnimations);           
             }
         }
     }
@@ -587,19 +594,7 @@ public class StartupTutorial : MonoBehaviour
                 owlAnimator.PlayAnimation();
             }
 
-            GameObject animateButton = null;
-            if (wa.startAnimation.Length != 0)
-            {
-                for (int i=0; i < wa.startAnimation.Length; i++)
-                {
-                    string anim = wa.startAnimation[i];
-                    if (buttonDictionary.ContainsKey(anim))
-                    {
-                        animateButton = buttonDictionary[anim];
-                        animateButton.SetActive(true);
-                    }
-                }
-            }
+            ActivateAnimation(wa.startAnimation, true);
                 
             //Display a info text if there is one
             if (!string.IsNullOrEmpty(wa.instructionText) && instructionText)
@@ -663,18 +658,7 @@ public class StartupTutorial : MonoBehaviour
                     wa.OnKeyEvent.Invoke();
             }
 
-            if (wa.startAnimation.Length != 0)
-            {
-                for (int i=0; i < wa.startAnimation.Length; i++)
-                {
-                    string anim = wa.startAnimation[i];
-                    if (buttonDictionary.ContainsKey(anim))
-                    {
-                        animateButton = buttonDictionary[anim];
-                        animateButton.SetActive(false);
-                    }
-                }
-            }
+            ActivateAnimation(wa.startAnimation, false);
 
             //Wait for second keypress
             if (wa.secondkeyToProceed != OVRInput.Button.None)
