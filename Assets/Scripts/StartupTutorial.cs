@@ -58,13 +58,16 @@ public class StartupTutorial : MonoBehaviour
     [SerializeField]
     private GameObject rightRay;
     public List<Wavs> wayPointList = new List<Wavs>();
-    public GameObject[] listWithObjectsForTutorial;
+    
     public List<Wavs> confirmAudioList = new List<Wavs>();
+    public List<Wavs> selfReflectionWavList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
     public List<Wavs> blueWavList = new List<Wavs>();
     public List<Wavs> greenWavList = new List<Wavs>();
     public List<Wavs> yellowWavList = new List<Wavs>();
     public List<Wavs> orangeWavList = new List<Wavs>();
+
+    public GameObject[] listWithObjectsForTutorial;
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     public List<GameObject> controllerButtons = new List<GameObject>();
@@ -247,6 +250,8 @@ public class StartupTutorial : MonoBehaviour
         {
             AudioManager.Instance.ResetSound();
             StopAllCoroutines();
+            owlAnimator.PauseAnimation();
+            FinishTutoring();
             tutoringCanvas.SetActive(false);
             foreach (GameObject obj in particleSystems)
             {
@@ -319,7 +324,17 @@ public class StartupTutorial : MonoBehaviour
     {     
         // List<Wavs> wavList = tutoringWavs[colorToCheck];
         gotItButton = mainPanel.transform.GetChild(0).gameObject;
-        StartCoroutine(PlayTutoringSequence(wavLists[colorToCheck]));
+        List<Wavs> wavList = new List<Wavs>();
+        if (activeScene.Equals("Active"))
+        {
+            wavList = wavLists[colorToCheck];
+        }
+        else if (activeScene.Equals("Passive"))
+        {
+            wavList = selfReflectionWavList;
+        }
+
+        StartCoroutine(PlayTutoringSequence(wavList));
     }
 
     public void GotIt()
@@ -335,7 +350,8 @@ public class StartupTutorial : MonoBehaviour
     // This is ACTIVE SCENE FEEDBACK sequence
     IEnumerator PlayTutoringSequence(List<Wavs> wavList)
     {
-        yield return new WaitForSeconds(2f);
+        if (activeScene.Equals("Active"))
+            yield return new WaitForSeconds(2f);
         ActivateTalkingBirds(false);
         
         Image image = mainPanel.GetComponent<Image>();
@@ -348,12 +364,20 @@ public class StartupTutorial : MonoBehaviour
         
         foreach (Wavs wa in wavList)
         {    
-            Debug.Log("Audioname (feedback) --> " + wa.audioname);
+            Debug.Log("Audioname (feedback) --> " + wa.audioname + "-- skipcorrect --> " + skipCorrectWa + "--skip bad neighbors --> " + skipBadNeighbors);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
-            if (skipCorrectWa) {
+            if (skipCorrectWa) 
+            {
                 skipCorrectWa = false;
+                Debug.Log("skip correct --> ");
+                continue;
+            }
+
+            if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
+            {
+                Debug.Log("skip bad_neighbors --> ");
                 continue;
             }
         
@@ -409,7 +433,7 @@ public class StartupTutorial : MonoBehaviour
                       
             }
             // if wrong answer
-            if ((!lastButtonClicked.Equals(wa.correctAnswer))|| wa.finishTutoring || wa.skipNextWa)
+            if ((!lastButtonClicked.Equals(wa.correctAnswer) && activeScene.Equals("Active"))|| wa.finishTutoring || wa.skipNextWa)
                 skipCorrectWa = true;
 
             // wait until 'got it' button clicked. single button appears on the panel now.
@@ -432,7 +456,49 @@ public class StartupTutorial : MonoBehaviour
                 FinishTutoring();
                 yield break;
             }
+            
+            //this is for passive scene
+            if (wa.audioname.StartsWith("noaudio"))
+            {
+                if(lastButtonClicked.Equals(wa.correctAnswer))
+                {
+                    CheckerManager.Instance.readyToExitPresentationMode = true;
+                    owlIsSpeaking = false;
+                    FinishTutoring();
+                    CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
+                    yield break;
+                }
+                else
+                {
+                    // skipCorrectWa = true;
+                    CheckerManager.Instance.CheckIfOK();
+                    yield return new WaitForSeconds(1f);
+                    if (allOK)
+                        yield break;
 
+                    int id = idOKDictionary[colorToCheck];
+                    bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
+                    GameObject colorParent = cubeHierarchy.transform.GetChild(id-1).gameObject;
+                    int childCount = colorParent.transform.childCount;
+                    
+                    if (!(properColorCount[id] == childCount))
+                    {
+                        FinishTutoring();
+                        skipCorrectWa = true;
+                    }
+                    else if (badNeighbors)
+                    {
+                        FinishTutoring();
+                        skipCorrectWa = true;
+                        skipBadNeighbors = true;
+                    }
+                    else if (idOK[id-1])
+                    {
+                        FinishTutoring();
+                    }
+                }
+            }
+        
             ActivateAnimation(wa.startAnimation, false);
             
             //pause a bit
@@ -475,7 +541,7 @@ public class StartupTutorial : MonoBehaviour
             for (int i=0; i < animationArray.Length; i++)
             {
                 string anim = animationArray[i];
-                Debug.Log("buttonDictionary.ContainsKey --> " + buttonDictionary.ContainsKey(anim));
+                // Debug.Log("buttonDictionary.ContainsKey --> " + buttonDictionary.ContainsKey(anim));
                 if (buttonDictionary.ContainsKey(anim))
                     buttonDictionary[anim].SetActive(hasAnimations);           
             }
@@ -522,6 +588,13 @@ public class StartupTutorial : MonoBehaviour
         {
             wavList = wayPointList;
         }
+        else if (activeScene.Equals("Passive"))
+        {
+            wavList = confirmAudioList;
+            lastCubeGrabbed = CheckerManager.Instance.lastCubeGrabbed;
+            colorToCheck = lastCubeGrabbed.Remove(lastCubeGrabbed.Length-4);
+            int id = idOKDictionary[colorToCheck];
+        }
         else
         {
             wavList = confirmAudioList;
@@ -531,7 +604,11 @@ public class StartupTutorial : MonoBehaviour
             CheckerManager.Instance.CheckIfOK();
             yield return new WaitForSeconds(1f);
             if (allOK)
+            {
+                mainPanel.SetActive(false);
                 yield break;
+            }
+                
             int id = idOKDictionary[colorToCheck];
             bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
 
@@ -562,7 +639,7 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            Debug.Log("Audioname --> " + wa.audioname);
+            Debug.Log("Audioname --> " + wa.audioname + "--skipCorrectWa --> " + skipCorrectWa + " --bad_neighbors --> " + skipBadNeighbors);
             ActivateRayInteractors(wa.activateRay);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
@@ -697,17 +774,23 @@ public class StartupTutorial : MonoBehaviour
         }
         // IF CHECKIFOK is false, then starts TUTORING
         isPlayingSounds = false;
-        //Activate the game manager
         if (isTutorial)
         {
             RecalibrateMainPanel(1);
             StartGame();
         }
-        else if (activeScene.Equals("Active"))
+        else
         {
             int temp = idOKDictionary[colorToCheck] - 1;
-            if (!idOK[temp])
+            if (activeScene.Equals("Active"))
+            {
+                if (!idOK[temp])
+                    Tutoring();
+            }
+            else
+            {
                 Tutoring();
+            }
         }
     }
 
@@ -740,6 +823,7 @@ public class StartupTutorial : MonoBehaviour
 
     void StartGame()
     {
+        CheckerManager.Instance.constructionModeOnOff.text = "on";
         CheckerManager.Instance.inSequence = false;
         ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
