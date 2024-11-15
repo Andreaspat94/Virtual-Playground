@@ -364,23 +364,21 @@ public class StartupTutorial : MonoBehaviour
         
         foreach (Wavs wa in wavList)
         {    
-            Debug.Log("Audioname (feedback) --> " + wa.audioname + "-- skipcorrect --> " + skipCorrectWa + "--skip bad neighbors --> " + skipBadNeighbors);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
 
             if (skipCorrectWa) 
             {
                 skipCorrectWa = false;
-                Debug.Log("skip correct --> ");
                 continue;
             }
 
             if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
-                Debug.Log("skip bad_neighbors --> ");
                 continue;
             }
-        
+
+            Debug.Log("Audiowav --> " + wa.audioname);
             // Check if ray or grab is needed
             ActivateRayInteractors(wa.activateRay);
 
@@ -458,7 +456,7 @@ public class StartupTutorial : MonoBehaviour
             }
             
             //this is for passive scene
-            if (wa.audioname.StartsWith("noaudio"))
+            if (wa.audioname.StartsWith("noaudio") && activeScene.Equals("Passive"))
             {
                 if(lastButtonClicked.Equals(wa.correctAnswer))
                 {
@@ -639,14 +637,12 @@ public class StartupTutorial : MonoBehaviour
         //for each entry in the text, each entry if a text file
         foreach (Wavs wa in wavList)
         {
-            Debug.Log("Audioname --> " + wa.audioname + "--skipCorrectWa --> " + skipCorrectWa + " --bad_neighbors --> " + skipBadNeighbors);
             ActivateRayInteractors(wa.activateRay);
             if (string.IsNullOrEmpty(wa.audioname))
                 continue;
             if (skipCorrectWa)
             {
                 skipCorrectWa = false;
-                // Debug.Log("skip correct --> ");
                 continue;
             }
             //Play explanation
@@ -656,7 +652,6 @@ public class StartupTutorial : MonoBehaviour
             }
             else if (wa.audioname.Equals("bad_neighbors") && !skipBadNeighbors)
             {
-                // Debug.Log("skip bad_neighbors --> ");
                 continue;
             }
             else 
