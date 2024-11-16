@@ -58,7 +58,7 @@ public class StartupTutorial : MonoBehaviour
     [SerializeField]
     private GameObject rightRay;
     public List<Wavs> wayPointList = new List<Wavs>();
-    
+    public List<Wavs> wavNoSpace = new List<Wavs>();
     public List<Wavs> confirmAudioList = new List<Wavs>();
     public List<Wavs> selfReflectionWavList = new List<Wavs>();
     public List<Wavs> redWavList = new List<Wavs>();
@@ -342,6 +342,11 @@ public class StartupTutorial : MonoBehaviour
         gotIt = true;
     }
 
+    public void NoSpace() 
+    {
+        StartCoroutine(PlayTutoringSequence(wavNoSpace));
+    }
+
     public void ChooseBetween(string buttonName)
     {
         lastButtonClicked = buttonName;
@@ -450,7 +455,6 @@ public class StartupTutorial : MonoBehaviour
             {
                 CheckerManager.Instance.MakeIsland(idOKDictionary[colorToCheck]-1);
                 CheckerManager.Instance.readyToExitPresentationMode = true;
-                owlIsSpeaking = false;
                 FinishTutoring();
                 yield break;
             }
@@ -461,7 +465,6 @@ public class StartupTutorial : MonoBehaviour
                 if(lastButtonClicked.Equals(wa.correctAnswer))
                 {
                     CheckerManager.Instance.readyToExitPresentationMode = true;
-                    owlIsSpeaking = false;
                     FinishTutoring();
                     CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
                     yield break;

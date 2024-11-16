@@ -643,16 +643,25 @@ public class CheckerManager : Singleton<CheckerManager>
             CreateStaticCube("GreenCube", 7, 5, false);
         } else if (id == 1)
         {
-            Debug.Log("Create an island of YELLOWS-->");
             CreateStaticCube("YellowCube", 6, 2, false);
             CreateStaticCube("YellowCube", 7, 2, false);
         } else if (id == 2)
         {
-            Debug.Log("Create an island of ORANGES-->");
-            CreateStaticCube("OrangeCube", 4, 6, false);
-            CreateStaticCube("OrangeCube", 4, 5, false);
-            CreateStaticCube("OrangeCube", 5, 6, false);
-            CreateStaticCube("OrangeCube", 5, 5, false);
+            if (checkkerArray[5, 5] != 0 || checkkerArray[5, 6] != 0 || checkkerArray[4, 5] != 0 || checkkerArray[4, 6] != 0)
+            {
+                readyToExitPresentationMode = true;
+                // startupTutorial.FinishTutoring();
+                StopAllCoroutines();
+                startupTutorial.NoSpace();
+            }
+            else
+            {
+                CreateStaticCube("OrangeCube", 4, 6, false);
+                CreateStaticCube("OrangeCube", 4, 5, false);
+                CreateStaticCube("OrangeCube", 5, 6, false);
+                CreateStaticCube("OrangeCube", 5, 5, false);
+            }
+            
         }
     }
 
