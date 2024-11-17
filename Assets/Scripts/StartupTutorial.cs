@@ -710,6 +710,9 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("owl4"))
                 CheckerManager.Instance.MakeAllCubesInteractable(false, "all");    
+            
+            if(wa.audioname.Equals("owl11"))
+                CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
 
             if (wa.finishTutoring)
                 CheckerManager.Instance.readyToExitPresentationMode = wa.finishTutoring;
@@ -822,6 +825,7 @@ public class StartupTutorial : MonoBehaviour
     void StartGame()
     {
         CheckerManager.Instance.constructionModeOnOff.text = "on";
+        CheckerManager.Instance.timeToChangeModeForTutorial = true;
         CheckerManager.Instance.inSequence = false;
         ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
@@ -829,6 +833,7 @@ public class StartupTutorial : MonoBehaviour
         isTutorial = false;
         CheckerManager.Instance.isActive = true;
         owlCollider.enabled = true;
+
         // CheckerManager.Instance.constructionModeOnOff.text = "on";
         
         foreach (GameObject gs in ListToHide)

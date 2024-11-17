@@ -1022,7 +1022,7 @@ public class CheckerManager : Singleton<CheckerManager>
         
         //Switch to and from zoom mode
         if (OVRInput.GetDown(OVRInput.Button.One) && !isExitViewModeOn
-             && activeCubeIndex == -1)
+             && activeCubeIndex == -1 && view_mode_ == ViewModes.CUBE_INTERACTION)
         {
             if (isZoomOutViewMode)
             {
