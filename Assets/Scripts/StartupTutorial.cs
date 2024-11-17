@@ -68,6 +68,7 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> orangeWavList = new List<Wavs>();
 
     public GameObject[] listWithObjectsForTutorial;
+    public GameObject skipButton;
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     public List<GameObject> controllerButtons = new List<GameObject>();
@@ -183,7 +184,6 @@ public class StartupTutorial : MonoBehaviour
             {"TriggerLeft", controllerButtons[2]},
             {"Y", controllerButtons[3]}
         };
-
         wavLists = new Dictionary<string, List<Wavs>> 
         {
             {"Blue", blueWavList},
@@ -222,6 +222,22 @@ public class StartupTutorial : MonoBehaviour
         rightRay.SetActive(activate);
     }
 
+    public void Skip()
+    {
+        AudioManager.Instance.ResetSound();
+        StopAllCoroutines();
+        owlAnimator.PauseAnimation();
+        FinishTutoring();
+        CheckerManager.Instance.readyToExitPresentationMode = true;
+        tutoringCanvas.SetActive(false);
+        foreach (GameObject obj in particleSystems)
+        {
+            obj.SetActive(false);
+        }
+        if (isTutorial)
+            StartGame();     
+    }
+    
     //This is called afer clicking on the owl, it starts the Tutorial sequence
     public void StartPlayingTheSounds()
     {
@@ -248,18 +264,7 @@ public class StartupTutorial : MonoBehaviour
         //Press 'Y' to skip intro & other tutorials.
         if (OVRInput.GetDown(OVRInput.Button.Four))
         {
-            AudioManager.Instance.ResetSound();
-            StopAllCoroutines();
-            owlAnimator.PauseAnimation();
-            FinishTutoring();
-            CheckerManager.Instance.readyToExitPresentationMode = true;
-            tutoringCanvas.SetActive(false);
-            foreach (GameObject obj in particleSystems)
-            {
-                obj.SetActive(false);
-            }
-            if (isTutorial)
-                StartGame();            
+            Skip();       
         }
     }
 
@@ -418,6 +423,15 @@ public class StartupTutorial : MonoBehaviour
             if (owlAnimator && !wa.audioname.StartsWith("noaudio"))
                 owlAnimator.PlayAnimation();
 
+            if (wa.audioname.Equals("general1"))
+            {
+                lastQuestionObjects.SetActive(false);
+                image.sprite = null;
+                tutorText.text = string.Empty;
+                skipButton.SetActive(true);
+            }
+                
+
             //Wait duration of sound
             yield return new WaitForSeconds(wa.duration);
 
@@ -450,7 +464,7 @@ public class StartupTutorial : MonoBehaviour
             }
 
             mainPanel.SetActive(false);
-
+            
             if (wa.audioname.StartsWith("final_no"))
                 // || (wa.audioname.Equals("general1") && lastButtonClicked.Equals(wa.correctAnswer)))
             {
@@ -543,7 +557,7 @@ public class StartupTutorial : MonoBehaviour
             for (int i=0; i < animationArray.Length; i++)
             {
                 string anim = animationArray[i];
-                // Debug.Log("buttonDictionary.ContainsKey --> " + buttonDictionary.ContainsKey(anim));
+                // Debug.Log("buttonDictionary.ContainsKey --> " + buttonDictionary[anim] + "--hasAnimation --> " + hasAnimations);
                 if (buttonDictionary.ContainsKey(anim))
                     buttonDictionary[anim].SetActive(hasAnimations);           
             }
