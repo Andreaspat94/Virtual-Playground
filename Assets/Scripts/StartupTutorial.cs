@@ -230,6 +230,7 @@ public class StartupTutorial : MonoBehaviour
         FinishTutoring();
         CheckerManager.Instance.readyToExitPresentationMode = true;
         tutoringCanvas.SetActive(false);
+        CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
         foreach (GameObject obj in particleSystems)
         {
             obj.SetActive(false);
