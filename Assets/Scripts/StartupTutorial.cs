@@ -252,6 +252,7 @@ public class StartupTutorial : MonoBehaviour
             StopAllCoroutines();
             owlAnimator.PauseAnimation();
             FinishTutoring();
+            CheckerManager.Instance.readyToExitPresentationMode = true;
             tutoringCanvas.SetActive(false);
             foreach (GameObject obj in particleSystems)
             {
@@ -826,6 +827,7 @@ public class StartupTutorial : MonoBehaviour
     {
         CheckerManager.Instance.constructionModeOnOff.text = "on";
         CheckerManager.Instance.timeToChangeModeForTutorial = true;
+        CheckerManager.Instance.readyToExitPresentationMode = false;
         CheckerManager.Instance.inSequence = false;
         ActivateTalkingBirds(true);
         ActivateRayInteractors(true);
