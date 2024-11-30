@@ -68,7 +68,7 @@ public class StartupTutorial : MonoBehaviour
     public List<Wavs> orangeWavList = new List<Wavs>();
 
     public GameObject[] listWithObjectsForTutorial;
-    public GameObject skipButton;
+    public GameObject skipButton = null;
     [HideInInspector]
     Dictionary<string, List<Wavs>> tutoringWavs = new Dictionary<string, List<Wavs>>();
     public List<GameObject> controllerButtons = new List<GameObject>();
@@ -225,12 +225,14 @@ public class StartupTutorial : MonoBehaviour
     public void Skip()
     {
         AudioManager.Instance.ResetSound();
+        ActivateRayInteractors(true);
         StopAllCoroutines();
         owlAnimator.PauseAnimation();
         FinishTutoring();
         CheckerManager.Instance.readyToExitPresentationMode = true;
         tutoringCanvas.SetActive(false);
-        CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
+        if (activeScene.Equals("Passive"))
+            CheckerManager.Instance.MakeAllCubesInteractable(true, "all");
         foreach (GameObject obj in particleSystems)
         {
             obj.SetActive(false);
@@ -426,10 +428,13 @@ public class StartupTutorial : MonoBehaviour
 
             if (wa.audioname.Equals("general1"))
             {
-                lastQuestionObjects.SetActive(false);
-                image.sprite = null;
-                tutorText.text = string.Empty;
+                // lastQuestionObjects.SetActive(false);
+                // tutorText.text = string.Empty;
                 skipButton.SetActive(true);
+            }
+            else
+            {
+                skipButton.SetActive(false);
             }
                 
 
@@ -491,7 +496,11 @@ public class StartupTutorial : MonoBehaviour
                     CheckerManager.Instance.CheckIfOK();
                     yield return new WaitForSeconds(1f);
                     if (allOK)
+                    {
+                        tutoringCanvas.SetActive(false);
                         yield break;
+                    }
+                        
 
                     int id = idOKDictionary[colorToCheck];
                     bool badNeighbors = CheckerManager.Instance.bad_neighbors_color[id];
@@ -622,7 +631,7 @@ public class StartupTutorial : MonoBehaviour
             yield return new WaitForSeconds(1f);
             if (allOK)
             {
-                mainPanel.SetActive(false);
+                tutoringCanvas.SetActive(false);
                 yield break;
             }
                 

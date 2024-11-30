@@ -11,8 +11,6 @@
 [Mm]emoryCaptures/
 sysinfo.txt
 *.stackdump
-vp_final_BackUpThisFolder*
-vp_apk_BackUpThisFolder*
  
 # ============================================= #
 # Visual Studio / MonoDevelop / Rider generated #
