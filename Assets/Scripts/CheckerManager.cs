@@ -1033,6 +1033,16 @@ public class CheckerManager : Singleton<CheckerManager>
                 ZoomOut();
             }
         }
+
+        if (view_mode_ == ViewModes.CUBE_INTERACTION)
+        {
+            RenderSettings.fog = true;
+        } 
+        else
+        {
+            RenderSettings.fog = false;
+        }
+
         
         // Enable owl collider if possible.
         // if (canChangeViewMode && !isZoomOutViewMode &&
